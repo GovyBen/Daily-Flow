@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Brain</string>
+    <string name="app_name">Daily Flow</string>
 
     <string name="reminders_channel_description">Notification channel for sending tasks reminders notification</string>
     <string name="reminders_channel_name">Reminders</string>
@@ -23,7 +23,7 @@
     <string name="bookmarks">Bookmarks</string>
     <string name="calendar">Calendar</string>
     <string name="add_task">Add task</string>
-    <string name="add_task_to_my_brain">Add task to My Brain</string>
+    <string name="add_task_to_my_brain">Add task to Daily Flow</string>
     <string name="search">Search</string>
     <string name="title">Title</string>
     <string name="delete_sub_task">Delete sub task</string>

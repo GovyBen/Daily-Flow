@@ -1,16 +1,22 @@
-# Contributing to My Brain
+# Contributing to Daily Flow
 
-### To contribute :
+Daily Flow follows the task sequence in `docs/CODEX_IMPLEMENTATION_PLAN.md`.
+Keep changes scoped to one `DF-` task whenever practical.
 
-- Report bugs/glitches.
-- Create new issues to give us ideas and feedback.
-- Ask questions or suggest ideas in the comments section of any issue.
-- You can also help us clean up the [issue section](https://github.com/mhss1/MyBrain/issues) by identifying duplicate issues.
+Before submitting a change:
 
-### Or if you are a developer:
+1. Preserve existing My Brain copyright and GPL notices.
+2. Record any Track & Graph source path and fixed commit in
+   `docs/UPSTREAM_PROVENANCE.md`.
+3. Do not introduce Hilt, a second database, a second network stack, closed
+   SDKs, analytics, or advertising.
+4. Add tests for behavior changes.
+5. Run:
 
-- Pick an issue or create a new one.
-- Fork the repo.
-- Create a feature branch in your fork and make your changes.
-- Keep it simple and make sure the app runs on an actual Android device and everything works as expected
-- Submit a pull request to the `dev` branch of the official [My Brain repo](https://github.com/mhss1/MyBrain/pulls) (PR to master will be rejected).
+```powershell
+.\gradlew.bat testDebugUnitTest lintDebug :app:assembleDebug
+git diff --check
+```
+
+Commit subjects should use `DF-<number> <imperative summary>`. Commit bodies
+should list reused upstream files, new code and verification commands.

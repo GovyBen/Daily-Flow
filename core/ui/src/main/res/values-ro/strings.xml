@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Brain</string>
+    <string name="app_name">Daily Flow</string>
     <string name="reminders_channel_description">Canal de notificare pentru trimiterea de notificări de reamintire a sarcinilor</string>
     <string name="reminders_channel_name">Mementouri</string>
     <string name="complete">Complet</string>

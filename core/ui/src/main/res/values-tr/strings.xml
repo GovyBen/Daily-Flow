@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Brain</string>
+    <string name="app_name">Daily Flow</string>
     <string name="reminders_channel_description">Görev hatırlatma bildirimleri için bildirim kanalı</string>
     <string name="reminders_channel_name">Hatırlatıcılar</string>
     <string name="complete">Tamamla</string>

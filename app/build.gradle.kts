@@ -13,11 +13,11 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.mhss.app.mybrain"
+        applicationId = "com.dailyflow.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 18
-        versionName = "3.1.0"
+        versionCode = 1
+        versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -37,7 +37,7 @@ android {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
             isDebuggable = true
-            resValue("string", "app_name", "MyBrain Debug")
+            resValue("string", "app_name", "Daily Flow Debug")
         }
     }
     compileOptions {

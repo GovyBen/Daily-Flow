@@ -1,7 +1,12 @@
-# My Brain Privacy Policy
+# Daily Flow Privacy Policy
 
-All data is stored locally on the device and never leaves the device to any server owned by me or any 3rd party.
+Daily Flow stores its core data locally on the device and does not include
+advertising or tracking SDKs.
 
-When using the AI assistant feature, usage data is not collected by the app. However, please check the respective AI provider's privacy policy regarding their data handling practices.
+AI features are optional. When a user explicitly invokes an AI feature,
+selected content is sent to the provider configured by that user. The app will
+show the data scope before summary requests and will require confirmation
+before AI-proposed write operations are executed.
 
-There are no ads or trackers in the app and no data is collected.
+API keys must not be included in logs, exports or backups. The first release
+will protect API keys with Android Keystore-backed encryption.

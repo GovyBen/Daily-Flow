@@ -13,7 +13,7 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-rootProject.name = "My Brain"
+rootProject.name = "Daily Flow"
 include ':app'
 include ':core:util'
 include ':core:notification'

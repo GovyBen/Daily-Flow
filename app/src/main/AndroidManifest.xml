@@ -42,12 +42,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:scheme="app" />
-                <data android:host="com.mhss.app.mybrain.task_details" />
-                <data android:host="com.mhss.app.mybrain.tasks" />
-                <data android:host="com.mhss.app.mybrain.calendar" />
-                <data android:host="com.mhss.app.mybrain.calendar_event_details" />
-                <data android:host="com.mhss.app.mybrain.notes" />
-                <data android:host="com.mhss.app.mybrain.note_details" />
+                <data android:host="com.dailyflow.app.task_details" />
+                <data android:host="com.dailyflow.app.tasks" />
+                <data android:host="com.dailyflow.app.calendar" />
+                <data android:host="com.dailyflow.app.calendar_event_details" />
+                <data android:host="com.dailyflow.app.notes" />
+                <data android:host="com.dailyflow.app.note_details" />
             </intent-filter>
 
         </activity>

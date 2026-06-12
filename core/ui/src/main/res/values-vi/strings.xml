@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Brain</string>
+    <string name="app_name">Daily Flow</string>
     <string name="reminders_channel_description">Kênh thông báo để gửi thông báo nhắc nhở nhiệm vụ</string>
     <string name="reminders_channel_name">Lời nhắc</string>
     <string name="complete">Hoàn thành</string>

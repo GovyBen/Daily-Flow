@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Brain</string>
+    <string name="app_name">Daily Flow</string>
     <string name="reminders_channel_description">Canal de notificação para enviar lembretes de tarefas</string>
     <string name="reminders_channel_name">Lembretes</string>
     <string name="complete">Concluído</string>
