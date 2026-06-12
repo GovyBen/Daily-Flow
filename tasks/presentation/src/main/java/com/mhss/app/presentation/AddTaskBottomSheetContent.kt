@@ -130,5 +130,8 @@ fun AddTaskBottomSheetContent(
 @Preview(showBackground = true)
 @Composable
 fun AddTaskSheetPreview() {
-    AddTaskBottomSheetContent(onAddTask = {}, FocusRequester())
+    AddTaskBottomSheetContent(
+        onAddTask = {},
+        focusRequester = remember { FocusRequester() }
+    )
 }

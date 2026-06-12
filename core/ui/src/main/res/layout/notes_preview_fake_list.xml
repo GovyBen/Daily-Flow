@@ -30,7 +30,7 @@
                 android:layout_height="16dp"
                 android:layout_marginEnd="6dp"
                 android:src="@drawable/ic_pin_filled"
-                android:tint="#E78A00"
+                app:tint="#E78A00"
                 tools:ignore="ContentDescription" />
 
             <TextView

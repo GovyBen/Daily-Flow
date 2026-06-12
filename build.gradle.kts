@@ -10,7 +10,18 @@ plugins {
     alias(libs.plugins.kotlin.compose.compiler) apply false
 }
 
+val externalBuildRoot = providers.gradleProperty("dailyFlow.buildRoot").orNull
+
+externalBuildRoot?.let { root ->
+    layout.buildDirectory.set(file("$root/root"))
+}
+
 subprojects {
+    externalBuildRoot?.let { root ->
+        val projectDirectory = path.trim(':').replace(':', '/')
+        layout.buildDirectory.set(file("$root/$projectDirectory"))
+    }
+
     afterEvaluate {
         extensions.findByType<com.android.build.gradle.LibraryExtension>()?.apply {
             lint {

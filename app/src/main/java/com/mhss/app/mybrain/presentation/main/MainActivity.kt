@@ -36,10 +36,12 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val blockScreenshots by viewModel.blockScreenshots.collectAsState(initial = false)
             val isSystemDarkMode = isSystemInDarkTheme()
-            val isDarkMode by viewModel.themeMode
-                .map {
+            val darkModeFlow = remember(isSystemDarkMode) {
+                viewModel.themeMode.map {
                     it == ThemeSettings.DARK.value || (it == ThemeSettings.AUTO.value && isSystemDarkMode)
-                }.collectAsState(true)
+                }
+            }
+            val isDarkMode by darkModeFlow.collectAsState(true)
 
             LaunchedEffect(blockScreenshots) {
                 if (blockScreenshots) {
