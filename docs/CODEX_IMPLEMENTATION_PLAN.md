@@ -658,7 +658,7 @@ adb logcat -d
 
 #### DF-103 实现模板和 tracker Room 实体
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-101
 - 新增：第 7 节定义的 template、tracker、template field、option 实体。
 - 复用：
@@ -672,6 +672,10 @@ adb logcat -d
   - 每种 config 序列化往返。
   - 排序稳定。
   - 停用不会删除历史引用。
+- 完成记录（2026-06-13）：新增模板、tracker、模板字段和选项实体；8 种
+  `TrackerConfig` 使用 Kotlin Serialization sealed model。实体由注入式 ID
+  生成器工厂创建，JVM 测试覆盖配置往返与稳定排序，内存 Room 仪器测试覆盖
+  外键、索引及停用后引用保留。
 
 #### DF-104 实现 RecordSession 和 DataPoint 实体
 
