@@ -50,6 +50,7 @@ import com.mhss.app.presentation.TasksSearchScreen
 import com.mhss.app.presentation.backup.ImportExportScreen
 import com.mhss.app.presentation.integrations.IntegrationsScreen
 import com.mhss.app.tracking.presentation.template.TrackingTemplateListScreen
+import com.mhss.app.tracking.presentation.template.TrackingTemplateEditorScreen
 import com.mhss.app.ui.R
 import com.mhss.app.ui.StartUpScreenSettings
 import com.mhss.app.ui.navigation.Screen
@@ -289,7 +290,26 @@ fun MyBrainApp(
                     exitTransition = { slideOutTransition() },
                 ) {
                     TrackingTemplateListScreen(
-                        onBack = navController::navigateUp
+                        onBack = navController::navigateUp,
+                        onTemplateClick = { templateId ->
+                            navController.navigate(
+                                Screen.TrackingTemplateEditorScreen(templateId)
+                            )
+                        },
+                        onCreateTemplate = {
+                            navController.navigate(Screen.TrackingTemplateEditorScreen())
+                        }
+                    )
+                }
+                composable<Screen.TrackingTemplateEditorScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.TrackingTemplateEditorScreen>()
+                    TrackingTemplateEditorScreen(
+                        templateId = args.templateId,
+                        onBack = navController::navigateUp,
+                        onSaved = { navController.navigateUp() }
                     )
                 }
                 composable<Screen.CalendarScreen>(

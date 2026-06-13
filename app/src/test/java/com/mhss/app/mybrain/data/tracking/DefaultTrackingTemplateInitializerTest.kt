@@ -115,6 +115,17 @@ private class FakeTrackingRepository(
         nowEpochMilli: Long
     ) = error("Not used")
 
+    override suspend fun setTemplatePinned(
+        templateId: String,
+        isPinned: Boolean,
+        nowEpochMilli: Long
+    ) = error("Not used")
+
+    override suspend fun deactivateTemplate(
+        templateId: String,
+        nowEpochMilli: Long
+    ) = error("Not used")
+
     override suspend fun saveRecordSession(
         command: RecordSessionCommand,
         nowEpochMilli: Long

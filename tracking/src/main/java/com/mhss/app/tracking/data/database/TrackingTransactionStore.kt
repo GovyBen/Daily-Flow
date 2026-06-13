@@ -40,7 +40,9 @@ class TrackingTransactionStore(
         template: RecordTemplateEntity,
         trackers: List<TrackerEntity>,
         options: List<TrackerOptionEntity>,
-        fields: List<TemplateFieldEntity>
+        fields: List<TemplateFieldEntity>,
+        trackerIdsToDeactivate: List<String> = emptyList(),
+        optionIdsToDeactivate: List<String> = emptyList()
     ) {
         require(fields.all { it.templateId == template.id }) {
             "Every field must reference the template being saved"
@@ -51,6 +53,15 @@ class TrackingTransactionStore(
             templateDao.upsertTemplate(template)
             templateDao.deleteFields(template.id)
             templateDao.upsertFields(fields)
+            if (trackerIdsToDeactivate.isNotEmpty()) {
+                trackerDao.deactivateTrackers(
+                    trackerIdsToDeactivate,
+                    template.updatedAtEpochMilli
+                )
+            }
+            if (optionIdsToDeactivate.isNotEmpty()) {
+                trackerDao.deactivateOptions(optionIdsToDeactivate)
+            }
         }
     }
 

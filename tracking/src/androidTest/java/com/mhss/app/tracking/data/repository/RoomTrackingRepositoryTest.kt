@@ -11,6 +11,7 @@ import com.mhss.app.tracking.domain.id.TrackingIdGenerator
 import com.mhss.app.tracking.domain.defaults.DefaultTrackingTemplates
 import com.mhss.app.tracking.domain.model.MultiSelectConfig
 import com.mhss.app.tracking.domain.model.RecordSessionCommand
+import com.mhss.app.tracking.domain.model.ScaleConfig
 import com.mhss.app.tracking.domain.model.TextConfig
 import com.mhss.app.tracking.domain.model.TrackingFieldDraft
 import com.mhss.app.tracking.domain.model.TrackingFieldValue
@@ -206,6 +207,55 @@ class RoomTrackingRepositoryTest {
 
         assertTrue(failed)
         assertTrue(database.sessionDao().getSessionsInRange(templateId, 0, 2_000).isEmpty())
+    }
+
+    @Test
+    fun recordedTrackerRejectsTypeChangeAndRemovedFieldIsDeactivated() = runBlocking {
+        val templateId = repository.createTemplate(templateDraft("Health"), 1_000)
+        val template = repository.observeTemplates().first().single()
+        val selectField = template.fields.first()
+        val textField = template.fields.last()
+        val chest = selectField.tracker.options.first()
+
+        repository.saveRecordSession(
+            command(
+                templateId = templateId,
+                selectFieldId = selectField.id!!,
+                textFieldId = textField.id!!,
+                selectedOptions = setOf(chest.id!!),
+                note = "Recorded"
+            ),
+            nowEpochMilli = 2_000
+        )
+
+        val changedType = selectField.copy(
+            tracker = selectField.tracker.copy(config = ScaleConfig())
+        )
+        assertTrue(
+            runCatching {
+                repository.updateTemplate(
+                    templateId,
+                    template.toDraft().copy(fields = listOf(changedType, textField)),
+                    3_000
+                )
+            }.exceptionOrNull() is IncompatibleTrackerTypeChangeException
+        )
+
+        repository.updateTemplate(
+            templateId,
+            template.toDraft().copy(fields = listOf(textField)),
+            4_000
+        )
+
+        assertEquals(false, database.trackerDao().getTracker(selectField.trackerId!!)?.isActive)
+        assertTrue(
+            database.trackerDao().getOptions(selectField.trackerId).all { !it.isActive }
+        )
+        assertEquals(
+            listOf(textField.id),
+            database.templateDao().getFields(templateId).map { it.id }
+        )
+        assertTrue(repository.observeTemplates().first().single().fields.single().hasRecordedData)
     }
 
     @Test

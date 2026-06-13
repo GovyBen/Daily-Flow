@@ -83,6 +83,7 @@ fun trackingTemplateDeactivateTag(id: String) = "tracking-template-deactivate-$i
 fun TrackingTemplateListScreen(
     onBack: () -> Unit,
     onTemplateClick: (String) -> Unit = {},
+    onCreateTemplate: (() -> Unit)? = null,
     viewModel: TrackingTemplateListViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -106,6 +107,7 @@ fun TrackingTemplateListScreen(
         snackbarHostState = snackbarHostState,
         onBack = onBack,
         onTemplateClick = onTemplateClick,
+        onCreateTemplate = onCreateTemplate,
         onCreate = viewModel::create,
         onPin = viewModel::togglePinned,
         onDuplicate = viewModel::duplicate,
@@ -122,6 +124,7 @@ fun TrackingTemplateListContent(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBack: () -> Unit = {},
     onTemplateClick: (String) -> Unit = {},
+    onCreateTemplate: (() -> Unit)? = null,
     onCreate: (String) -> Unit = {},
     onPin: (TrackingTemplateSummary) -> Unit = {},
     onDuplicate: (String) -> Unit = {},
@@ -152,7 +155,13 @@ fun TrackingTemplateListContent(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showCreateDialog = true },
+                onClick = {
+                    if (onCreateTemplate != null) {
+                        onCreateTemplate()
+                    } else {
+                        showCreateDialog = true
+                    }
+                },
                 modifier = Modifier.testTag(TRACKING_TEMPLATE_CREATE_TAG)
             ) {
                 Icon(

@@ -58,4 +58,16 @@ interface TrackingTrackerDao {
 
     @Query("UPDATE tracking_tracker_options SET is_active = 0 WHERE id = :id")
     suspend fun deactivateOption(id: String): Int
+
+    @Query(
+        """
+        UPDATE tracking_trackers
+        SET is_active = 0, updated_at_epoch_milli = :updatedAtEpochMilli
+        WHERE id IN (:ids)
+        """
+    )
+    suspend fun deactivateTrackers(ids: List<String>, updatedAtEpochMilli: Long): Int
+
+    @Query("UPDATE tracking_tracker_options SET is_active = 0 WHERE id IN (:ids)")
+    suspend fun deactivateOptions(ids: List<String>): Int
 }

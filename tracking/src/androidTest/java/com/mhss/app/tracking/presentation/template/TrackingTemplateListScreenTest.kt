@@ -42,6 +42,23 @@ class TrackingTemplateListScreenTest {
     }
 
     @Test
+    fun createCallbackBypassesTheQuickCreateDialog() = runComposeUiTest {
+        var createRequested = false
+        setContent {
+            MaterialTheme {
+                TrackingTemplateListContent(
+                    state = TrackingTemplateListUiState(),
+                    onCreateTemplate = { createRequested = true }
+                )
+            }
+        }
+
+        onNodeWithTag(TRACKING_TEMPLATE_CREATE_TAG).performClick()
+
+        assertEquals(true, createRequested)
+    }
+
+    @Test
     fun templateMenuEmitsPinAndDuplicateActions() = runComposeUiTest {
         val template = template(id = "health", name = "Health")
         var pinnedId: String? = null

@@ -1,7 +1,9 @@
 package com.mhss.app.tracking.domain.model
 
 import com.mhss.app.tracking.domain.validation.TrackerInputValue
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TrackingTemplateDraft(
     val id: String? = null,
     val name: String,
@@ -12,6 +14,7 @@ data class TrackingTemplateDraft(
     val fields: List<TrackingFieldDraft>
 )
 
+@Serializable
 data class TrackingFieldDraft(
     val id: String? = null,
     val trackerId: String? = null,
@@ -19,9 +22,11 @@ data class TrackingFieldDraft(
     val displayOrder: Int,
     val required: Boolean = false,
     val displayNameOverride: String? = null,
-    val defaultValueJson: String? = null
+    val defaultValueJson: String? = null,
+    val hasRecordedData: Boolean = false
 )
 
+@Serializable
 data class TrackingTrackerDraft(
     val id: String? = null,
     val name: String,
@@ -30,6 +35,7 @@ data class TrackingTrackerDraft(
     val options: List<TrackingOptionDraft> = emptyList()
 )
 
+@Serializable
 data class TrackingOptionDraft(
     val id: String? = null,
     val label: String,

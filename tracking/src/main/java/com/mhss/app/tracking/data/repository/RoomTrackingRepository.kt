@@ -28,6 +28,7 @@ import com.mhss.app.tracking.domain.model.TrackingTrackerDraft
 import com.mhss.app.tracking.domain.model.TrackerType
 import com.mhss.app.tracking.domain.repository.TrackingRepository
 import com.mhss.app.tracking.domain.validation.TrackerInputValue
+import com.mhss.app.tracking.domain.validation.TrackingTemplateDraftValidator
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -95,6 +96,7 @@ class RoomTrackingRepository(
                 field.copy(
                     id = null,
                     trackerId = null,
+                    hasRecordedData = false,
                     tracker = field.tracker.copy(
                         options = field.tracker.options.map { it.copy(id = null) }
                     )
@@ -258,7 +260,7 @@ class RoomTrackingRepository(
         draft: TrackingTemplateDraft,
         nowEpochMilli: Long
     ): String {
-        require(draft.name.isNotBlank()) { "Template name must not be blank" }
+        TrackingTemplateDraftValidator.requireValid(draft)
         val currentTemplate = templateId?.let { templateDao.getTemplate(it) }
         val allowNewStableIds = currentTemplate == null && draft.id != null
         val template = RecordTemplateEntity(
@@ -274,6 +276,8 @@ class RoomTrackingRepository(
             updatedAtEpochMilli = nowEpochMilli
         )
 
+        val currentFields = templateId?.let { templateDao.getFields(it) }.orEmpty()
+        val currentTrackerIds = currentFields.map(TemplateFieldEntity::trackerId).toSet()
         val trackers = mutableListOf<TrackerEntity>()
         val options = mutableListOf<TrackerOptionEntity>()
         val fields = draft.fields.map { field ->
@@ -293,7 +297,31 @@ class RoomTrackingRepository(
             )
         }
 
-        transactionStore.replaceTemplateAggregate(template, trackers, options, fields)
+        val savedTrackerIds = trackers.map(TrackerEntity::id).toSet()
+        val trackerIdsToDeactivate = (currentTrackerIds - savedTrackerIds).toList()
+        val optionIdsToDeactivate = buildList {
+            trackerIdsToDeactivate.forEach { trackerId ->
+                addAll(trackerDao.getOptions(trackerId).map(TrackerOptionEntity::id))
+            }
+            trackers.forEach { tracker ->
+                val savedOptionIds = options
+                    .filter { it.trackerId == tracker.id }
+                    .map(TrackerOptionEntity::id)
+                    .toSet()
+                val currentOptionIds = trackerDao.getOptions(tracker.id)
+                    .map(TrackerOptionEntity::id)
+                    .toSet()
+                addAll(currentOptionIds - savedOptionIds)
+            }
+        }
+        transactionStore.replaceTemplateAggregate(
+            template = template,
+            trackers = trackers,
+            options = options,
+            fields = fields,
+            trackerIdsToDeactivate = trackerIdsToDeactivate,
+            optionIdsToDeactivate = optionIdsToDeactivate
+        )
         return template.id
     }
 
@@ -307,6 +335,13 @@ class RoomTrackingRepository(
             tracker.id == trackerId
         if (trackerId != null && !createsStableTracker) {
             checkNotNull(current) { "Cannot reference a tracker that does not exist" }
+        }
+        if (
+            current != null &&
+            current.type != tracker.config.trackerType.name &&
+            dataPointDao.hasDataPoints(current.id)
+        ) {
+            throw IncompatibleTrackerTypeChangeException(current.id)
         }
         return TrackerEntity(
             id = trackerId ?: tracker.id ?: idGenerator.newId(),
@@ -359,7 +394,8 @@ class RoomTrackingRepository(
                 displayOrder = field.displayOrder,
                 required = field.required,
                 displayNameOverride = field.displayNameOverride,
-                defaultValueJson = field.defaultValueJson
+                defaultValueJson = field.defaultValueJson,
+                hasRecordedData = dataPointDao.hasDataPoints(tracker.id)
             )
         }
         return TrackingTemplateDraft(
@@ -420,6 +456,10 @@ class RoomTrackingRepository(
         TrackerType.TEXT -> TrackerInputValue.Text("")
     }
 }
+
+class IncompatibleTrackerTypeChangeException(
+    trackerId: String
+) : IllegalStateException("Tracker $trackerId has history and cannot change type")
 
 private fun RecordTemplateEntity.toSummary(
     fields: List<TrackingFieldDraft>,

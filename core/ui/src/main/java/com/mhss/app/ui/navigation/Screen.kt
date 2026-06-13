@@ -17,6 +17,11 @@ sealed class Screen {
     data object TrackingTemplatesScreen : Screen()
 
     @Serializable
+    data class TrackingTemplateEditorScreen(
+        val templateId: String? = null
+    ) : Screen()
+
+    @Serializable
     data object DashboardScreen : Screen()
 
     @Serializable

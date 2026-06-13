@@ -63,6 +63,17 @@ interface TrackingDataPointDao {
         limit: Int
     ): List<DataPointEntity>
 
+    @Query(
+        """
+        SELECT EXISTS(
+            SELECT 1 FROM tracking_data_points
+            WHERE tracker_id = :trackerId
+            LIMIT 1
+        )
+        """
+    )
+    suspend fun hasDataPoints(trackerId: String): Boolean
+
     @Insert
     suspend fun insertDataPoints(points: List<DataPointEntity>)
 
