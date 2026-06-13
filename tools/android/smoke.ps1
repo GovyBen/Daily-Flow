@@ -50,6 +50,8 @@ function Invoke-Native {
 if (-not $SkipBuild) {
     Invoke-Native -Stage "build" -FilePath $gradle -Arguments @(
         "-PdailyFlow.buildRoot=$buildRootPath",
+        "--no-daemon",
+        "--console=plain",
         ":app:assembleDebug"
     )
 }
