@@ -10,7 +10,9 @@ import com.mhss.app.tracking.data.serialization.TrackerConfigJson
 import com.mhss.app.tracking.domain.id.TrackingIdGenerator
 import com.mhss.app.tracking.domain.model.RecordSource
 import com.mhss.app.tracking.domain.model.TrackerConfig
+import org.koin.core.annotation.Factory
 
+@Factory
 class TrackingEntityFactory(
     private val idGenerator: TrackingIdGenerator
 ) {

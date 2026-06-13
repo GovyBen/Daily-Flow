@@ -5,7 +5,9 @@ import com.mhss.app.tracking.data.database.entity.TrackerOptionEntity
 import com.mhss.app.tracking.data.factory.TrackingEntityFactory
 import com.mhss.app.tracking.domain.validation.TrackerInputValue
 import com.mhss.app.tracking.domain.validation.TrackerValueValidator
+import org.koin.core.annotation.Factory
 
+@Factory
 class TrackerValueMapper(
     private val entityFactory: TrackingEntityFactory
 ) {

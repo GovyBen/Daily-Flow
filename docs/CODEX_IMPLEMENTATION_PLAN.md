@@ -756,7 +756,7 @@ adb logcat -d
 
 #### DF-108 实现 tracking repository 和 use cases
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-105、DF-107
 - 用例：
   - CreateTemplate
@@ -771,6 +771,10 @@ adb logcat -d
   - GetSuggestedValues
 - 复用：My Brain repository/use-case 风格；不创建第二套 Result 包装。
 - 验收：presentation 层不接触 DAO。
+- 完成记录（2026-06-13）：新增 domain-facing `TrackingRepository`、完整模板
+  draft/历史/建议值模型及十个薄 use case。Room repository 统一处理 ID、模板
+  聚合事务、字段输入映射、历史 Flow 和建议值去重；仪器测试覆盖模板生命周期、
+  记录保存/编辑/删除和 required 失败不落库。
 
 #### DF-109 建立数据库迁移和 schema 导出
 

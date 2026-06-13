@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.mhss.app.tracking.data.database.entity.TrackerEntity
 import com.mhss.app.tracking.data.database.entity.TrackerOptionEntity
 
@@ -22,6 +23,15 @@ interface TrackingTrackerDao {
     )
     suspend fun getActiveOptions(trackerId: String): List<TrackerOptionEntity>
 
+    @Query(
+        """
+        SELECT * FROM tracking_tracker_options
+        WHERE tracker_id = :trackerId
+        ORDER BY display_order, id
+        """
+    )
+    suspend fun getOptions(trackerId: String): List<TrackerOptionEntity>
+
     @Insert
     suspend fun insertTracker(tracker: TrackerEntity)
 
@@ -30,6 +40,12 @@ interface TrackingTrackerDao {
 
     @Update
     suspend fun updateTracker(tracker: TrackerEntity)
+
+    @Upsert
+    suspend fun upsertTrackers(trackers: List<TrackerEntity>)
+
+    @Upsert
+    suspend fun upsertOptions(options: List<TrackerOptionEntity>)
 
     @Query(
         """

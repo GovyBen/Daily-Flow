@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.mhss.app.tracking.data.database.entity.RecordTemplateEntity
 import com.mhss.app.tracking.data.database.entity.TemplateFieldEntity
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,9 @@ interface TrackingTemplateDao {
     )
     suspend fun getFields(templateId: String): List<TemplateFieldEntity>
 
+    @Query("DELETE FROM tracking_template_fields WHERE template_id = :templateId")
+    suspend fun deleteFields(templateId: String): Int
+
     @Insert
     suspend fun insertTemplate(template: RecordTemplateEntity)
 
@@ -40,6 +44,12 @@ interface TrackingTemplateDao {
 
     @Update
     suspend fun updateTemplate(template: RecordTemplateEntity)
+
+    @Upsert
+    suspend fun upsertTemplate(template: RecordTemplateEntity)
+
+    @Upsert
+    suspend fun upsertFields(fields: List<TemplateFieldEntity>)
 
     @Query(
         """

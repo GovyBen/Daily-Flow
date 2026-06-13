@@ -10,7 +10,11 @@ import com.mhss.app.tracking.data.database.entity.DataPointEntity
 import com.mhss.app.tracking.data.database.entity.RecordSessionEntity
 import com.mhss.app.tracking.data.database.entity.RecordTemplateEntity
 import com.mhss.app.tracking.data.database.entity.TemplateFieldEntity
+import com.mhss.app.tracking.data.database.entity.TrackerEntity
+import com.mhss.app.tracking.data.database.entity.TrackerOptionEntity
+import org.koin.core.annotation.Factory
 
+@Factory
 class TrackingTransactionStore(
     private val database: RoomDatabase,
     private val templateDao: TrackingTemplateDao,
@@ -29,6 +33,32 @@ class TrackingTransactionStore(
         database.withTransaction {
             templateDao.insertTemplate(template)
             templateDao.insertFields(fields)
+        }
+    }
+
+    suspend fun replaceTemplateAggregate(
+        template: RecordTemplateEntity,
+        trackers: List<TrackerEntity>,
+        options: List<TrackerOptionEntity>,
+        fields: List<TemplateFieldEntity>
+    ) {
+        require(fields.all { it.templateId == template.id }) {
+            "Every field must reference the template being saved"
+        }
+        database.withTransaction {
+            trackerDao.upsertTrackers(trackers)
+            trackerDao.upsertOptions(options)
+            templateDao.upsertTemplate(template)
+            templateDao.deleteFields(template.id)
+            templateDao.upsertFields(fields)
+        }
+    }
+
+    suspend fun reorderTemplates(templates: List<RecordTemplateEntity>) {
+        database.withTransaction {
+            for (template in templates) {
+                templateDao.updateTemplate(template)
+            }
         }
     }
 
