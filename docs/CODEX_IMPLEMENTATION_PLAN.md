@@ -697,7 +697,7 @@ adb logcat -d
 
 #### DF-105 实现 DAO 和事务边界
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-104
 - DAO：
   - Template DAO
@@ -713,6 +713,9 @@ adb logcat -d
   - 任一点失败时整次保存回滚。
   - 编辑不留下孤立 point。
   - 时间范围查询边界正确。
+- 完成记录（2026-06-13）：新增模板、tracker、session 和 data point DAO，
+  并以 `TrackingTransactionStore` 统一跨 DAO 事务。Room 仪器测试覆盖模板与
+  session 保存回滚、编辑替换 points、半开时间范围查询和停用后历史引用保留。
 
 #### DF-106 实现八类字段验证器
 

@@ -7,6 +7,10 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.mhss.app.tracking.data.database.dao.TrackingDataPointDao
+import com.mhss.app.tracking.data.database.dao.TrackingSessionDao
+import com.mhss.app.tracking.data.database.dao.TrackingTemplateDao
+import com.mhss.app.tracking.data.database.dao.TrackingTrackerDao
 import com.mhss.app.tracking.data.database.entity.DataPointEntity
 import com.mhss.app.tracking.data.database.entity.RecordSessionEntity
 import com.mhss.app.tracking.data.database.entity.RecordTemplateEntity
@@ -247,4 +251,9 @@ private fun SupportSQLiteDatabase.rowCount(table: String): Int {
     exportSchema = false
 )
 @TypeConverters(TrackingDatabaseConverters::class)
-abstract class TrackingSchemaTestDatabase : RoomDatabase()
+abstract class TrackingSchemaTestDatabase : RoomDatabase() {
+    abstract fun templateDao(): TrackingTemplateDao
+    abstract fun trackerDao(): TrackingTrackerDao
+    abstract fun sessionDao(): TrackingSessionDao
+    abstract fun dataPointDao(): TrackingDataPointDao
+}
