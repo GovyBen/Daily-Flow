@@ -115,4 +115,24 @@
     <string name="tracking_record_session_id">会话 ID：%1$s</string>
     <string name="tracking_record_another">再记一条</string>
     <string name="tracking_done">完成</string>
+    <string name="tracking_history_title">记录历史</string>
+    <string name="tracking_history">历史记录</string>
+    <string name="tracking_history_no_template">没有可用模板</string>
+    <string name="tracking_history_previous_day">前一天</string>
+    <string name="tracking_history_next_day">后一天</string>
+    <string name="tracking_history_empty">当天没有记录。</string>
+    <string name="tracking_history_archived_field">已归档字段</string>
+    <string name="tracking_history_not_recorded">未记录</string>
+    <string name="tracking_history_session_note_value">本次备注：%1$s</string>
+    <string name="tracking_edit">编辑</string>
+    <string name="tracking_delete">删除</string>
+    <string name="tracking_history_delete_title">删除这条记录？</string>
+    <string name="tracking_history_delete_message">将删除整个记录会话及其全部字段值。</string>
+    <string name="tracking_history_delete_pending">记录已删除。</string>
+    <string name="tracking_undo">撤销</string>
+    <string name="tracking_history_updated">记录已更新。</string>
+    <string name="tracking_history_deleted">记录已永久删除。</string>
+    <string name="tracking_history_operation_failed">无法更新记录历史。</string>
+    <string name="tracking_history_edit_title">编辑记录</string>
+    <string name="tracking_history_archived_preserved">保存时会原样保留已归档字段。</string>
 </resources>

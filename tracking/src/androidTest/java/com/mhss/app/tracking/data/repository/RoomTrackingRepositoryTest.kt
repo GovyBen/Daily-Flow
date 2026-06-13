@@ -259,6 +259,53 @@ class RoomTrackingRepositoryTest {
     }
 
     @Test
+    fun updatingSessionPreservesPointsFromRemovedFields() = runBlocking {
+        val templateId = repository.createTemplate(templateDraft("Health"), 1_000)
+        val template = repository.observeTemplates().first().single()
+        val selectField = template.fields.first()
+        val textField = template.fields.last()
+        val chest = selectField.tracker.options.first()
+        val sessionId = repository.saveRecordSession(
+            command(
+                templateId = templateId,
+                selectFieldId = selectField.id!!,
+                textFieldId = textField.id!!,
+                selectedOptions = setOf(chest.id!!),
+                note = "Before"
+            ),
+            nowEpochMilli = 2_000
+        )
+        repository.updateTemplate(
+            templateId,
+            template.toDraft().copy(fields = listOf(textField)),
+            3_000
+        )
+
+        repository.updateRecordSession(
+            RecordSessionCommand(
+                id = sessionId,
+                templateId = templateId,
+                occurredAtEpochMilli = 5_000,
+                zoneId = "Asia/Shanghai",
+                utcOffsetSeconds = 28_800,
+                values = listOf(
+                    TrackingFieldValue(
+                        checkNotNull(textField.id),
+                        TrackerInputValue.Text("After")
+                    )
+                )
+            ),
+            nowEpochMilli = 6_000
+        )
+
+        val points = database.dataPointDao().getDataPointsForSession(sessionId)
+        assertEquals(2, points.size)
+        assertEquals("Chest", points.single { it.trackerId == selectField.trackerId }.label)
+        assertEquals("After", points.single { it.trackerId == textField.trackerId }.note)
+        assertTrue(points.all { it.epochMilli == 5_000L })
+    }
+
+    @Test
     fun defaultTemplateCreationIsIdempotentAndDoesNotReactivate() = runBlocking {
         val draft = DefaultTrackingTemplates.templates.first()
 

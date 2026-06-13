@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.MoreVert
@@ -79,6 +80,7 @@ fun trackingTemplateMenuTag(id: String) = "tracking-template-menu-$id"
 fun trackingTemplatePinTag(id: String) = "tracking-template-pin-$id"
 fun trackingTemplateDuplicateTag(id: String) = "tracking-template-duplicate-$id"
 fun trackingTemplateEditTag(id: String) = "tracking-template-edit-$id"
+fun trackingTemplateHistoryTag(id: String) = "tracking-template-history-$id"
 fun trackingTemplateDeactivateTag(id: String) = "tracking-template-deactivate-$id"
 
 @Composable
@@ -86,6 +88,7 @@ fun TrackingTemplateListScreen(
     onBack: () -> Unit,
     onTemplateClick: (String) -> Unit = {},
     onEditTemplate: (String) -> Unit = {},
+    onOpenHistory: (String?) -> Unit = {},
     onCreateTemplate: (() -> Unit)? = null,
     viewModel: TrackingTemplateListViewModel = koinViewModel()
 ) {
@@ -111,6 +114,7 @@ fun TrackingTemplateListScreen(
         onBack = onBack,
         onTemplateClick = onTemplateClick,
         onEditTemplate = onEditTemplate,
+        onOpenHistory = onOpenHistory,
         onCreateTemplate = onCreateTemplate,
         onCreate = viewModel::create,
         onPin = viewModel::togglePinned,
@@ -129,6 +133,7 @@ fun TrackingTemplateListContent(
     onBack: () -> Unit = {},
     onTemplateClick: (String) -> Unit = {},
     onEditTemplate: (String) -> Unit = {},
+    onOpenHistory: (String?) -> Unit = {},
     onCreateTemplate: (() -> Unit)? = null,
     onCreate: (String) -> Unit = {},
     onPin: (TrackingTemplateSummary) -> Unit = {},
@@ -149,6 +154,14 @@ fun TrackingTemplateListContent(
                         Icon(
                             Icons.AutoMirrored.Rounded.ArrowBack,
                             contentDescription = stringResource(R.string.tracking_back)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { onOpenHistory(null) }) {
+                        Icon(
+                            Icons.Rounded.History,
+                            contentDescription = stringResource(R.string.tracking_history)
                         )
                     }
                 },
@@ -208,6 +221,7 @@ fun TrackingTemplateListContent(
                             canMoveDown = next?.isPinned == template.isPinned,
                             onClick = { onTemplateClick(template.id) },
                             onEdit = { onEditTemplate(template.id) },
+                            onHistory = { onOpenHistory(template.id) },
                             onPin = { onPin(template) },
                             onDuplicate = { onDuplicate(template.id) },
                             onMoveUp = { onMoveUp(template.id) },
@@ -276,6 +290,7 @@ private fun TrackingTemplateCard(
     canMoveDown: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
+    onHistory: () -> Unit,
     onPin: () -> Unit,
     onDuplicate: () -> Unit,
     onMoveUp: () -> Unit,
@@ -387,6 +402,15 @@ private fun TrackingTemplateCard(
                             onEdit()
                         },
                         modifier = Modifier.testTag(trackingTemplateEditTag(template.id))
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.tracking_history)) },
+                        leadingIcon = { Icon(Icons.Rounded.History, contentDescription = null) },
+                        onClick = {
+                            menuExpanded = false
+                            onHistory()
+                        },
+                        modifier = Modifier.testTag(trackingTemplateHistoryTag(template.id))
                     )
                     DropdownMenuItem(
                         text = {

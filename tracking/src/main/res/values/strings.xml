@@ -116,4 +116,24 @@
     <string name="tracking_record_session_id">Session ID: %1$s</string>
     <string name="tracking_record_another">Record another</string>
     <string name="tracking_done">Done</string>
+    <string name="tracking_history_title">Record history</string>
+    <string name="tracking_history">History</string>
+    <string name="tracking_history_no_template">No active template</string>
+    <string name="tracking_history_previous_day">Previous day</string>
+    <string name="tracking_history_next_day">Next day</string>
+    <string name="tracking_history_empty">No records for this day.</string>
+    <string name="tracking_history_archived_field">Archived field</string>
+    <string name="tracking_history_not_recorded">Not recorded</string>
+    <string name="tracking_history_session_note_value">Session note: %1$s</string>
+    <string name="tracking_edit">Edit</string>
+    <string name="tracking_delete">Delete</string>
+    <string name="tracking_history_delete_title">Delete this record?</string>
+    <string name="tracking_history_delete_message">The whole record session and all of its field values will be deleted.</string>
+    <string name="tracking_history_delete_pending">Record deleted.</string>
+    <string name="tracking_undo">Undo</string>
+    <string name="tracking_history_updated">Record updated.</string>
+    <string name="tracking_history_deleted">Record permanently deleted.</string>
+    <string name="tracking_history_operation_failed">Could not update the record history.</string>
+    <string name="tracking_history_edit_title">Edit record</string>
+    <string name="tracking_history_archived_preserved">Archived fields are preserved unchanged when this record is saved.</string>
 </resources>

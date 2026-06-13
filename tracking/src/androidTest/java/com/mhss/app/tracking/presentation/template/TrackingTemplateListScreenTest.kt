@@ -64,13 +64,15 @@ class TrackingTemplateListScreenTest {
         var pinnedId: String? = null
         var duplicatedId: String? = null
         var editedId: String? = null
+        var historyId: String? = null
         setContent {
             MaterialTheme {
                 TrackingTemplateListContent(
                     state = TrackingTemplateListUiState(listOf(template)),
                     onPin = { pinnedId = it.id },
                     onDuplicate = { duplicatedId = it },
-                    onEditTemplate = { editedId = it }
+                    onEditTemplate = { editedId = it },
+                    onOpenHistory = { historyId = it }
                 )
             }
         }
@@ -82,10 +84,13 @@ class TrackingTemplateListScreenTest {
         onNodeWithTag(trackingTemplateDuplicateTag("health")).performClick()
         onNodeWithTag(trackingTemplateMenuTag("health")).performClick()
         onNodeWithTag(trackingTemplateEditTag("health")).performClick()
+        onNodeWithTag(trackingTemplateMenuTag("health")).performClick()
+        onNodeWithTag(trackingTemplateHistoryTag("health")).performClick()
 
         assertEquals("health", pinnedId)
         assertEquals("health", duplicatedId)
         assertEquals("health", editedId)
+        assertEquals("health", historyId)
     }
 
     @Test

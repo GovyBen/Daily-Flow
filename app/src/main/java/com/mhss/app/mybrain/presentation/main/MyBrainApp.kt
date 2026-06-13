@@ -52,6 +52,7 @@ import com.mhss.app.presentation.integrations.IntegrationsScreen
 import com.mhss.app.tracking.presentation.template.TrackingTemplateListScreen
 import com.mhss.app.tracking.presentation.template.TrackingTemplateEditorScreen
 import com.mhss.app.tracking.presentation.record.TrackingQuickRecordScreen
+import com.mhss.app.tracking.presentation.history.TrackingHistoryScreen
 import com.mhss.app.ui.R
 import com.mhss.app.ui.StartUpScreenSettings
 import com.mhss.app.ui.navigation.Screen
@@ -300,6 +301,9 @@ fun MyBrainApp(
                                 Screen.TrackingTemplateEditorScreen(templateId)
                             )
                         },
+                        onOpenHistory = { templateId ->
+                            navController.navigate(Screen.TrackingHistoryScreen(templateId))
+                        },
                         onCreateTemplate = {
                             navController.navigate(Screen.TrackingTemplateEditorScreen())
                         }
@@ -323,6 +327,16 @@ fun MyBrainApp(
                     val args = it.toRoute<Screen.TrackingQuickRecordScreen>()
                     TrackingQuickRecordScreen(
                         templateId = args.templateId,
+                        onBack = navController::navigateUp
+                    )
+                }
+                composable<Screen.TrackingHistoryScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.TrackingHistoryScreen>()
+                    TrackingHistoryScreen(
+                        initialTemplateId = args.templateId,
                         onBack = navController::navigateUp
                     )
                 }

@@ -25,9 +25,8 @@ import com.mhss.app.tracking.domain.model.TrackingSuggestedValue
 import com.mhss.app.tracking.domain.model.TrackingTemplateDraft
 import com.mhss.app.tracking.domain.model.TrackingTemplateSummary
 import com.mhss.app.tracking.domain.model.TrackingTrackerDraft
-import com.mhss.app.tracking.domain.model.TrackerType
 import com.mhss.app.tracking.domain.repository.TrackingRepository
-import com.mhss.app.tracking.domain.validation.TrackerInputValue
+import com.mhss.app.tracking.domain.validation.emptyInputValue
 import com.mhss.app.tracking.domain.validation.TrackingTemplateDraftValidator
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -181,9 +180,20 @@ class RoomTrackingRepository(
             source = command.source.name,
             updatedAtEpochMilli = nowEpochMilli
         )
+        val currentTrackerIds = templateDao.getFields(command.templateId)
+            .mapTo(mutableSetOf()) { it.trackerId }
+        val archivedPoints = dataPointDao.getDataPointsForSession(sessionId)
+            .filterNot { it.trackerId in currentTrackerIds }
+            .map {
+                it.copy(
+                    epochMilli = command.occurredAtEpochMilli,
+                    utcOffsetSeconds = command.utcOffsetSeconds,
+                    updatedAtEpochMilli = nowEpochMilli
+                )
+            }
         transactionStore.updateSession(
             session,
-            mapPoints(session, command, nowEpochMilli)
+            archivedPoints + mapPoints(session, command, nowEpochMilli)
         )
     }
 
@@ -428,7 +438,7 @@ class RoomTrackingRepository(
                 "Template field references a missing tracker"
             }
             val config = TrackerConfigJson.decode(tracker.configJson)
-            val input = valuesByField[field.id]?.input ?: config.trackerType.emptyInput()
+            val input = valuesByField[field.id]?.input ?: config.trackerType.emptyInputValue()
             valueMapper.map(
                 TrackerValueMappingRequest(
                     sessionId = session.id,
@@ -445,16 +455,6 @@ class RoomTrackingRepository(
         }
     }
 
-    private fun TrackerType.emptyInput(): TrackerInputValue = when (this) {
-        TrackerType.MULTI_SELECT -> TrackerInputValue.MultiSelect(emptySet())
-        TrackerType.SINGLE_SELECT -> TrackerInputValue.SingleSelect(null)
-        TrackerType.COUNTER -> TrackerInputValue.Counter(null)
-        TrackerType.SCALE -> TrackerInputValue.Scale(null)
-        TrackerType.BOOLEAN -> TrackerInputValue.BooleanValue(null)
-        TrackerType.DURATION -> TrackerInputValue.Duration(null)
-        TrackerType.NUMBER -> TrackerInputValue.NumberValue(null)
-        TrackerType.TEXT -> TrackerInputValue.Text("")
-    }
 }
 
 class IncompatibleTrackerTypeChangeException(
