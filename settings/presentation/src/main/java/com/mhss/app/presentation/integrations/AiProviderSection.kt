@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,10 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.AiProvider
+import com.mhss.app.preferences.domain.model.AiProviderCategory
 import com.mhss.app.preferences.domain.model.PrefsKey
 import com.mhss.app.preferences.domain.model.customUrlEnabledPrefsKey
 import com.mhss.app.preferences.domain.model.customUrlPrefsKey
-import com.mhss.app.preferences.domain.model.keyPrefsKey
 import com.mhss.app.preferences.domain.model.modelPrefsKey
 import com.mhss.app.presentation.components.ExperimentalBadge
 import com.mhss.app.presentation.integrations.components.CustomURLSection
@@ -55,44 +56,20 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun AiProviderSection(
     getAiProvider: () -> Flow<AiProvider>,
+    getApiKey: (AiProvider) -> Flow<String>,
     getStringSetting: (PrefsKey<String>, String) -> Flow<String>,
     getBooleanSetting: (PrefsKey<Boolean>, Boolean) -> Flow<Boolean>,
     onEvent: (IntegrationsEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val provider by getAiProvider().collectAsStateWithLifecycle(AiProvider.None)
-    val providerOptions = listOf(
+    val providerOptions = AiProvider.selectable.map { entry ->
         ProviderOption(
-            provider = AiProvider.OpenAI,
-            label = stringResource(R.string.openai),
-            icon = painterResource(id = R.drawable.ic_openai)
-        ),
-        ProviderOption(
-            provider = AiProvider.Gemini,
-            label = stringResource(R.string.gemini),
-            icon = painterResource(id = R.drawable.ic_gemini)
-        ),
-        ProviderOption(
-            provider = AiProvider.Anthropic,
-            label = stringResource(R.string.anthropic),
-            icon = painterResource(id = R.drawable.ic_anthropic)
-        ),
-        ProviderOption(
-            provider = AiProvider.OpenRouter,
-            label = stringResource(R.string.openrouter),
-            icon = painterResource(id = R.drawable.ic_openrouter)
-        ),
-        ProviderOption(
-            provider = AiProvider.LmStudio,
-            label = stringResource(R.string.lm_studio),
-            icon = painterResource(id = R.drawable.ic_lmstudio)
-        ),
-        ProviderOption(
-            provider = AiProvider.Ollama,
-            label = stringResource(R.string.ollama),
-            icon = painterResource(id = R.drawable.ic_ollama)
+            provider = entry,
+            label = entry.displayName,
+            icon = painterResource(id = entry.iconResource())
         )
-    )
+    }
     val aiEnabled = provider != AiProvider.None
     val aiToolsEnabled by getBooleanSetting(
         PrefsKey.BooleanKey(PrefsConstants.AI_TOOLS_ENABLED_KEY),
@@ -140,6 +117,7 @@ fun AiProviderSection(
                     Spacer(Modifier.height(8.dp))
                     val providerSettings = AiProvider.entries.associateWith { entry ->
                         entry.collectPreferences(
+                            getApiKey = getApiKey,
                             getStringSetting = getStringSetting,
                             getBooleanSetting = getBooleanSetting
                         )
@@ -222,7 +200,11 @@ private fun ProviderSelector(
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
                 .fillMaxWidth(),
-            value = selectedOption.label,
+            value = if (selectedOption.provider.recommendedRank != null) {
+                "${selectedOption.label} · ${stringResource(R.string.recommended)}"
+            } else {
+                selectedOption.label
+            },
             onValueChange = {},
             readOnly = true,
             shape = RoundedCornerShape(16.dp),
@@ -235,21 +217,46 @@ private fun ProviderSelector(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            options.forEach { option ->
+            AiProviderCategory.entries.forEach { category ->
+                val categoryOptions = options.filter { it.provider.category == category }
+                if (categoryOptions.isEmpty()) return@forEach
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = option.label,
-                            style = MaterialTheme.typography.bodyLarge
+                            text = category.label(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
                         )
                     },
-                    leadingIcon = { Icon(painter = option.icon, contentDescription = null) },
-                    onClick = {
-                        expanded = false
-                        onSelected(option.provider)
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    enabled = false,
+                    onClick = {}
                 )
+                categoryOptions.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = option.label,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                if (option.provider.recommendedRank != null) {
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = stringResource(R.string.recommended),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        },
+                        leadingIcon = { Icon(painter = option.icon, contentDescription = null) },
+                        onClick = {
+                            expanded = false
+                            onSelected(option.provider)
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                }
             }
         }
     }
@@ -264,12 +271,11 @@ private data class ProviderPreferences(
 
 @Composable
 private fun AiProvider.collectPreferences(
+    getApiKey: (AiProvider) -> Flow<String>,
     getStringSetting: (PrefsKey<String>, String) -> Flow<String>,
     getBooleanSetting: (PrefsKey<Boolean>, Boolean) -> Flow<Boolean>
 ): ProviderPreferences {
-    val key = keyPrefsKey?.let { pref ->
-        getStringSetting(pref, "").collectAsStateWithLifecycle("").value
-    } ?: ""
+    val key = getApiKey(this).collectAsStateWithLifecycle("").value
     val modelDefault = defaultModel.orEmpty()
     val model = modelPrefsKey?.let { pref ->
         getStringSetting(pref, modelDefault).collectAsStateWithLifecycle(modelDefault).value
@@ -302,6 +308,7 @@ private fun ProviderSettingsContent(
             text = settings.key,
             infoURL = provider.keyInfoUrl,
             label = stringResource(R.string.api_key),
+            isSecret = true,
             onSave = { onEvent(IntegrationsEvent.UpdateApiKey(provider, it)) }
         )
         Spacer(Modifier.height(8.dp))
@@ -310,6 +317,7 @@ private fun ProviderSettingsContent(
         text = settings.model,
         infoURL = provider.modelsInfoUrl,
         label = stringResource(R.string.model),
+        resetValue = provider.defaultModel,
         onSave = { onEvent(IntegrationsEvent.UpdateModel(provider, it)) }
     )
     if (provider.supportsCustomUrl &&
@@ -332,6 +340,7 @@ private fun ProviderSettingsContent(
             label = stringResource(R.string.base_url),
             showCheckbox = !provider.requiresCustomUrl,
             warningText = warning,
+            defaultUrl = provider.defaultBaseUrl,
             onSave = { onEvent(IntegrationsEvent.UpdateCustomURL(provider, it)) },
             onEnable = { onEvent(IntegrationsEvent.ToggleCustomURL(provider, it)) }
         )
@@ -352,10 +361,34 @@ fun AiProviderSectionPreview() {
 
         AiProviderSection(
             getAiProvider = { providerFlow },
+            getApiKey = { flowOf("") },
             getStringSetting = stringSetting,
             getBooleanSetting = booleanSetting,
             onEvent = {}
         )
     }
+}
+
+@DrawableRes
+private fun AiProvider.iconResource(): Int = when (this) {
+    AiProvider.OpenAI -> R.drawable.ic_openai
+    AiProvider.Gemini -> R.drawable.ic_gemini
+    AiProvider.Anthropic -> R.drawable.ic_anthropic
+    AiProvider.OpenRouter -> R.drawable.ic_openrouter
+    AiProvider.LmStudio -> R.drawable.ic_lmstudio
+    AiProvider.Ollama -> R.drawable.ic_ollama
+    AiProvider.DeepSeek,
+    AiProvider.Qwen,
+    AiProvider.Kimi,
+    AiProvider.Glm,
+    AiProvider.None -> R.drawable.ic_integrations
+}
+
+@Composable
+private fun AiProviderCategory.label(): String = when (this) {
+    AiProviderCategory.RECOMMENDED -> stringResource(R.string.provider_category_recommended)
+    AiProviderCategory.MAINLAND_CHINA -> stringResource(R.string.provider_category_mainland_china)
+    AiProviderCategory.INTERNATIONAL -> stringResource(R.string.provider_category_international)
+    AiProviderCategory.LOCAL -> stringResource(R.string.provider_category_local)
 }
 

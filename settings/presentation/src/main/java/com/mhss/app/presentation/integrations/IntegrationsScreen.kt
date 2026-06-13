@@ -32,6 +32,7 @@ fun IntegrationsScreen(
             item {
                 AiProviderSection(
                     getAiProvider = viewModel::getAiProvider,
+                    getApiKey = viewModel::getApiKey,
                     getStringSetting = viewModel::getSettings,
                     getBooleanSetting = viewModel::getSettings,
                     onEvent = viewModel::onEvent

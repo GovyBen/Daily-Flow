@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Daily Flow</string>
 
     <string name="reminders_channel_description">Notification channel for sending tasks reminders notification</string>
@@ -212,6 +212,12 @@
     <string name="model">Model</string>
     <string name="custom_url">Custom URL</string>
     <string name="ai_provider">AI provider</string>
+    <string name="recommended" tools:ignore="MissingTranslation">Recommended</string>
+    <string name="provider_category_recommended" tools:ignore="MissingTranslation">Recommended</string>
+    <string name="provider_category_mainland_china" tools:ignore="MissingTranslation">Mainland China</string>
+    <string name="provider_category_international" tools:ignore="MissingTranslation">International</string>
+    <string name="provider_category_local" tools:ignore="MissingTranslation">Local</string>
+    <string name="restore_default" tools:ignore="MissingTranslation">Restore default</string>
     <string name="custom_base_url">Custom base URL</string>
     <string name="base_url">Base URL</string>
     <string name="insecure_url_warning">The URL starts with http. Use https when possible for better security.</string>

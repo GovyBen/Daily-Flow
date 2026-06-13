@@ -539,24 +539,27 @@ adb logcat -d
 
 #### DF-009 提前执行 SecretStore 审计和迁移
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-004
 - 目标：在新增云 Provider Key 前执行 `DF-601` 至 `DF-603`。
 - 验收：现有及新增 Provider Key 均不以明文出现在 DataStore、日志或备份。
+- 完成记录（2026-06-13）：Keystore 仪器测试验证密文往返、DataStore 无明文及旧 Key 迁移。
 
 #### DF-010 建立 AI Provider 注册表
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-009
 - 目标：
   - 用稳定 ID、分类、默认 endpoint、默认模型和能力声明替代 UI 内硬编码列表。
   - 保留现有 Provider 偏好的迁移映射。
   - OpenAI-compatible Provider 复用当前 Koog/OpenAI 客户端。
 - 验收：增加 Provider 不改变既有 ID，设置页不直接维护协议分支。
+- 完成记录（2026-06-13）：既有 ID 由单元测试锁定，协议与 OpenAI-compatible
+  客户端选择由注册表驱动。
 
 #### DF-011 增加推荐和中国大陆 Provider 预设
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-010
 - 预设：
   - 推荐：DeepSeek、OpenAI。
@@ -567,6 +570,8 @@ adb logcat -d
   - 首次启用 AI 默认选择 DeepSeek。
   - 模型和 Base URL 可编辑并可恢复默认。
 - 验收：无 API Key 时不发请求；用户自定义模型不被应用升级覆盖。
+- 完成记录（2026-06-13）：雷电实例验证 DeepSeek 默认启用、推荐标签、Provider
+  分组、默认模型和 Base URL；云 Provider 无 Key 时不创建执行器。
 
 #### DF-012 增加 Provider 连接和能力测试
 
@@ -1223,7 +1228,7 @@ adb logcat -d
 
 #### DF-601 审计当前 secret 和日志路径
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-004
 - 已知问题：My Brain 当前 OpenAI Key 位于普通 DataStore preference。
 - 搜索：
@@ -1237,7 +1242,7 @@ adb logcat -d
 
 #### DF-602 实现 KeystoreSecretStore
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-601
 - 方案：
   - Android Keystore 内生成不可导出的 AES/GCM key。
@@ -1252,7 +1257,7 @@ adb logcat -d
 
 #### DF-603 迁移现有明文 API Key
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-602
 - 流程：
   1. 检测旧值。
@@ -1262,6 +1267,8 @@ adb logcat -d
   5. 标记迁移完成。
 - 失败：保留可恢复状态，不在日志打印 key。
 - 测试：无旧 key、正常迁移、加密失败和重复启动。
+- 完成记录（2026-06-13）：启动迁移在验证解密后删除旧 preference，失败时保留
+  旧值并在下次启动重试；迁移标记保证重复启动幂等。
 
 #### DF-604 扩展现有应用锁
 

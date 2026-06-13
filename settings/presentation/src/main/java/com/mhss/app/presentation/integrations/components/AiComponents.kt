@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.mhss.app.ui.R
 
@@ -34,6 +36,8 @@ fun SavableTextField(
     text: String,
     infoURL: String? = null,
     label: String,
+    isSecret: Boolean = false,
+    resetValue: String? = null,
     onSave: (String) -> Unit
 ) {
     val uriHandler = LocalUriHandler.current
@@ -51,6 +55,11 @@ fun SavableTextField(
             label = { Text(text = label) },
             shape = RoundedCornerShape(15.dp),
             modifier = Modifier.fillMaxWidth(),
+            visualTransformation = if (isSecret) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
             trailingIcon = {
                 if (infoURL != null) {
                     IconButton(onClick = { uriHandler.openUri(infoURL) }) {
@@ -63,12 +72,23 @@ fun SavableTextField(
             },
         )
         AnimatedVisibility(showSave) {
+            Column {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    onClick = { onSave(localText.trim()) }
+                ) {
+                    Text(text = stringResource(R.string.save))
+                }
+            }
+        }
+        if (resetValue != null && text != resetValue) {
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
-                onClick = { onSave(localText.trim()) }
+                onClick = { onSave(resetValue) }
             ) {
-                Text(text = stringResource(R.string.save))
+                Text(text = stringResource(R.string.restore_default))
             }
         }
     }
@@ -82,6 +102,7 @@ fun CustomURLSection(
     label: String,
     showCheckbox: Boolean = true,
     warningText: String? = null,
+    defaultUrl: String? = null,
     onSave: (String) -> Unit,
     onEnable: (Boolean) -> Unit
 ) {
@@ -104,6 +125,7 @@ fun CustomURLSection(
                 SavableTextField(
                     text = url,
                     label = label,
+                    resetValue = defaultUrl,
                     onSave = onSave
                 )
                 if (warningText != null) {

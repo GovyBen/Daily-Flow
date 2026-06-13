@@ -202,6 +202,12 @@
     <string name="openai">OpenAI</string>
     <string name="model">Model</string>
     <string name="ai_provider">AI provider</string>
+    <string name="recommended">推荐</string>
+    <string name="provider_category_recommended">推荐</string>
+    <string name="provider_category_mainland_china">中国大陆</string>
+    <string name="provider_category_international">国际</string>
+    <string name="provider_category_local">本地</string>
+    <string name="restore_default">恢复默认</string>
     <string name="custom_base_url">Custom base URL</string>
     <string name="base_url">Base URL</string>
     <string name="insecure_url_warning">The URL starts with http. Use https when possible for better security.</string>

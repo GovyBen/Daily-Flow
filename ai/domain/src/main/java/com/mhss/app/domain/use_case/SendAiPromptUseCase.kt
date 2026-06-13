@@ -11,10 +11,8 @@ class SendAiPromptUseCase(private val aiRepository: AiRepository) {
         return try {
             aiRepository.sendPrompt(prompt)
         } catch (e: IOException) {
-            e.printStackTrace()
             AssistantResult.InternetError
         } catch (e: Exception) {
-            e.printStackTrace()
             AssistantResult.OtherError()
         }
     }

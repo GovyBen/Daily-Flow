@@ -60,10 +60,11 @@ import com.mhss.app.domain.use_case.GetTaskByIdUseCase
 import com.mhss.app.preferences.PrefsConstants.AI_PROVIDER_KEY
 import com.mhss.app.preferences.PrefsConstants.AI_TOOLS_ENABLED_KEY
 import com.mhss.app.preferences.domain.model.AiProvider
+import com.mhss.app.preferences.domain.model.AiProviderProtocol
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.preferences.domain.model.intPreferencesKey
-import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.model.toAiProvider
+import com.mhss.app.preferences.domain.repository.SecretStore
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -79,6 +80,7 @@ import kotlin.uuid.Uuid
 @Factory
 class AiRepositoryImpl(
     private val getPreferenceUseCase: GetPreferenceUseCase,
+    private val secretStore: SecretStore,
     @Named("applicationScope") private val applicationScope: CoroutineScope,
     private val noteToolSet: NoteToolSet,
     private val taskToolSet: TaskToolSet,
@@ -128,24 +130,27 @@ class AiRepositoryImpl(
                 return@launch
             }
 
-            val key = getPreferenceUseCase(
-                stringPreferencesKey(aiProvider.keyPref ?: "none"),
-                ""
-            ).first()
+            val key = aiProvider.keyPref?.let { secretStore.get(it) }.orEmpty()
+            if (aiProvider.requiresApiKey && key.isBlank()) {
+                llmExecutor = null
+                llModel = null
+                chatSystemMessage = ""
+                return@launch
+            }
 
             val customUrlPref = aiProvider.customUrlPref
             val customUrl = if (aiProvider.supportsCustomUrl && customUrlPref != null) {
                 getPreferenceUseCase(
-                    stringPreferencesKey(customUrlPref),
-                    ""
+                    com.mhss.app.preferences.domain.model.stringPreferencesKey(customUrlPref),
+                    aiProvider.defaultBaseUrl.orEmpty()
                 ).first()
             } else {
-                ""
+                aiProvider.defaultBaseUrl.orEmpty()
             }
 
             val model = getPreferenceUseCase(
-                stringPreferencesKey(aiProvider.modelPref ?: ""),
-                ""
+                com.mhss.app.preferences.domain.model.stringPreferencesKey(aiProvider.modelPref ?: ""),
+                aiProvider.defaultModel.orEmpty()
             ).first()
 
             if (model.isNotBlank()) {
@@ -174,10 +179,8 @@ class AiRepositoryImpl(
         } catch (e: LLMClientException) {
             AssistantResult.OtherError(e.message)
         } catch (e: IOException) {
-            e.printStackTrace()
             AssistantResult.InternetError
         } catch (e: Exception) {
-            e.printStackTrace()
             AssistantResult.OtherError(e.getRootCause().message ?: e.message)
         }
     }
@@ -237,10 +240,8 @@ class AiRepositoryImpl(
         } catch (e: LLMClientException) {
             throw AiRepositoryException(AssistantResult.OtherError(e.message))
         } catch (e: IOException) {
-            e.printStackTrace()
             throw AiRepositoryException(AssistantResult.InternetError)
         } catch (e: Exception) {
-            e.printStackTrace()
             val message = e.getRootCause().message ?: e.message
             throw AiRepositoryException(AssistantResult.OtherError(message))
         }
@@ -346,25 +347,26 @@ class AiRepositoryImpl(
 }
 
 private fun AiProvider.getExecutor(key: String, customUrl: String, llModel: LLModel): PromptExecutor {
-    val client = when (this) {
-        AiProvider.OpenAI -> OpenAILLMClient(
+    val client = when (protocol) {
+        AiProviderProtocol.OPENAI_COMPATIBLE -> OpenAILLMClient(
             apiKey = key,
-            settings = if (customUrl.isBlank()) OpenAIClientSettings() else OpenAIClientSettings(baseUrl = customUrl)
+            settings = if (customUrl.isBlank()) {
+                OpenAIClientSettings()
+            } else {
+                OpenAIClientSettings(baseUrl = customUrl)
+            }
         )
-        AiProvider.Gemini -> GoogleLLMClient(apiKey = key)
-        AiProvider.Anthropic -> AnthropicLLMClient(
+        AiProviderProtocol.GOOGLE -> GoogleLLMClient(apiKey = key)
+        AiProviderProtocol.ANTHROPIC -> AnthropicLLMClient(
             apiKey = key,
             settings = AnthropicClientSettings(
                 modelVersionsMap = mapOf(llModel to llModel.id)
             )
         )
-        AiProvider.OpenRouter -> OpenRouterLLMClient(apiKey = key)
-        AiProvider.Ollama -> if (customUrl.isBlank()) OllamaClient() else OllamaClient(customUrl)
-        AiProvider.LmStudio -> OpenAILLMClient(
-            apiKey = "",
-            settings = OpenAIClientSettings(baseUrl = customUrl)
-        )
-        AiProvider.None -> EmptyAiClient
+        AiProviderProtocol.OPENROUTER -> OpenRouterLLMClient(apiKey = key)
+        AiProviderProtocol.OLLAMA ->
+            if (customUrl.isBlank()) OllamaClient() else OllamaClient(customUrl)
+        AiProviderProtocol.NONE -> EmptyAiClient
     }
     return SingleLLMPromptExecutor(client)
 }

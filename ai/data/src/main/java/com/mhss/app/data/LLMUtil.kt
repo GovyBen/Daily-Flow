@@ -11,6 +11,7 @@ import com.mhss.app.domain.baseChatSystemMessage
 import com.mhss.app.domain.model.AiMessage
 import com.mhss.app.domain.toolsSystemMessage
 import com.mhss.app.preferences.domain.model.AiProvider
+import com.mhss.app.preferences.domain.model.AiProviderProtocol
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -89,9 +90,11 @@ fun String.toLLModel(provider: AiProvider, withTools: Boolean): LLModel {
                 add(LLMCapability.ToolChoice)
             }
             add(LLMCapability.Completion)
-            if (llmProvider == LLMProvider.OpenAI){
-                add(LLMCapability.OpenAIEndpoint.Responses)
+            if (llmProvider == LLMProvider.OpenAI) {
                 add(LLMCapability.OpenAIEndpoint.Completions)
+                if (provider == AiProvider.OpenAI) {
+                    add(LLMCapability.OpenAIEndpoint.Responses)
+                }
             }
         },
         contextLength = 128_000,
@@ -99,14 +102,13 @@ fun String.toLLModel(provider: AiProvider, withTools: Boolean): LLModel {
     )
 }
 
-fun AiProvider.toLLMProvider() = when (this) {
-    AiProvider.OpenAI -> LLMProvider.OpenAI
-    AiProvider.Gemini -> LLMProvider.Google
-    AiProvider.Anthropic -> LLMProvider.Anthropic
-    AiProvider.OpenRouter -> LLMProvider.OpenRouter
-    AiProvider.Ollama -> LLMProvider.Ollama
-    AiProvider.LmStudio -> LLMProvider.OpenAI
-    AiProvider.None -> LLMProvider.OpenAI // just a placeholder
+fun AiProvider.toLLMProvider() = when (protocol) {
+    AiProviderProtocol.OPENAI_COMPATIBLE -> LLMProvider.OpenAI
+    AiProviderProtocol.GOOGLE -> LLMProvider.Google
+    AiProviderProtocol.ANTHROPIC -> LLMProvider.Anthropic
+    AiProviderProtocol.OPENROUTER -> LLMProvider.OpenRouter
+    AiProviderProtocol.OLLAMA -> LLMProvider.Ollama
+    AiProviderProtocol.NONE -> LLMProvider.OpenAI
 }
 
 fun Message.Assistant.toNewAssistantMessage() = AiMessage.AssistantMessage(

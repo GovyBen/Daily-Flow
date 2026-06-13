@@ -8,6 +8,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -26,6 +27,8 @@ import com.mhss.app.database.di.databaseModule
 import com.mhss.app.di.coroutinesModule
 import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.di.platformModule
+import com.mhss.app.mybrain.data.security.LegacySecretMigration
+import com.mhss.app.mybrain.data.security.redactSensitiveHeaders
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.di.PreferencesModule
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
@@ -57,6 +60,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = Pre
 class MyBrainApplication : Application() {
 
     private val getPreference: GetPreferenceUseCase by inject()
+    private val legacySecretMigration: LegacySecretMigration by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -89,12 +93,18 @@ class MyBrainApplication : Application() {
             )
             workManagerFactory()
         }
+        runBlocking {
+            runCatching { legacySecretMigration.migrate() }
+                .onFailure {
+                    Log.e("SecretMigration", "Secret migration will retry on the next launch.")
+                }
+        }
         loadNotesModule()
 
         createRemindersNotificationChannel()
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
-            e.printStackTrace()
-            "```\n${e.stackTraceToString()}\n```".copyToClipboard()
+            Log.e("DailyFlow", "Uncaught application exception.")
+            "```\n${e.stackTraceToString().redactSensitiveHeaders()}\n```".copyToClipboard()
             Handler(Looper.getMainLooper()).post {
                 Toast.makeText(this, getString(R.string.exception_stack_trace_copied), Toast.LENGTH_LONG).show()
             }

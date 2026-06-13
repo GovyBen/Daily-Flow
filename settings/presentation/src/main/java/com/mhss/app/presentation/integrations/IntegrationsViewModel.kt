@@ -13,10 +13,10 @@ import com.mhss.app.preferences.domain.model.PrefsKey.BooleanKey
 import com.mhss.app.preferences.domain.model.PrefsKey.IntKey
 import com.mhss.app.preferences.domain.model.customUrlEnabledPrefsKey
 import com.mhss.app.preferences.domain.model.customUrlPrefsKey
-import com.mhss.app.preferences.domain.model.keyPrefsKey
 import com.mhss.app.preferences.domain.model.modelPrefsKey
 import com.mhss.app.preferences.domain.model.stringPreferencesKey
 import com.mhss.app.preferences.domain.model.toAiProvider
+import com.mhss.app.preferences.domain.repository.SecretStore
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +32,8 @@ class IntegrationsViewModel(
     private val savePreference: SavePreferenceUseCase,
     private val getPreference: GetPreferenceUseCase,
     private val updateExternalNotesFolder: UpdateExternalNotesFolderUseCase,
-    private val fileUtilsRepository: FileUtilsRepository
+    private val fileUtilsRepository: FileUtilsRepository,
+    private val secretStore: SecretStore
 ) : ViewModel() {
 
     fun <T> getSettings(key: PrefsKey<T>, defaultValue: T): Flow<T> {
@@ -43,6 +44,9 @@ class IntegrationsViewModel(
         IntKey(PrefsConstants.AI_PROVIDER_KEY),
         AiProvider.None.id
     ).map { it.toAiProvider() }
+
+    fun getApiKey(provider: AiProvider): Flow<String> =
+        provider.keyPref?.let(secretStore::observe) ?: kotlinx.coroutines.flow.flowOf("")
 
     fun getExternalNotesFolderPath(): Flow<String?> {
         return getPreference(
@@ -59,7 +63,7 @@ class IntegrationsViewModel(
             is IntegrationsEvent.ToggleAiProvider -> {
                 saveSettings(
                     IntKey(PrefsConstants.AI_PROVIDER_KEY),
-                    if (event.enabled) AiProvider.OpenAI.id else AiProvider.None.id
+                    if (event.enabled) AiProvider.DeepSeek.id else AiProvider.None.id
                 )
             }
 
@@ -71,8 +75,10 @@ class IntegrationsViewModel(
             }
 
             is IntegrationsEvent.UpdateApiKey -> {
-                event.provider.keyPrefsKey?.let { key ->
-                    saveSettings(key, event.key)
+                event.provider.keyPref?.let { secretId ->
+                    viewModelScope.launch {
+                        secretStore.set(secretId, event.key)
+                    }
                 }
             }
 
