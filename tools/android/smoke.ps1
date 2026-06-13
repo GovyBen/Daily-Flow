@@ -48,8 +48,10 @@ function Invoke-Native {
 }
 
 if (-not $SkipBuild) {
+    $projectCacheDir = Join-Path $env:LOCALAPPDATA "DailyFlow\gradle-project-cache"
     Invoke-Native -Stage "build" -FilePath $gradle -Arguments @(
         "-PdailyFlow.buildRoot=$buildRootPath",
+        "--project-cache-dir=$projectCacheDir",
         "--no-daemon",
         "--console=plain",
         ":app:assembleDebug"
