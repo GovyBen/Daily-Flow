@@ -23,26 +23,27 @@ Graph is not a submodule, composite build or runtime dependency.
 |---|---|
 | A: My Brain unchanged | Most imported production files |
 | B: My Brain modified | Branding, deep links, CI, Gradle download URL, widget lint correction |
-| C: Track & Graph migrated | None in P0 |
+| C: Track & Graph migrated | Sampling interfaces listed below |
 | D: Daily Flow new code | Planning/provenance documents, test fixtures and provenance report script |
 | E: New dependency | None |
 
 ## Track & Graph Migration Ledger
 
-No files have been migrated yet. The following fixed-commit paths are approved
-for later evaluation:
+The following files have been migrated or approved for later evaluation:
 
-| Planned task | Upstream path or area | Status |
-|---|---|---|
-| DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/database/dto/IDataPoint.kt` | Reference only |
-| DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/sampling/DataSample.kt` | Reference only |
-| DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/sampling/RawDataSample.kt` | Reference only |
-| DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DurationInput.kt` | Reference only |
-| DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DateTimeSelectorButtons.kt` | Reference only |
-| DF-205 | `app/app/src/main/java/com/samco/trackandgraph/adddatapoint/SuggestedValueHelper.kt` | Reference only |
-| DF-302 | `app/app/src/main/java/com/samco/trackandgraph/graphstatview/functions/aggregation/` | Reference only |
-| DF-306 | `app/data/src/main/java/com/samco/trackandgraph/data/csvreadwriter/CSVReadWriterImpl.kt` | Reference only |
-| DF-402 | `app/app/src/main/java/com/samco/trackandgraph/reminders/` | Reference only |
+| Planned task | Upstream path or area | Daily Flow destination | Status |
+|---|---|---|---|
+| DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/database/dto/IDataPoint.kt` | `tracking/.../analytics/sampling/IDataPoint.kt` | Migrated 2026-06-13; package and timestamp adapted |
+| DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/database/dto/DataPoint.kt` | `tracking/.../analytics/sampling/RawDataPoint.kt` | Adapted 2026-06-13; UUID tracker ID and kotlinx datetime |
+| DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/sampling/DataSampleProperties.kt` | `tracking/.../analytics/sampling/DataSampleProperties.kt` | Migrated 2026-06-13; datetime period adapted |
+| DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/sampling/DataSample.kt` | `tracking/.../analytics/sampling/DataSample.kt` | Migrated 2026-06-13; raw point type adapted |
+| DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/sampling/RawDataSample.kt` | `tracking/.../analytics/sampling/RawDataSample.kt` | Migrated 2026-06-13; raw point type adapted |
+| DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DurationInput.kt` | - | Reference only |
+| DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DateTimeSelectorButtons.kt` | - | Reference only |
+| DF-205 | `app/app/src/main/java/com/samco/trackandgraph/adddatapoint/SuggestedValueHelper.kt` | - | Reference only |
+| DF-302 | `app/app/src/main/java/com/samco/trackandgraph/graphstatview/functions/aggregation/` | - | Reference only |
+| DF-306 | `app/data/src/main/java/com/samco/trackandgraph/data/csvreadwriter/CSVReadWriterImpl.kt` | - | Reference only |
+| DF-402 | `app/app/src/main/java/com/samco/trackandgraph/reminders/` | - | Reference only |
 
 When a file is migrated, add its destination, original path, original
 copyright holder, modification date and Daily Flow modification summary here.

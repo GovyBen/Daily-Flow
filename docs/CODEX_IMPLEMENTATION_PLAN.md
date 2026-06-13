@@ -638,7 +638,7 @@ adb logcat -d
 
 #### DF-102 移植 DataSample 核心接口和测试
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-101、DF-003
 - 来源：
   - Track & Graph `IDataPoint.kt`
@@ -651,6 +651,10 @@ adb logcat -d
   - 时间类型与现有 My Brain/Kotlin datetime 保持一致。
   - 去除未使用的 Hilt、Rx 或 Feature 依赖。
 - 验收：移植测试通过；生产文件保留上游版权说明。
+- 完成记录（2026-06-13）：移植 `IDataPoint`、`DataSampleProperties`、
+  `DataSample` 和 `RawDataSample`，并将原 DTO 适配为 `RawDataPoint`；时间改用
+  `kotlinx.datetime`，移除 ThreeTen、数据库 entity 和 Feature 依赖。JVM 测试覆盖
+  相等性、惰性迭代、原始点追踪、空样本与资源释放。
 
 #### DF-103 实现模板和 tracker Room 实体
 
