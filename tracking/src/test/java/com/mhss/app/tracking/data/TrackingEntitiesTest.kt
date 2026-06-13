@@ -9,6 +9,7 @@ import com.mhss.app.tracking.domain.model.CounterConfig
 import com.mhss.app.tracking.domain.model.DurationConfig
 import com.mhss.app.tracking.domain.model.MultiSelectConfig
 import com.mhss.app.tracking.domain.model.NumberConfig
+import com.mhss.app.tracking.domain.model.RecordSource
 import com.mhss.app.tracking.domain.model.ScaleConfig
 import com.mhss.app.tracking.domain.model.SingleSelectConfig
 import com.mhss.app.tracking.domain.model.TextConfig
@@ -108,6 +109,43 @@ class TrackingEntitiesTest {
         assertEquals(template.id, field.templateId)
         assertEquals(tracker.id, field.trackerId)
         assertEquals(tracker.id, inactiveOption.trackerId)
+    }
+
+    @Test
+    fun factoryCreatesSessionAndDistinctPointsForTheSameMoment() {
+        val factory = TrackingEntityFactory(SequenceIdGenerator())
+        val session = factory.createRecordSession(
+            templateId = "template",
+            occurredAtEpochMilli = 5_000,
+            zoneId = "Asia/Shanghai",
+            nowEpochMilli = 6_000,
+            source = RecordSource.AI
+        )
+        val first = factory.createDataPoint(
+            sessionId = session.id,
+            trackerId = "tracker",
+            epochMilli = session.occurredAtEpochMilli,
+            utcOffsetSeconds = 28_800,
+            value = 1.0,
+            label = "Chest",
+            optionId = "option-1",
+            nowEpochMilli = 6_000
+        )
+        val second = factory.createDataPoint(
+            sessionId = session.id,
+            trackerId = "tracker",
+            epochMilli = session.occurredAtEpochMilli,
+            utcOffsetSeconds = 28_800,
+            value = 1.0,
+            label = "Back",
+            optionId = "option-2",
+            nowEpochMilli = 6_000
+        )
+
+        assertEquals(RecordSource.AI, session.source)
+        assertEquals(session.id, first.sessionId)
+        assertEquals(first.epochMilli, second.epochMilli)
+        assertFalse(first.id == second.id)
     }
 }
 

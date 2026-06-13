@@ -1,11 +1,14 @@
 package com.mhss.app.tracking.data.factory
 
+import com.mhss.app.tracking.data.database.entity.DataPointEntity
 import com.mhss.app.tracking.data.database.entity.RecordTemplateEntity
+import com.mhss.app.tracking.data.database.entity.RecordSessionEntity
 import com.mhss.app.tracking.data.database.entity.TemplateFieldEntity
 import com.mhss.app.tracking.data.database.entity.TrackerEntity
 import com.mhss.app.tracking.data.database.entity.TrackerOptionEntity
 import com.mhss.app.tracking.data.serialization.TrackerConfigJson
 import com.mhss.app.tracking.domain.id.TrackingIdGenerator
+import com.mhss.app.tracking.domain.model.RecordSource
 import com.mhss.app.tracking.domain.model.TrackerConfig
 
 class TrackingEntityFactory(
@@ -75,5 +78,47 @@ class TrackingEntityFactory(
         numericValue = numericValue,
         color = color,
         displayOrder = displayOrder
+    )
+
+    fun createRecordSession(
+        templateId: String,
+        occurredAtEpochMilli: Long,
+        zoneId: String,
+        nowEpochMilli: Long,
+        note: String? = null,
+        source: RecordSource = RecordSource.MANUAL
+    ) = RecordSessionEntity(
+        id = idGenerator.newId(),
+        templateId = templateId,
+        occurredAtEpochMilli = occurredAtEpochMilli,
+        zoneId = zoneId,
+        note = note,
+        source = source,
+        createdAtEpochMilli = nowEpochMilli,
+        updatedAtEpochMilli = nowEpochMilli
+    )
+
+    fun createDataPoint(
+        trackerId: String,
+        epochMilli: Long,
+        utcOffsetSeconds: Int,
+        nowEpochMilli: Long,
+        sessionId: String? = null,
+        value: Double? = null,
+        label: String? = null,
+        note: String? = null,
+        optionId: String? = null
+    ) = DataPointEntity(
+        id = idGenerator.newId(),
+        sessionId = sessionId,
+        trackerId = trackerId,
+        epochMilli = epochMilli,
+        utcOffsetSeconds = utcOffsetSeconds,
+        value = value,
+        label = label,
+        note = note,
+        optionId = optionId,
+        createdAtEpochMilli = nowEpochMilli,
+        updatedAtEpochMilli = nowEpochMilli
     )
 }

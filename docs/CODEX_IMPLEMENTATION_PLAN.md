@@ -679,7 +679,7 @@ adb logcat -d
 
 #### DF-104 实现 RecordSession 和 DataPoint 实体
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-103
 - 来源：Track & Graph `DataPoint.kt` 和 DTO。
 - 必要偏差：
@@ -691,6 +691,9 @@ adb logcat -d
   - `trackerId, epochMilli`
   - `templateId, occurredAtEpochMilli`
 - 测试：同一 session、tracker、timestamp 能保存多个多选数据点。
+- 完成记录（2026-06-13）：新增会话来源枚举、记录会话与通用数据点实体；
+  数据点使用独立 ID，并保留时区偏移、选项和文本快照。Room 仪器测试验证
+  同一 session、tracker、timestamp 可持久化多个多选数据点。
 
 #### DF-105 实现 DAO 和事务边界
 

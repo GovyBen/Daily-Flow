@@ -7,6 +7,8 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.mhss.app.tracking.data.database.entity.DataPointEntity
+import com.mhss.app.tracking.data.database.entity.RecordSessionEntity
 import com.mhss.app.tracking.data.database.entity.RecordTemplateEntity
 import com.mhss.app.tracking.data.database.entity.TemplateFieldEntity
 import com.mhss.app.tracking.data.database.entity.TrackerEntity
@@ -66,6 +68,16 @@ class TrackingSchemaTest {
             sql.indexColumns("tracking_tracker_options")
                 .contains(listOf("tracker_id", "display_order", "id"))
         )
+        assertTrue(
+            sql.indexColumns("tracking_record_sessions")
+                .contains(listOf("template_id", "occurred_at_epoch_milli"))
+        )
+        assertTrue(sql.indexColumns("tracking_data_points").contains(listOf("session_id")))
+        assertTrue(
+            sql.indexColumns("tracking_data_points")
+                .contains(listOf("tracker_id", "epoch_milli"))
+        )
+        assertTrue(sql.indexColumns("tracking_data_points").contains(listOf("option_id")))
     }
 
     @Test
@@ -116,6 +128,62 @@ class TrackingSchemaTest {
         assertTrue(deleteFailed)
         assertEquals(1, sql.rowCount("tracking_trackers"))
     }
+
+    @Test
+    fun multipleSelectionsCanShareSessionTrackerAndTimestamp() {
+        val sql = database.openHelper.writableDatabase
+        sql.insertTemplateAndTracker()
+        sql.execSQL(
+            """
+            INSERT INTO tracking_tracker_options
+            (id, tracker_id, label, numeric_value, color, display_order, is_active)
+            VALUES
+            ('option-1', 'tracker', 'Chest', 1.0, NULL, 0, 1),
+            ('option-2', 'tracker', 'Back', 1.0, NULL, 1, 1)
+            """.trimIndent()
+        )
+        sql.execSQL(
+            """
+            INSERT INTO tracking_record_sessions
+            (id, template_id, occurred_at_epoch_milli, zone_id, note, source,
+             created_at_epoch_milli, updated_at_epoch_milli)
+            VALUES ('session', 'template', 1000, 'Asia/Shanghai', NULL, 'MANUAL', 1000, 1000)
+            """.trimIndent()
+        )
+        sql.execSQL(
+            """
+            INSERT INTO tracking_data_points
+            (id, session_id, tracker_id, epoch_milli, utc_offset_seconds, value,
+             label, note, option_id, created_at_epoch_milli, updated_at_epoch_milli)
+            VALUES
+            ('point-1', 'session', 'tracker', 1000, 28800, 1.0,
+             'Chest', NULL, 'option-1', 1000, 1000),
+            ('point-2', 'session', 'tracker', 1000, 28800, 1.0,
+             'Back', NULL, 'option-2', 1000, 1000)
+            """.trimIndent()
+        )
+
+        assertEquals(2, sql.rowCount("tracking_data_points"))
+    }
+}
+
+private fun SupportSQLiteDatabase.insertTemplateAndTracker() {
+    execSQL(
+        """
+        INSERT INTO tracking_templates
+        (id, name, description, icon, color, is_active, display_order,
+         created_at_epoch_milli, updated_at_epoch_milli)
+        VALUES ('template', 'Health', '', '', 1, 1, 0, 1, 1)
+        """.trimIndent()
+    )
+    execSQL(
+        """
+        INSERT INTO tracking_trackers
+        (id, name, type, unit, config_json, is_active,
+         created_at_epoch_milli, updated_at_epoch_milli)
+        VALUES ('tracker', 'Exercise', 'MULTI_SELECT', NULL, '{}', 1, 1, 1)
+        """.trimIndent()
+    )
 }
 
 private fun SupportSQLiteDatabase.foreignKeys(table: String): Set<String> {
@@ -171,7 +239,9 @@ private fun SupportSQLiteDatabase.rowCount(table: String): Int {
         RecordTemplateEntity::class,
         TrackerEntity::class,
         TemplateFieldEntity::class,
-        TrackerOptionEntity::class
+        TrackerOptionEntity::class,
+        RecordSessionEntity::class,
+        DataPointEntity::class
     ],
     version = 1,
     exportSchema = false
