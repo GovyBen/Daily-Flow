@@ -141,7 +141,7 @@ class RoomTrackingRepository(
             occurredAtEpochMilli = command.occurredAtEpochMilli,
             zoneId = command.zoneId,
             note = command.note,
-            source = command.source,
+            source = command.source.name,
             updatedAtEpochMilli = nowEpochMilli
         )
         transactionStore.updateSession(
@@ -251,7 +251,7 @@ class RoomTrackingRepository(
         return TrackerEntity(
             id = trackerId ?: idGenerator.newId(),
             name = tracker.name,
-            type = tracker.config.trackerType,
+            type = tracker.config.trackerType.name,
             unit = tracker.unit,
             configJson = TrackerConfigJson.encode(tracker.config),
             isActive = current?.isActive ?: true,
@@ -382,7 +382,7 @@ private fun RecordSessionEntity.toHistory(
     occurredAtEpochMilli = occurredAtEpochMilli,
     zoneId = zoneId,
     note = note,
-    source = source,
+    source = com.mhss.app.tracking.domain.model.RecordSource.valueOf(source),
     points = points.map(DataPointEntity::toRecordedPoint)
 )
 

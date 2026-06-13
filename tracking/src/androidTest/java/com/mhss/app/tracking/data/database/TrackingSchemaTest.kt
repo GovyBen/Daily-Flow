@@ -1,22 +1,10 @@
 package com.mhss.app.tracking.data.database
 
-import androidx.room.Database
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.mhss.app.tracking.data.database.dao.TrackingDataPointDao
-import com.mhss.app.tracking.data.database.dao.TrackingSessionDao
-import com.mhss.app.tracking.data.database.dao.TrackingTemplateDao
-import com.mhss.app.tracking.data.database.dao.TrackingTrackerDao
-import com.mhss.app.tracking.data.database.entity.DataPointEntity
-import com.mhss.app.tracking.data.database.entity.RecordSessionEntity
-import com.mhss.app.tracking.data.database.entity.RecordTemplateEntity
-import com.mhss.app.tracking.data.database.entity.TemplateFieldEntity
-import com.mhss.app.tracking.data.database.entity.TrackerEntity
-import com.mhss.app.tracking.data.database.entity.TrackerOptionEntity
+import com.mhss.app.database.MyBrainDatabase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -27,13 +15,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TrackingSchemaTest {
 
-    private lateinit var database: TrackingSchemaTestDatabase
+    private lateinit var database: MyBrainDatabase
 
     @Before
     fun setUp() {
         database = Room.inMemoryDatabaseBuilder(
             InstrumentationRegistry.getInstrumentation().targetContext,
-            TrackingSchemaTestDatabase::class.java
+            MyBrainDatabase::class.java
         ).allowMainThreadQueries().build()
     }
 
@@ -236,24 +224,4 @@ private fun SupportSQLiteDatabase.rowCount(table: String): Int {
         cursor.moveToFirst()
         cursor.getInt(0)
     }
-}
-
-@Database(
-    entities = [
-        RecordTemplateEntity::class,
-        TrackerEntity::class,
-        TemplateFieldEntity::class,
-        TrackerOptionEntity::class,
-        RecordSessionEntity::class,
-        DataPointEntity::class
-    ],
-    version = 1,
-    exportSchema = false
-)
-@TypeConverters(TrackingDatabaseConverters::class)
-abstract class TrackingSchemaTestDatabase : RoomDatabase() {
-    abstract fun templateDao(): TrackingTemplateDao
-    abstract fun trackerDao(): TrackingTrackerDao
-    abstract fun sessionDao(): TrackingSessionDao
-    abstract fun dataPointDao(): TrackingDataPointDao
 }

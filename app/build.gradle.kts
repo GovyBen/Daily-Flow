@@ -105,6 +105,7 @@ dependencies {
     implementation(project(":widget"))
     implementation(project(":core:preferences"))
     implementation(project(":core:util"))
+    implementation(project(":tracking"))
 
     implementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))

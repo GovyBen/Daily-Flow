@@ -4,9 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.mhss.app.tracking.data.database.TrackingDatabaseConverters
-import com.mhss.app.tracking.domain.model.TrackerType
 
 @Entity(
     tableName = "tracking_trackers",
@@ -14,12 +11,11 @@ import com.mhss.app.tracking.domain.model.TrackerType
         Index(value = ["type", "is_active"])
     ]
 )
-@TypeConverters(TrackingDatabaseConverters::class)
 data class TrackerEntity(
     @PrimaryKey
     val id: String,
     val name: String,
-    val type: TrackerType,
+    val type: String,
     val unit: String? = null,
     @ColumnInfo(name = "config_json")
     val configJson: String,

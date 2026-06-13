@@ -62,7 +62,7 @@ class TrackingEntitiesTest {
         assertEquals("id-1", template.id)
         assertEquals("id-2", tracker.id)
         assertEquals("id-3", field.id)
-        assertEquals(TrackerType.SCALE, tracker.type)
+        assertEquals(TrackerType.SCALE.name, tracker.type)
         assertEquals(template.id, field.templateId)
         assertEquals(tracker.id, field.trackerId)
     }
@@ -142,7 +142,7 @@ class TrackingEntitiesTest {
             nowEpochMilli = 6_000
         )
 
-        assertEquals(RecordSource.AI, session.source)
+        assertEquals(RecordSource.AI.name, session.source)
         assertEquals(session.id, first.sessionId)
         assertEquals(first.epochMilli, second.epochMilli)
         assertFalse(first.id == second.id)

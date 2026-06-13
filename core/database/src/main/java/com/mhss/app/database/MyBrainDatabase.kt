@@ -15,19 +15,47 @@ import com.mhss.app.database.entity.DiaryEntryEntity
 import com.mhss.app.database.entity.NoteEntity
 import com.mhss.app.database.entity.NoteFolderEntity
 import com.mhss.app.database.entity.TaskEntity
+import com.mhss.app.tracking.data.database.dao.TrackingDataPointDao
+import com.mhss.app.tracking.data.database.dao.TrackingSessionDao
+import com.mhss.app.tracking.data.database.dao.TrackingTemplateDao
+import com.mhss.app.tracking.data.database.dao.TrackingTrackerDao
+import com.mhss.app.tracking.data.database.entity.DataPointEntity
+import com.mhss.app.tracking.data.database.entity.RecordSessionEntity
+import com.mhss.app.tracking.data.database.entity.RecordTemplateEntity
+import com.mhss.app.tracking.data.database.entity.TemplateFieldEntity
+import com.mhss.app.tracking.data.database.entity.TrackerEntity
+import com.mhss.app.tracking.data.database.entity.TrackerOptionEntity
 
 @Database(
-    entities = [NoteEntity::class, TaskEntity::class, DiaryEntryEntity::class, BookmarkEntity::class, AlarmEntity::class, NoteFolderEntity::class],
-    version = 5
+    entities = [
+        NoteEntity::class,
+        TaskEntity::class,
+        DiaryEntryEntity::class,
+        BookmarkEntity::class,
+        AlarmEntity::class,
+        NoteFolderEntity::class,
+        RecordTemplateEntity::class,
+        TrackerEntity::class,
+        TemplateFieldEntity::class,
+        TrackerOptionEntity::class,
+        RecordSessionEntity::class,
+        DataPointEntity::class
+    ],
+    version = 6,
+    exportSchema = true
 )
 @TypeConverters(DBConverters::class)
-abstract class MyBrainDatabase: RoomDatabase() {
+abstract class MyBrainDatabase : RoomDatabase() {
 
     abstract fun noteDao(): NoteDao
     abstract fun taskDao(): TaskDao
     abstract fun diaryDao(): DiaryDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun alarmDao(): AlarmDao
+    abstract fun templateDao(): TrackingTemplateDao
+    abstract fun trackerDao(): TrackingTrackerDao
+    abstract fun sessionDao(): TrackingSessionDao
+    abstract fun dataPointDao(): TrackingDataPointDao
 
     companion object {
         const val DATABASE_NAME = "by_brain_db"

@@ -44,23 +44,23 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:database"))
+
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.room.runtime)
+    api(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.datetime)
-    implementation(libs.kotlinx.serialization.json)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.datetime)
+    api(libs.kotlinx.serialization.json)
     implementation(libs.uuid)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
     implementation(libs.koin.android)
     ksp(libs.koin.ksp.compiler)
-    ksp(libs.androidx.room.compiler)
-    add("kspAndroidTest", libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

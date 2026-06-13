@@ -201,3 +201,189 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
         db.execSQL("ALTER TABLE diary_new RENAME TO diary")
     }
 }
+
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `tracking_templates` (
+                `id` TEXT NOT NULL,
+                `name` TEXT NOT NULL,
+                `description` TEXT NOT NULL,
+                `icon` TEXT NOT NULL,
+                `color` INTEGER NOT NULL,
+                `is_active` INTEGER NOT NULL,
+                `display_order` INTEGER NOT NULL,
+                `created_at_epoch_milli` INTEGER NOT NULL,
+                `updated_at_epoch_milli` INTEGER NOT NULL,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS
+                `index_tracking_templates_display_order_created_at_epoch_milli_id`
+            ON `tracking_templates` (`display_order`, `created_at_epoch_milli`, `id`)
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `tracking_trackers` (
+                `id` TEXT NOT NULL,
+                `name` TEXT NOT NULL,
+                `type` TEXT NOT NULL,
+                `unit` TEXT,
+                `config_json` TEXT NOT NULL,
+                `is_active` INTEGER NOT NULL,
+                `created_at_epoch_milli` INTEGER NOT NULL,
+                `updated_at_epoch_milli` INTEGER NOT NULL,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_tracking_trackers_type_is_active`
+            ON `tracking_trackers` (`type`, `is_active`)
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `tracking_template_fields` (
+                `id` TEXT NOT NULL,
+                `template_id` TEXT NOT NULL,
+                `tracker_id` TEXT NOT NULL,
+                `display_order` INTEGER NOT NULL,
+                `required` INTEGER NOT NULL,
+                `display_name_override` TEXT,
+                `default_value_json` TEXT,
+                PRIMARY KEY(`id`),
+                FOREIGN KEY(`template_id`) REFERENCES `tracking_templates`(`id`)
+                    ON UPDATE CASCADE ON DELETE NO ACTION,
+                FOREIGN KEY(`tracker_id`) REFERENCES `tracking_trackers`(`id`)
+                    ON UPDATE CASCADE ON DELETE NO ACTION
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_tracking_template_fields_template_id`
+            ON `tracking_template_fields` (`template_id`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_tracking_template_fields_tracker_id`
+            ON `tracking_template_fields` (`tracker_id`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS
+                `index_tracking_template_fields_template_id_display_order_id`
+            ON `tracking_template_fields` (`template_id`, `display_order`, `id`)
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `tracking_tracker_options` (
+                `id` TEXT NOT NULL,
+                `tracker_id` TEXT NOT NULL,
+                `label` TEXT NOT NULL,
+                `numeric_value` REAL,
+                `color` INTEGER,
+                `display_order` INTEGER NOT NULL,
+                `is_active` INTEGER NOT NULL,
+                PRIMARY KEY(`id`),
+                FOREIGN KEY(`tracker_id`) REFERENCES `tracking_trackers`(`id`)
+                    ON UPDATE CASCADE ON DELETE NO ACTION
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_tracking_tracker_options_tracker_id`
+            ON `tracking_tracker_options` (`tracker_id`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS
+                `index_tracking_tracker_options_tracker_id_display_order_id`
+            ON `tracking_tracker_options` (`tracker_id`, `display_order`, `id`)
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `tracking_record_sessions` (
+                `id` TEXT NOT NULL,
+                `template_id` TEXT NOT NULL,
+                `occurred_at_epoch_milli` INTEGER NOT NULL,
+                `zone_id` TEXT NOT NULL,
+                `note` TEXT,
+                `source` TEXT NOT NULL,
+                `created_at_epoch_milli` INTEGER NOT NULL,
+                `updated_at_epoch_milli` INTEGER NOT NULL,
+                PRIMARY KEY(`id`),
+                FOREIGN KEY(`template_id`) REFERENCES `tracking_templates`(`id`)
+                    ON UPDATE CASCADE ON DELETE NO ACTION
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS
+                `index_tracking_record_sessions_template_id_occurred_at_epoch_milli`
+            ON `tracking_record_sessions` (`template_id`, `occurred_at_epoch_milli`)
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `tracking_data_points` (
+                `id` TEXT NOT NULL,
+                `session_id` TEXT,
+                `tracker_id` TEXT NOT NULL,
+                `epoch_milli` INTEGER NOT NULL,
+                `utc_offset_seconds` INTEGER NOT NULL,
+                `value` REAL,
+                `label` TEXT,
+                `note` TEXT,
+                `option_id` TEXT,
+                `created_at_epoch_milli` INTEGER NOT NULL,
+                `updated_at_epoch_milli` INTEGER NOT NULL,
+                PRIMARY KEY(`id`),
+                FOREIGN KEY(`session_id`) REFERENCES `tracking_record_sessions`(`id`)
+                    ON UPDATE CASCADE ON DELETE CASCADE,
+                FOREIGN KEY(`tracker_id`) REFERENCES `tracking_trackers`(`id`)
+                    ON UPDATE CASCADE ON DELETE NO ACTION,
+                FOREIGN KEY(`option_id`) REFERENCES `tracking_tracker_options`(`id`)
+                    ON UPDATE CASCADE ON DELETE NO ACTION
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_tracking_data_points_session_id`
+            ON `tracking_data_points` (`session_id`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_tracking_data_points_tracker_id_epoch_milli`
+            ON `tracking_data_points` (`tracker_id`, `epoch_milli`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_tracking_data_points_option_id`
+            ON `tracking_data_points` (`option_id`)
+            """.trimIndent()
+        )
+    }
+}

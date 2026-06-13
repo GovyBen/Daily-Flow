@@ -5,9 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.mhss.app.tracking.data.database.TrackingDatabaseConverters
-import com.mhss.app.tracking.domain.model.RecordSource
 
 @Entity(
     tableName = "tracking_record_sessions",
@@ -24,7 +21,6 @@ import com.mhss.app.tracking.domain.model.RecordSource
         Index(value = ["template_id", "occurred_at_epoch_milli"])
     ]
 )
-@TypeConverters(TrackingDatabaseConverters::class)
 data class RecordSessionEntity(
     @PrimaryKey
     val id: String,
@@ -35,7 +31,7 @@ data class RecordSessionEntity(
     @ColumnInfo(name = "zone_id")
     val zoneId: String,
     val note: String? = null,
-    val source: RecordSource,
+    val source: String,
     @ColumnInfo(name = "created_at_epoch_milli")
     val createdAtEpochMilli: Long,
     @ColumnInfo(name = "updated_at_epoch_milli")

@@ -3,7 +3,7 @@ package com.mhss.app.tracking.data.repository
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.mhss.app.tracking.data.database.TrackingSchemaTestDatabase
+import com.mhss.app.database.MyBrainDatabase
 import com.mhss.app.tracking.data.database.TrackingTransactionStore
 import com.mhss.app.tracking.data.factory.TrackingEntityFactory
 import com.mhss.app.tracking.data.mapping.TrackerValueMapper
@@ -32,14 +32,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RoomTrackingRepositoryTest {
 
-    private lateinit var database: TrackingSchemaTestDatabase
+    private lateinit var database: MyBrainDatabase
     private lateinit var repository: RoomTrackingRepository
 
     @Before
     fun setUp() {
         database = Room.inMemoryDatabaseBuilder(
             InstrumentationRegistry.getInstrumentation().targetContext,
-            TrackingSchemaTestDatabase::class.java
+            MyBrainDatabase::class.java
         ).allowMainThreadQueries().build()
         val idGenerator = RepositoryIdGenerator()
         val factory = TrackingEntityFactory(idGenerator)

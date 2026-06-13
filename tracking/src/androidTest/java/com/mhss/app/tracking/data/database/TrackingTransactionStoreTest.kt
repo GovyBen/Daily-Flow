@@ -3,6 +3,7 @@ package com.mhss.app.tracking.data.database
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.mhss.app.database.MyBrainDatabase
 import com.mhss.app.tracking.data.database.entity.DataPointEntity
 import com.mhss.app.tracking.data.database.entity.RecordSessionEntity
 import com.mhss.app.tracking.data.database.entity.RecordTemplateEntity
@@ -24,14 +25,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TrackingTransactionStoreTest {
 
-    private lateinit var database: TrackingSchemaTestDatabase
+    private lateinit var database: MyBrainDatabase
     private lateinit var store: TrackingTransactionStore
 
     @Before
     fun setUp() {
         database = Room.inMemoryDatabaseBuilder(
             InstrumentationRegistry.getInstrumentation().targetContext,
-            TrackingSchemaTestDatabase::class.java
+            MyBrainDatabase::class.java
         ).allowMainThreadQueries().build()
         store = TrackingTransactionStore(
             database = database,
@@ -150,7 +151,7 @@ class TrackingTransactionStoreTest {
     private fun tracker() = TrackerEntity(
         id = "tracker",
         name = "Mood",
-        type = TrackerType.SCALE,
+        type = TrackerType.SCALE.name,
         configJson = "{}",
         createdAtEpochMilli = 1,
         updatedAtEpochMilli = 1
@@ -172,7 +173,7 @@ class TrackingTransactionStoreTest {
         occurredAtEpochMilli = occurredAt,
         zoneId = "Asia/Shanghai",
         note = note,
-        source = RecordSource.MANUAL,
+        source = RecordSource.MANUAL.name,
         createdAtEpochMilli = 1_000,
         updatedAtEpochMilli = 1_000
     )

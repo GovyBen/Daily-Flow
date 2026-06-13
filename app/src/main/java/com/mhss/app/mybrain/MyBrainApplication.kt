@@ -41,6 +41,7 @@ import com.mhss.app.presentation.di.DiaryPresentationModule
 import com.mhss.app.presentation.di.NotePresentationModule
 import com.mhss.app.presentation.di.SettingsPresentationModule
 import com.mhss.app.presentation.di.TasksPresentationModule
+import com.mhss.app.tracking.di.TrackingModule
 import com.mhss.app.ui.R
 import com.mhss.app.util.Constants
 import com.mhss.app.widget.di.WidgetModule
@@ -73,6 +74,7 @@ class MyBrainApplication : Application() {
                 MainPresentationModule().module,
                 AlarmModule().module,
                 databaseModule,
+                TrackingModule().module,
                 coroutinesModule,
                 PreferencesModule().module,
                 NotePresentationModule().module,

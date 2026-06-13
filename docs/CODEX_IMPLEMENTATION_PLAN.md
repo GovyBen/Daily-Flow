@@ -778,7 +778,7 @@ adb logcat -d
 
 #### DF-109 建立数据库迁移和 schema 导出
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-105
 - 目标：把 tracking 表加入主数据库。
 - 要求：
@@ -787,6 +787,11 @@ adb logcat -d
   - 新安装和从 My Brain 基线升级都测试。
   - 不使用 destructive migration。
 - 验收：升级保留已有任务、日记、设置和日历映射。
+- 完成记录（2026-06-13）：主数据库升级至 v6 并纳入六张 tracking 表，提交
+  导出的 Room schema 和显式 `MIGRATION_5_6`，未启用 destructive migration。
+  `MigrationTestHelper` 仪器测试覆盖全新安装与 v5 升级，验证任务、日记和闹钟
+  数据保留、tracking 外键可用；迁移不重写既有表，设置与日历映射保持原路径。
+  tracking DAO/实体由 `core:database` 统一持有，repository 仍封装在 tracking 模块。
 
 #### DF-110 提供内置示例模板
 

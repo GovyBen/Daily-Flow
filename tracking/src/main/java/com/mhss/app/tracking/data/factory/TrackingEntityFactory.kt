@@ -43,7 +43,7 @@ class TrackingEntityFactory(
     ) = TrackerEntity(
         id = idGenerator.newId(),
         name = name,
-        type = config.trackerType,
+        type = config.trackerType.name,
         unit = unit,
         configJson = TrackerConfigJson.encode(config),
         createdAtEpochMilli = nowEpochMilli,
@@ -95,7 +95,7 @@ class TrackingEntityFactory(
         occurredAtEpochMilli = occurredAtEpochMilli,
         zoneId = zoneId,
         note = note,
-        source = source,
+        source = source.name,
         createdAtEpochMilli = nowEpochMilli,
         updatedAtEpochMilli = nowEpochMilli
     )
