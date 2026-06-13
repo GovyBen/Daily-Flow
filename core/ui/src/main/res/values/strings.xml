@@ -23,6 +23,7 @@
     <string name="bookmarks">Bookmarks</string>
     <string name="calendar">Calendar</string>
     <string name="content_library" tools:ignore="MissingTranslation">Content library</string>
+    <string name="tracking_templates" tools:ignore="MissingTranslation">Tracking</string>
     <string name="content_filter_all" tools:ignore="MissingTranslation">All</string>
     <string name="content_filter_notes" tools:ignore="MissingTranslation">Notes</string>
     <string name="content_filter_diary" tools:ignore="MissingTranslation">Diary</string>

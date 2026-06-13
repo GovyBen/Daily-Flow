@@ -16,7 +16,7 @@ interface TrackingTemplateDao {
         """
         SELECT * FROM tracking_templates
         WHERE is_active = 1
-        ORDER BY display_order, created_at_epoch_milli, id
+        ORDER BY is_pinned DESC, display_order, created_at_epoch_milli, id
         """
     )
     fun observeActiveTemplates(): Flow<List<RecordTemplateEntity>>
@@ -59,4 +59,17 @@ interface TrackingTemplateDao {
         """
     )
     suspend fun deactivateTemplate(id: String, updatedAtEpochMilli: Long): Int
+
+    @Query(
+        """
+        UPDATE tracking_templates
+        SET is_pinned = :isPinned, updated_at_epoch_milli = :updatedAtEpochMilli
+        WHERE id = :id AND is_active = 1
+        """
+    )
+    suspend fun setTemplatePinned(
+        id: String,
+        isPinned: Boolean,
+        updatedAtEpochMilli: Long
+    ): Int
 }

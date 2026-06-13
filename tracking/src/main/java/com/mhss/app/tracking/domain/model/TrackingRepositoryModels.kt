@@ -45,9 +45,11 @@ data class TrackingTemplateSummary(
     val description: String,
     val icon: String,
     val color: Long,
+    val isPinned: Boolean,
     val displayOrder: Int,
     val createdAtEpochMilli: Long,
     val updatedAtEpochMilli: Long,
+    val lastRecordedAtEpochMilli: Long?,
     val fields: List<TrackingFieldDraft>
 )
 

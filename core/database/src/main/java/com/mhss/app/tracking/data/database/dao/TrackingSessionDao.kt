@@ -8,6 +8,13 @@ import androidx.room.Update
 import com.mhss.app.tracking.data.database.entity.RecordSessionEntity
 import kotlinx.coroutines.flow.Flow
 
+data class TemplateLastRecordedAt(
+    @androidx.room.ColumnInfo(name = "template_id")
+    val templateId: String,
+    @androidx.room.ColumnInfo(name = "last_recorded_at_epoch_milli")
+    val lastRecordedAtEpochMilli: Long
+)
+
 @Dao
 interface TrackingSessionDao {
 
@@ -43,6 +50,15 @@ interface TrackingSessionDao {
         startInclusive: Long,
         endExclusive: Long
     ): List<RecordSessionEntity>
+
+    @Query(
+        """
+        SELECT template_id, MAX(occurred_at_epoch_milli) AS last_recorded_at_epoch_milli
+        FROM tracking_record_sessions
+        GROUP BY template_id
+        """
+    )
+    fun observeLastRecordedTimes(): Flow<List<TemplateLastRecordedAt>>
 
     @Insert
     suspend fun insertSession(session: RecordSessionEntity)

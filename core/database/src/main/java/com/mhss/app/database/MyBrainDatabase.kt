@@ -41,7 +41,7 @@ import com.mhss.app.tracking.data.database.entity.TrackerOptionEntity
         RecordSessionEntity::class,
         DataPointEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(DBConverters::class)

@@ -8,6 +8,7 @@ import com.mhss.app.database.migrations.MIGRATION_2_3
 import com.mhss.app.database.migrations.MIGRATION_3_4
 import com.mhss.app.database.migrations.MIGRATION_4_5
 import com.mhss.app.database.migrations.MIGRATION_5_6
+import com.mhss.app.database.migrations.MIGRATION_6_7
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -23,7 +24,8 @@ val databaseModule = module {
             MIGRATION_2_3,
             MIGRATION_3_4,
             MIGRATION_4_5,
-            MIGRATION_5_6
+            MIGRATION_5_6,
+            MIGRATION_6_7
         )
             .build()
     }

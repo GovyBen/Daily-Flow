@@ -22,4 +22,30 @@
     <string name="tracking_error_text_too_long">文本过长。</string>
     <string name="tracking_error_multiline_not_allowed">不允许换行。</string>
     <string name="tracking_error_invalid_configuration">此字段配置有误。</string>
+    <string name="tracking_templates_title">记录模板</string>
+    <string name="tracking_back">返回</string>
+    <string name="tracking_create_template">创建模板</string>
+    <string name="tracking_template_name">模板名称</string>
+    <string name="tracking_create">创建</string>
+    <string name="tracking_cancel">取消</string>
+    <string name="tracking_no_templates">暂无启用的模板，点击 + 创建。</string>
+    <plurals name="tracking_field_count">
+        <item quantity="other">%1$d 个字段</item>
+    </plurals>
+    <string name="tracking_last_recorded">最后记录：%1$s</string>
+    <string name="tracking_never_recorded">尚未记录</string>
+    <string name="tracking_pinned">已固定</string>
+    <string name="tracking_template_actions">模板操作</string>
+    <string name="tracking_pin">固定</string>
+    <string name="tracking_unpin">取消固定</string>
+    <string name="tracking_duplicate">复制</string>
+    <string name="tracking_move_up">上移</string>
+    <string name="tracking_move_down">下移</string>
+    <string name="tracking_deactivate">停用</string>
+    <string name="tracking_deactivate_template_title">停用模板？</string>
+    <string name="tracking_deactivate_template_message">“%1$s”将从启用列表隐藏，已有记录会保留。</string>
+    <string name="tracking_template_created">模板已创建。</string>
+    <string name="tracking_template_duplicated">模板已复制。</string>
+    <string name="tracking_template_deactivated">模板已停用。</string>
+    <string name="tracking_template_operation_failed">无法更新模板。</string>
 </resources>

@@ -35,6 +35,17 @@ interface TrackingRepository {
         nowEpochMilli: Long
     )
 
+    suspend fun setTemplatePinned(
+        templateId: String,
+        isPinned: Boolean,
+        nowEpochMilli: Long
+    )
+
+    suspend fun deactivateTemplate(
+        templateId: String,
+        nowEpochMilli: Long
+    )
+
     suspend fun saveRecordSession(
         command: RecordSessionCommand,
         nowEpochMilli: Long

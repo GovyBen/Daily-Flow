@@ -122,6 +122,25 @@ class RoomTrackingRepository(
         transactionStore.reorderTemplates(templates)
     }
 
+    override suspend fun setTemplatePinned(
+        templateId: String,
+        isPinned: Boolean,
+        nowEpochMilli: Long
+    ) = withContext(ioDispatcher) {
+        check(templateDao.setTemplatePinned(templateId, isPinned, nowEpochMilli) == 1) {
+            "Cannot pin a template that does not exist or is inactive"
+        }
+    }
+
+    override suspend fun deactivateTemplate(
+        templateId: String,
+        nowEpochMilli: Long
+    ) = withContext(ioDispatcher) {
+        check(templateDao.deactivateTemplate(templateId, nowEpochMilli) == 1) {
+            "Cannot deactivate a template that does not exist or is already inactive"
+        }
+    }
+
     override suspend fun saveRecordSession(
         command: RecordSessionCommand,
         nowEpochMilli: Long
@@ -173,13 +192,20 @@ class RoomTrackingRepository(
     }
 
     override fun observeTemplates(): Flow<List<TrackingTemplateSummary>> {
-        return templateDao.observeActiveTemplates()
-            .map { templates ->
-                templates.map { template ->
-                    template.toSummary(loadTemplateDraft(template.id).fields)
-                }
+        return combine(
+            templateDao.observeActiveTemplates(),
+            sessionDao.observeLastRecordedTimes()
+        ) { templates, lastRecordedTimes ->
+            val lastRecordedByTemplate = lastRecordedTimes.associate {
+                it.templateId to it.lastRecordedAtEpochMilli
             }
-            .flowOn(ioDispatcher)
+                templates.map { template ->
+                    template.toSummary(
+                        fields = loadTemplateDraft(template.id).fields,
+                        lastRecordedAtEpochMilli = lastRecordedByTemplate[template.id]
+                    )
+                }
+        }.flowOn(ioDispatcher)
     }
 
     override fun observeRecordHistory(
@@ -243,6 +269,7 @@ class RoomTrackingRepository(
             color = draft.color,
             displayOrder = draft.displayOrder,
             isActive = currentTemplate?.isActive ?: true,
+            isPinned = currentTemplate?.isPinned ?: false,
             createdAtEpochMilli = currentTemplate?.createdAtEpochMilli ?: nowEpochMilli,
             updatedAtEpochMilli = nowEpochMilli
         )
@@ -395,16 +422,19 @@ class RoomTrackingRepository(
 }
 
 private fun RecordTemplateEntity.toSummary(
-    fields: List<TrackingFieldDraft>
+    fields: List<TrackingFieldDraft>,
+    lastRecordedAtEpochMilli: Long?
 ) = TrackingTemplateSummary(
     id = id,
     name = name,
     description = description,
     icon = icon,
     color = color,
+    isPinned = isPinned,
     displayOrder = displayOrder,
     createdAtEpochMilli = createdAtEpochMilli,
     updatedAtEpochMilli = updatedAtEpochMilli,
+    lastRecordedAtEpochMilli = lastRecordedAtEpochMilli,
     fields = fields
 )
 

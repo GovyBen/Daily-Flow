@@ -7,6 +7,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.mhss.app.database.migrations.MIGRATION_5_6
+import com.mhss.app.database.migrations.MIGRATION_6_7
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -132,6 +133,43 @@ class TrackingMigrationTest {
                 it.count
             }
             assertEquals(0, foreignKeyViolations)
+        }
+    }
+
+    @Test
+    fun migrationFrom6To7PreservesTemplatesAndAddsPinnedState() {
+        helper.createDatabase(TEST_DATABASE, 6).use { database ->
+            database.execSQL(
+                """
+                INSERT INTO tracking_templates
+                (id, name, description, icon, color, is_active, display_order,
+                 created_at_epoch_milli, updated_at_epoch_milli)
+                VALUES ('template', 'Health', '', '', 1, 1, 0, 1000, 1000)
+                """.trimIndent()
+            )
+        }
+
+        helper.runMigrationsAndValidate(
+            TEST_DATABASE,
+            7,
+            true,
+            MIGRATION_6_7
+        ).use { database ->
+            assertEquals(
+                0L,
+                database.singleLong(
+                    "SELECT is_pinned FROM tracking_templates WHERE id = 'template'"
+                )
+            )
+            database.execSQL(
+                "UPDATE tracking_templates SET is_pinned = 1 WHERE id = 'template'"
+            )
+            assertEquals(
+                1L,
+                database.singleLong(
+                    "SELECT is_pinned FROM tracking_templates WHERE id = 'template'"
+                )
+            )
         }
     }
 

@@ -49,6 +49,7 @@ import com.mhss.app.presentation.TasksScreen
 import com.mhss.app.presentation.TasksSearchScreen
 import com.mhss.app.presentation.backup.ImportExportScreen
 import com.mhss.app.presentation.integrations.IntegrationsScreen
+import com.mhss.app.tracking.presentation.template.TrackingTemplateListScreen
 import com.mhss.app.ui.R
 import com.mhss.app.ui.StartUpScreenSettings
 import com.mhss.app.ui.navigation.Screen
@@ -282,6 +283,14 @@ fun MyBrainApp(
                     exitTransition = { slideOutTransition() },
                 ) {
                     ContentLibraryScreen(navController = navController)
+                }
+                composable<Screen.TrackingTemplatesScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    TrackingTemplateListScreen(
+                        onBack = navController::navigateUp
+                    )
                 }
                 composable<Screen.CalendarScreen>(
                     deepLinks = listOf(

@@ -78,9 +78,9 @@ class TrackingSchemaTest {
         sql.execSQL(
             """
             INSERT INTO tracking_templates
-            (id, name, description, icon, color, is_active, display_order,
+            (id, name, description, icon, color, is_active, is_pinned, display_order,
              created_at_epoch_milli, updated_at_epoch_milli)
-            VALUES ('template', 'Health', '', '', 1, 1, 0, 1, 1)
+            VALUES ('template', 'Health', '', '', 1, 1, 0, 0, 1, 1)
             """.trimIndent()
         )
         sql.execSQL(
@@ -163,9 +163,9 @@ private fun SupportSQLiteDatabase.insertTemplateAndTracker() {
     execSQL(
         """
         INSERT INTO tracking_templates
-        (id, name, description, icon, color, is_active, display_order,
+        (id, name, description, icon, color, is_active, is_pinned, display_order,
          created_at_epoch_milli, updated_at_epoch_milli)
-        VALUES ('template', 'Health', '', '', 1, 1, 0, 1, 1)
+        VALUES ('template', 'Health', '', '', 1, 1, 0, 0, 1, 1)
         """.trimIndent()
     )
     execSQL(

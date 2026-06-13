@@ -77,6 +77,8 @@ class RoomTrackingRepositoryTest {
         assertEquals(2, first.fields.size)
         assertTrue(first.fields.all { it.id != null && it.trackerId != null })
         assertTrue(first.fields.first().tracker.options.all { it.id != null })
+        assertEquals(false, first.isPinned)
+        assertNull(first.lastRecordedAtEpochMilli)
 
         repository.updateTemplate(
             firstId,
@@ -84,14 +86,16 @@ class RoomTrackingRepositoryTest {
             nowEpochMilli = 3_000
         )
         val duplicateId = repository.duplicateTemplate(firstId, 4_000)
+        repository.setTemplatePinned(firstId, true, 4_500)
         repository.reorderTemplates(listOf(duplicateId, secondId, firstId), 5_000)
 
         val templates = repository.observeTemplates().first()
         assertEquals(
-            listOf(duplicateId, secondId, firstId),
+            listOf(firstId, duplicateId, secondId),
             templates.map { it.id }
         )
-        assertEquals("Wellbeing", templates.last().name)
+        assertTrue(templates.first().isPinned)
+        assertEquals("Wellbeing", templates.first { it.id == firstId }.name)
         assertNotEquals(
             templates.first().fields.first().trackerId,
             templates.last().fields.first().trackerId
@@ -122,6 +126,7 @@ class RoomTrackingRepositoryTest {
         assertEquals(3, savedPoints.size)
         assertEquals(setOf("Chest", "Back"), savedPoints.mapNotNull { it.label }.toSet())
         assertEquals("First", savedPoints.single { it.note != null }.note)
+        assertEquals(1_000L, repository.observeTemplates().first().single().lastRecordedAtEpochMilli)
 
         val history = repository.observeRecordHistory(templateId, 0, 2_000).first()
         assertEquals(1, history.size)
@@ -164,6 +169,15 @@ class RoomTrackingRepositoryTest {
         assertNull(database.sessionDao().getSession(sessionId))
         assertNull(database.sessionDao().getSession(repeatedSessionId))
         assertTrue(database.dataPointDao().getDataPointsForSession(sessionId).isEmpty())
+    }
+
+    @Test
+    fun deactivatedTemplateLeavesTheActiveTemplateFlow() = runBlocking {
+        val templateId = repository.createTemplate(templateDraft("Temporary"), 1_000)
+
+        repository.deactivateTemplate(templateId, 2_000)
+
+        assertTrue(repository.observeTemplates().first().isEmpty())
     }
 
     @Test

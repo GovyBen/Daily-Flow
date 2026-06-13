@@ -25,6 +25,7 @@ import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.singleGradientBackground
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.theme.Blue
+import com.mhss.app.ui.theme.Green
 import com.mhss.app.ui.theme.MyBrainTheme
 import com.mhss.app.ui.theme.Red
 
@@ -89,6 +90,12 @@ fun SpacesScreen(
 
 private val spaces = listOf(
     Space(R.string.content_library, R.drawable.notes_img, Blue, Screen.ContentLibraryScreen),
+    Space(
+        R.string.tracking_templates,
+        R.drawable.tracking_img,
+        Green,
+        Screen.TrackingTemplatesScreen
+    ),
     Space(R.string.tasks, R.drawable.tasks_img, Red, Screen.TasksScreen()),
 )
 

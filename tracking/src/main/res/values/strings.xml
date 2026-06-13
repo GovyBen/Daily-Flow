@@ -22,4 +22,31 @@
     <string name="tracking_error_text_too_long">The text is too long.</string>
     <string name="tracking_error_multiline_not_allowed">Line breaks are not allowed.</string>
     <string name="tracking_error_invalid_configuration">This field is configured incorrectly.</string>
+    <string name="tracking_templates_title">Tracking templates</string>
+    <string name="tracking_back">Back</string>
+    <string name="tracking_create_template">Create template</string>
+    <string name="tracking_template_name">Template name</string>
+    <string name="tracking_create">Create</string>
+    <string name="tracking_cancel">Cancel</string>
+    <string name="tracking_no_templates">No active templates. Use + to create one.</string>
+    <plurals name="tracking_field_count">
+        <item quantity="one">%1$d field</item>
+        <item quantity="other">%1$d fields</item>
+    </plurals>
+    <string name="tracking_last_recorded">Last recorded: %1$s</string>
+    <string name="tracking_never_recorded">Not recorded yet</string>
+    <string name="tracking_pinned">Pinned</string>
+    <string name="tracking_template_actions">Template actions</string>
+    <string name="tracking_pin">Pin</string>
+    <string name="tracking_unpin">Unpin</string>
+    <string name="tracking_duplicate">Duplicate</string>
+    <string name="tracking_move_up">Move up</string>
+    <string name="tracking_move_down">Move down</string>
+    <string name="tracking_deactivate">Deactivate</string>
+    <string name="tracking_deactivate_template_title">Deactivate template?</string>
+    <string name="tracking_deactivate_template_message">“%1$s” will be hidden from the active list. Existing records are kept.</string>
+    <string name="tracking_template_created">Template created.</string>
+    <string name="tracking_template_duplicated">Template duplicated.</string>
+    <string name="tracking_template_deactivated">Template deactivated.</string>
+    <string name="tracking_template_operation_failed">Could not update the template.</string>
 </resources>

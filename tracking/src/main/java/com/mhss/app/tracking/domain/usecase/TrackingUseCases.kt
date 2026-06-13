@@ -36,6 +36,21 @@ class ReorderTemplatesUseCase(private val repository: TrackingRepository) {
 }
 
 @Factory
+class SetTemplatePinnedUseCase(private val repository: TrackingRepository) {
+    suspend operator fun invoke(
+        templateId: String,
+        isPinned: Boolean,
+        nowEpochMilli: Long
+    ) = repository.setTemplatePinned(templateId, isPinned, nowEpochMilli)
+}
+
+@Factory
+class DeactivateTemplateUseCase(private val repository: TrackingRepository) {
+    suspend operator fun invoke(templateId: String, nowEpochMilli: Long) =
+        repository.deactivateTemplate(templateId, nowEpochMilli)
+}
+
+@Factory
 class SaveRecordSessionUseCase(private val repository: TrackingRepository) {
     suspend operator fun invoke(command: RecordSessionCommand, nowEpochMilli: Long) =
         repository.saveRecordSession(command, nowEpochMilli)

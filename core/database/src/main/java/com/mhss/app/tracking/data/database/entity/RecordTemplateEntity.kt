@@ -20,6 +20,8 @@ data class RecordTemplateEntity(
     val color: Long,
     @ColumnInfo(name = "is_active")
     val isActive: Boolean = true,
+    @ColumnInfo(name = "is_pinned")
+    val isPinned: Boolean = false,
     @ColumnInfo(name = "display_order")
     val displayOrder: Int = 0,
     @ColumnInfo(name = "created_at_epoch_milli")
