@@ -208,11 +208,23 @@ class RoomTrackingRepository(
     ): List<TrackingSuggestedValue> = withContext(ioDispatcher) {
         require(limit > 0) { "Suggested value limit must be positive" }
         dataPointDao.getRecentDataPoints(trackerId, limit * 4)
-            .distinctBy { point ->
-                listOf(point.value, point.label, point.note, point.optionId)
+            .groupBy { point ->
+                SuggestedValueKey(
+                    value = point.value,
+                    label = point.label,
+                    note = point.note,
+                    optionId = point.optionId
+                )
             }
+            .values
+            .map { matchingPoints ->
+                matchingPoints.first().toSuggestedValue(matchingPoints.size)
+            }
+            .sortedWith(
+                compareByDescending<TrackingSuggestedValue> { it.lastUsedAtEpochMilli }
+                    .thenBy { it.stableKey() }
+            )
             .take(limit)
-            .map(DataPointEntity::toSuggestedValue)
     }
 
     private suspend fun saveTemplateAggregate(
@@ -419,10 +431,25 @@ private fun DataPointEntity.toRecordedPoint() = TrackingRecordedPoint(
     optionId = optionId
 )
 
-private fun DataPointEntity.toSuggestedValue() = TrackingSuggestedValue(
+private fun DataPointEntity.toSuggestedValue(usageCount: Int) = TrackingSuggestedValue(
     value = value,
     label = label,
     note = note,
     optionId = optionId,
-    lastUsedAtEpochMilli = epochMilli
+    lastUsedAtEpochMilli = epochMilli,
+    usageCount = usageCount
+)
+
+private fun TrackingSuggestedValue.stableKey(): String = listOf(
+    value?.toString().orEmpty(),
+    label.orEmpty(),
+    note.orEmpty(),
+    optionId.orEmpty()
+).joinToString(separator = "\u0000")
+
+private data class SuggestedValueKey(
+    val value: Double?,
+    val label: String?,
+    val note: String?,
+    val optionId: String?
 )

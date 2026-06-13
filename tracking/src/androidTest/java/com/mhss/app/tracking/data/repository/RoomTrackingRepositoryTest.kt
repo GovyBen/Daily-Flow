@@ -144,12 +144,25 @@ class RoomTrackingRepositoryTest {
         assertEquals(listOf("Back"), updatedPoints.mapNotNull { it.label })
         assertEquals("Updated", updatedPoints.single { it.note != null }.note)
 
+        val repeatedSessionId = repository.saveRecordSession(
+            command(
+                templateId = templateId,
+                selectFieldId = selectField.id,
+                textFieldId = textField.id,
+                selectedOptions = setOf(back.id),
+                note = "Repeated"
+            ),
+            nowEpochMilli = 4_000
+        )
         val suggestions = repository.getSuggestedValues(selectField.trackerId!!, 5)
         assertEquals(1, suggestions.size)
         assertEquals("Back", suggestions.first().label)
+        assertEquals(2, suggestions.first().usageCount)
 
         repository.deleteRecordSession(sessionId)
+        repository.deleteRecordSession(repeatedSessionId)
         assertNull(database.sessionDao().getSession(sessionId))
+        assertNull(database.sessionDao().getSession(repeatedSessionId))
         assertTrue(database.dataPointDao().getDataPointsForSession(sessionId).isEmpty())
     }
 

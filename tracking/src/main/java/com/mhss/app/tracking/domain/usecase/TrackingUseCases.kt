@@ -1,8 +1,11 @@
 package com.mhss.app.tracking.domain.usecase
 
 import com.mhss.app.tracking.domain.model.RecordSessionCommand
+import com.mhss.app.tracking.domain.model.TrackingFieldDraft
 import com.mhss.app.tracking.domain.model.TrackingTemplateDraft
 import com.mhss.app.tracking.domain.repository.TrackingRepository
+import com.mhss.app.tracking.domain.suggestion.SuggestedValueHelper
+import com.mhss.app.tracking.domain.validation.TrackerInputValue
 import org.koin.core.annotation.Factory
 
 @Factory
@@ -65,4 +68,21 @@ class ObserveRecordHistoryUseCase(private val repository: TrackingRepository) {
 class GetSuggestedValuesUseCase(private val repository: TrackingRepository) {
     suspend operator fun invoke(trackerId: String, limit: Int) =
         repository.getSuggestedValues(trackerId, limit)
+}
+
+@Factory
+class GetTrackingValueSuggestionsUseCase(
+    private val helper: SuggestedValueHelper
+) {
+    suspend operator fun invoke(
+        field: TrackingFieldDraft,
+        currentInput: TrackerInputValue? = null,
+        limit: Int = SuggestedValueHelper.DEFAULT_LIMIT,
+        includeTextHistory: Boolean = false
+    ) = helper.getSuggestions(
+        field = field,
+        currentInput = currentInput,
+        limit = limit,
+        includeTextHistory = includeTextHistory
+    )
 }

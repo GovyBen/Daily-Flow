@@ -855,7 +855,7 @@ adb logcat -d
 
 #### DF-203 移植 SuggestedValueHelper
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-108
 - 来源：Track & Graph `SuggestedValueHelper.kt` 及测试。
 - 目标：
@@ -863,6 +863,14 @@ adb logcat -d
   - counter 可一键递增。
   - 不对文本隐私内容默认展示长历史。
 - 验收：建议值排序稳定，不阻塞主线程。
+- 完成记录（2026-06-13）：
+  从固定 Track & Graph 提交适配 `SuggestedValueHelper`，改为基于 Daily Flow
+  repository 和八类 `TrackerInputValue`，提供默认值、最近值、常用值及
+  counter 一键递增；同次数、同时间通过稳定键确定顺序。文本历史默认隐藏，
+  显式开启时最多 3 条。默认值使用带类型标记的 JSON 往返，并在展示前统一
+  验证。查询与排序运行在 IO dispatcher。JVM 测试覆盖八类映射、排序、
+  隐私限制、递增和序列化；雷电 Android 9 上 19 个 tracking 仪器测试通过，
+  Room 集成测试确认重复值使用次数聚合；全应用 debug 构建和 lint 通过。
 
 #### DF-204 实现模板列表
 

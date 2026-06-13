@@ -44,7 +44,7 @@ The following files have been migrated or approved for later evaluation:
 | DF-104 | `app/data/src/main/java/com/samco/trackandgraph/data/database/dto/DataPoint.kt` | `tracking/.../data/factory/TrackingEntityFactory.kt` | Adapted 2026-06-13; timestamp fields and generated identity |
 | DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DurationInput.kt` | - | Reference only |
 | DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DateTimeSelectorButtons.kt` | - | Reference only |
-| DF-205 | `app/app/src/main/java/com/samco/trackandgraph/adddatapoint/SuggestedValueHelper.kt` | - | Reference only |
+| DF-203 | `app/app/src/main/java/com/samco/trackandgraph/adddatapoint/SuggestedValueHelper.kt` | `tracking/.../domain/suggestion/SuggestedValueHelper.kt` | Adapted 2026-06-13; repository-backed recent/frequent/default groups, stable ties, sealed inputs, counter increment and text privacy limit |
 | DF-302 | `app/app/src/main/java/com/samco/trackandgraph/graphstatview/functions/aggregation/` | - | Reference only |
 | DF-306 | `app/data/src/main/java/com/samco/trackandgraph/data/csvreadwriter/CSVReadWriterImpl.kt` | - | Reference only |
 | DF-402 | `app/app/src/main/java/com/samco/trackandgraph/reminders/` | - | Reference only |

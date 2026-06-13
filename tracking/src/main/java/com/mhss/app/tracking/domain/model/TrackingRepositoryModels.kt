@@ -93,5 +93,6 @@ data class TrackingSuggestedValue(
     val label: String?,
     val note: String?,
     val optionId: String?,
-    val lastUsedAtEpochMilli: Long
+    val lastUsedAtEpochMilli: Long,
+    val usageCount: Int = 1
 )
