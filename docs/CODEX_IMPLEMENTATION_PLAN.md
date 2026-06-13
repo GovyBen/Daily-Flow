@@ -622,7 +622,7 @@ adb logcat -d
 
 #### DF-101 新增最小 `tracking` 模块
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-004
 - 目标：创建单一 Android library module，并遵循现有 My Brain Gradle 约定。
 - 依赖：
@@ -632,6 +632,9 @@ adb logcat -d
 - 验收：
   - `:tracking:assembleDebug` 成功。
   - app 暂不需要展示页面。
+- 完成记录（2026-06-13）：已新增单一 Android library module，统一复用版本目录中的
+  Compose、Room、Koin、Coroutines、Kotlin Serialization 和 datetime 依赖；
+  `:tracking:assembleDebug` 通过，尚未接入应用页面。
 
 #### DF-102 移植 DataSample 核心接口和测试
 
