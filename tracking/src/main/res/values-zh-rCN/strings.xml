@@ -135,4 +135,11 @@
     <string name="tracking_history_operation_failed">无法更新记录历史。</string>
     <string name="tracking_history_edit_title">编辑记录</string>
     <string name="tracking_history_archived_preserved">保存时会原样保留已归档字段。</string>
+    <string name="tracking_dashboard_title">自定义记录</string>
+    <string name="tracking_dashboard_quick_title">快速记录</string>
+    <string name="tracking_dashboard_no_templates">创建记录模板后即可开始记录。</string>
+    <string name="tracking_dashboard_no_records">今天还没有记录。</string>
+    <plurals name="tracking_dashboard_today_count">
+        <item quantity="other">今天 %1$d 条记录</item>
+    </plurals>
 </resources>

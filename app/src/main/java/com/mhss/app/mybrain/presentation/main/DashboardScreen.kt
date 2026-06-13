@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import com.mhss.app.presentation.CalendarDashboardWidget
 import com.mhss.app.presentation.MoodCircularBar
 import com.mhss.app.presentation.TasksDashboardWidget
+import com.mhss.app.tracking.presentation.dashboard.TrackingDashboardSection
 import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.navigation.Screen
@@ -35,6 +36,16 @@ fun DashboardScreen(
     ) {paddingValues ->
         LaunchedEffect(true) { viewModel.onDashboardEvent(DashboardEvent.InitAll) }
         LazyColumn(contentPadding = paddingValues) {
+            item {
+                TrackingDashboardSection(
+                    onQuickRecord = { templateId ->
+                        navController.navigate(Screen.TrackingQuickRecordScreen(templateId))
+                    },
+                    onOpenHistory = {
+                        navController.navigate(Screen.TrackingHistoryScreen())
+                    }
+                )
+            }
             item {
                 CalendarDashboardWidget(
                     modifier = Modifier

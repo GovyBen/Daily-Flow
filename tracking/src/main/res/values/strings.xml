@@ -136,4 +136,12 @@
     <string name="tracking_history_operation_failed">Could not update the record history.</string>
     <string name="tracking_history_edit_title">Edit record</string>
     <string name="tracking_history_archived_preserved">Archived fields are preserved unchanged when this record is saved.</string>
+    <string name="tracking_dashboard_title">Custom tracking</string>
+    <string name="tracking_dashboard_quick_title">Quick record</string>
+    <string name="tracking_dashboard_no_templates">Create a tracking template to start recording.</string>
+    <string name="tracking_dashboard_no_records">Nothing recorded yet today.</string>
+    <plurals name="tracking_dashboard_today_count">
+        <item quantity="one">%1$d record today</item>
+        <item quantity="other">%1$d records today</item>
+    </plurals>
 </resources>
