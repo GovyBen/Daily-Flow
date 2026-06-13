@@ -22,6 +22,19 @@
     <string name="diary">Diary</string>
     <string name="bookmarks">Bookmarks</string>
     <string name="calendar">Calendar</string>
+    <string name="content_library" tools:ignore="MissingTranslation">Content library</string>
+    <string name="content_filter_all" tools:ignore="MissingTranslation">All</string>
+    <string name="content_filter_notes" tools:ignore="MissingTranslation">Notes</string>
+    <string name="content_filter_diary" tools:ignore="MissingTranslation">Diary</string>
+    <string name="content_filter_links" tools:ignore="MissingTranslation">Links</string>
+    <string name="search_content_library" tools:ignore="MissingTranslation">Search notes, diary, and links</string>
+    <string name="no_content_library_items" tools:ignore="MissingTranslation">No content yet. Use the + button to create your first item.</string>
+    <string name="no_content_library_results" tools:ignore="MissingTranslation">No matching content</string>
+    <string name="create_content" tools:ignore="MissingTranslation">Create content</string>
+    <string name="content_type_note" tools:ignore="MissingTranslation">Note</string>
+    <string name="content_type_diary" tools:ignore="MissingTranslation">Diary</string>
+    <string name="content_type_link" tools:ignore="MissingTranslation">Link</string>
+    <string name="untitled_content" tools:ignore="MissingTranslation">Untitled</string>
     <string name="add_task">Add task</string>
     <string name="add_task_to_my_brain">Add task to Daily Flow</string>
     <string name="search">Search</string>

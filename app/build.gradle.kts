@@ -94,6 +94,8 @@ dependencies {
     implementation(project(":tasks:domain"))
     implementation(project(":calendar:domain"))
     implementation(project(":diary:domain"))
+    implementation(project(":notes:domain"))
+    implementation(project(":bookmarks:domain"))
 
     implementation(project(":core:notification"))
     implementation(project(":core:ui"))

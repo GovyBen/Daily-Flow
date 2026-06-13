@@ -25,9 +25,7 @@ import com.mhss.app.ui.components.common.MyBrainAppBar
 import com.mhss.app.ui.components.common.singleGradientBackground
 import com.mhss.app.ui.navigation.Screen
 import com.mhss.app.ui.theme.Blue
-import com.mhss.app.ui.theme.Green
 import com.mhss.app.ui.theme.MyBrainTheme
-import com.mhss.app.ui.theme.Orange
 import com.mhss.app.ui.theme.Red
 
 @Composable
@@ -90,10 +88,8 @@ fun SpacesScreen(
 
 
 private val spaces = listOf(
-    Space(R.string.notes, R.drawable.notes_img, Blue, Screen.NotesScreen),
+    Space(R.string.content_library, R.drawable.notes_img, Blue, Screen.ContentLibraryScreen),
     Space(R.string.tasks, R.drawable.tasks_img, Red, Screen.TasksScreen()),
-    Space(R.string.diary, R.drawable.diary_img, Green, Screen.DiaryScreen),
-    Space(R.string.bookmarks, R.drawable.bookmarks_img, Orange, Screen.BookmarksScreen),
 )
 
 private data class Space(

@@ -32,18 +32,17 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.mhss.app.mybrain.presentation.app_lock.AppLockManager
 import com.mhss.app.mybrain.presentation.app_lock.AuthScreen
+import com.mhss.app.mybrain.content.domain.ContentType
+import com.mhss.app.mybrain.content.presentation.ContentLibraryScreen
 import com.mhss.app.presentation.AssistantScreen
 import com.mhss.app.presentation.BookmarkDetailsScreen
 import com.mhss.app.presentation.BookmarkSearchScreen
-import com.mhss.app.presentation.BookmarksScreen
 import com.mhss.app.presentation.CalendarEventDetailsScreen
 import com.mhss.app.presentation.DiaryChartScreen
 import com.mhss.app.presentation.DiaryEntryDetailsScreen
-import com.mhss.app.presentation.DiaryScreen
 import com.mhss.app.presentation.DiarySearchScreen
 import com.mhss.app.presentation.NoteDetailsScreen
 import com.mhss.app.presentation.NoteFolderDetailsScreen
-import com.mhss.app.presentation.NotesScreen
 import com.mhss.app.presentation.NotesSearchScreen
 import com.mhss.app.presentation.TaskDetailScreen
 import com.mhss.app.presentation.TasksScreen
@@ -195,7 +194,10 @@ fun MyBrainApp(
                     enterTransition = { slideInTransition() },
                     exitTransition = { slideOutTransition() },
                 ) {
-                    NotesScreen(navController = navController)
+                    ContentLibraryScreen(
+                        navController = navController,
+                        initialType = ContentType.NOTE
+                    )
                 }
                 composable<Screen.NoteDetailsScreen>(
                     deepLinks = listOf(
@@ -223,7 +225,10 @@ fun MyBrainApp(
                     enterTransition = { slideInTransition() },
                     exitTransition = { slideOutTransition() },
                 ) {
-                    DiaryScreen(navController = navController)
+                    ContentLibraryScreen(
+                        navController = navController,
+                        initialType = ContentType.DIARY
+                    )
                 }
                 composable<Screen.DiaryChartScreen>(
                     enterTransition = { slideInTransition() },
@@ -251,7 +256,10 @@ fun MyBrainApp(
                     enterTransition = { slideInTransition() },
                     exitTransition = { slideOutTransition() },
                 ) {
-                    BookmarksScreen(navController = navController)
+                    ContentLibraryScreen(
+                        navController = navController,
+                        initialType = ContentType.LINK
+                    )
                 }
                 composable<Screen.BookmarkDetailScreen>(
                     enterTransition = { slideInTransition() },
@@ -268,6 +276,12 @@ fun MyBrainApp(
                     exitTransition = { slideOutTransition() },
                 ) {
                     BookmarkSearchScreen(navController = navController)
+                }
+                composable<Screen.ContentLibraryScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    ContentLibraryScreen(navController = navController)
                 }
                 composable<Screen.CalendarScreen>(
                     deepLinks = listOf(

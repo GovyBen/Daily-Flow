@@ -11,6 +11,9 @@ sealed class Screen {
     data object SpacesScreen : Screen()
 
     @Serializable
+    data object ContentLibraryScreen : Screen()
+
+    @Serializable
     data object DashboardScreen : Screen()
 
     @Serializable
