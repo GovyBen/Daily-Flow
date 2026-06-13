@@ -740,7 +740,7 @@ adb logcat -d
 
 #### DF-107 实现输入值到 DataPoint 的映射器
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-104、DF-106
 - 目标：八种控件共享一个转换入口。
 - 规则：严格按第 7.3 节映射。
@@ -750,6 +750,9 @@ adb logcat -d
   - boolean 生成 0/1。
   - duration 统一为秒。
   - text 不伪造 numeric value。
+- 完成记录（2026-06-13）：新增统一映射请求和 `TrackerValueMapper`，映射前
+  强制使用 DF-106 验证器。多选按选项顺序生成独立数据点，并快照 label 和
+  numeric value；文本仅写入 note，空的非必填输入不生成数据点。
 
 #### DF-108 实现 tracking repository 和 use cases
 
