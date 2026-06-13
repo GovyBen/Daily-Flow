@@ -72,3 +72,14 @@ sealed interface TrackerInputValue {
         override val trackerType = TrackerType.TEXT
     }
 }
+
+fun TrackerType.emptyInputValue(): TrackerInputValue = when (this) {
+    TrackerType.MULTI_SELECT -> TrackerInputValue.MultiSelect(emptySet())
+    TrackerType.SINGLE_SELECT -> TrackerInputValue.SingleSelect(null)
+    TrackerType.COUNTER -> TrackerInputValue.Counter(null)
+    TrackerType.SCALE -> TrackerInputValue.Scale(null)
+    TrackerType.BOOLEAN -> TrackerInputValue.BooleanValue(null)
+    TrackerType.DURATION -> TrackerInputValue.Duration(null)
+    TrackerType.NUMBER -> TrackerInputValue.NumberValue(null)
+    TrackerType.TEXT -> TrackerInputValue.Text("")
+}

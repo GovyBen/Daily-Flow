@@ -105,4 +105,14 @@
     <string name="tracking_type_duration">时长</string>
     <string name="tracking_type_number">数值</string>
     <string name="tracking_type_text">文本</string>
+    <string name="tracking_edit_template">编辑模板</string>
+    <string name="tracking_quick_record_title">快速记录</string>
+    <string name="tracking_record_time">发生时间</string>
+    <string name="tracking_session_note">本次备注</string>
+    <string name="tracking_save_record">保存记录</string>
+    <string name="tracking_record_save_failed">无法保存记录。</string>
+    <string name="tracking_record_saved_title">记录已保存</string>
+    <string name="tracking_record_session_id">会话 ID：%1$s</string>
+    <string name="tracking_record_another">再记一条</string>
+    <string name="tracking_done">完成</string>
 </resources>

@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.MoreVert
@@ -77,12 +78,14 @@ fun trackingTemplateCardTag(id: String) = "tracking-template-card-$id"
 fun trackingTemplateMenuTag(id: String) = "tracking-template-menu-$id"
 fun trackingTemplatePinTag(id: String) = "tracking-template-pin-$id"
 fun trackingTemplateDuplicateTag(id: String) = "tracking-template-duplicate-$id"
+fun trackingTemplateEditTag(id: String) = "tracking-template-edit-$id"
 fun trackingTemplateDeactivateTag(id: String) = "tracking-template-deactivate-$id"
 
 @Composable
 fun TrackingTemplateListScreen(
     onBack: () -> Unit,
     onTemplateClick: (String) -> Unit = {},
+    onEditTemplate: (String) -> Unit = {},
     onCreateTemplate: (() -> Unit)? = null,
     viewModel: TrackingTemplateListViewModel = koinViewModel()
 ) {
@@ -107,6 +110,7 @@ fun TrackingTemplateListScreen(
         snackbarHostState = snackbarHostState,
         onBack = onBack,
         onTemplateClick = onTemplateClick,
+        onEditTemplate = onEditTemplate,
         onCreateTemplate = onCreateTemplate,
         onCreate = viewModel::create,
         onPin = viewModel::togglePinned,
@@ -124,6 +128,7 @@ fun TrackingTemplateListContent(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBack: () -> Unit = {},
     onTemplateClick: (String) -> Unit = {},
+    onEditTemplate: (String) -> Unit = {},
     onCreateTemplate: (() -> Unit)? = null,
     onCreate: (String) -> Unit = {},
     onPin: (TrackingTemplateSummary) -> Unit = {},
@@ -202,6 +207,7 @@ fun TrackingTemplateListContent(
                             canMoveUp = previous?.isPinned == template.isPinned,
                             canMoveDown = next?.isPinned == template.isPinned,
                             onClick = { onTemplateClick(template.id) },
+                            onEdit = { onEditTemplate(template.id) },
                             onPin = { onPin(template) },
                             onDuplicate = { onDuplicate(template.id) },
                             onMoveUp = { onMoveUp(template.id) },
@@ -269,6 +275,7 @@ private fun TrackingTemplateCard(
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     onClick: () -> Unit,
+    onEdit: () -> Unit,
     onPin: () -> Unit,
     onDuplicate: () -> Unit,
     onMoveUp: () -> Unit,
@@ -372,6 +379,15 @@ private fun TrackingTemplateCard(
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false }
                 ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.tracking_edit_template)) },
+                        leadingIcon = { Icon(Icons.Rounded.Edit, contentDescription = null) },
+                        onClick = {
+                            menuExpanded = false
+                            onEdit()
+                        },
+                        modifier = Modifier.testTag(trackingTemplateEditTag(template.id))
+                    )
                     DropdownMenuItem(
                         text = {
                             Text(

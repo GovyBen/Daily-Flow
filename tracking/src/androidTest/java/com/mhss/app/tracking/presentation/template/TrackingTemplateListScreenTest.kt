@@ -63,12 +63,14 @@ class TrackingTemplateListScreenTest {
         val template = template(id = "health", name = "Health")
         var pinnedId: String? = null
         var duplicatedId: String? = null
+        var editedId: String? = null
         setContent {
             MaterialTheme {
                 TrackingTemplateListContent(
                     state = TrackingTemplateListUiState(listOf(template)),
                     onPin = { pinnedId = it.id },
-                    onDuplicate = { duplicatedId = it }
+                    onDuplicate = { duplicatedId = it },
+                    onEditTemplate = { editedId = it }
                 )
             }
         }
@@ -78,9 +80,12 @@ class TrackingTemplateListScreenTest {
         onNodeWithTag(trackingTemplatePinTag("health")).performClick()
         onNodeWithTag(trackingTemplateMenuTag("health")).performClick()
         onNodeWithTag(trackingTemplateDuplicateTag("health")).performClick()
+        onNodeWithTag(trackingTemplateMenuTag("health")).performClick()
+        onNodeWithTag(trackingTemplateEditTag("health")).performClick()
 
         assertEquals("health", pinnedId)
         assertEquals("health", duplicatedId)
+        assertEquals("health", editedId)
     }
 
     @Test

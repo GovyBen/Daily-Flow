@@ -106,4 +106,14 @@
     <string name="tracking_type_duration">Duration</string>
     <string name="tracking_type_number">Number</string>
     <string name="tracking_type_text">Text</string>
+    <string name="tracking_edit_template">Edit template</string>
+    <string name="tracking_quick_record_title">Quick record</string>
+    <string name="tracking_record_time">Occurred at</string>
+    <string name="tracking_session_note">Session note</string>
+    <string name="tracking_save_record">Save record</string>
+    <string name="tracking_record_save_failed">Could not save the record.</string>
+    <string name="tracking_record_saved_title">Record saved</string>
+    <string name="tracking_record_session_id">Session ID: %1$s</string>
+    <string name="tracking_record_another">Record another</string>
+    <string name="tracking_done">Done</string>
 </resources>
