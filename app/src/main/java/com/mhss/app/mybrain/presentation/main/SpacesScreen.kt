@@ -28,7 +28,6 @@ import com.mhss.app.ui.theme.Blue
 import com.mhss.app.ui.theme.Green
 import com.mhss.app.ui.theme.MyBrainTheme
 import com.mhss.app.ui.theme.Orange
-import com.mhss.app.ui.theme.Purple
 import com.mhss.app.ui.theme.Red
 
 @Composable
@@ -95,7 +94,6 @@ private val spaces = listOf(
     Space(R.string.tasks, R.drawable.tasks_img, Red, Screen.TasksScreen()),
     Space(R.string.diary, R.drawable.diary_img, Green, Screen.DiaryScreen),
     Space(R.string.bookmarks, R.drawable.bookmarks_img, Orange, Screen.BookmarksScreen),
-    Space(R.string.calendar, R.drawable.calendar_img, Purple, Screen.CalendarScreen),
 )
 
 private data class Space(

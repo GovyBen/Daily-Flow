@@ -12,6 +12,7 @@ import com.mhss.app.mybrain.presentation.app_lock.AppLockManager
 import com.mhss.app.mybrain.presentation.main.DashboardScreen
 import com.mhss.app.mybrain.presentation.main.SettingsScreen
 import com.mhss.app.mybrain.presentation.main.SpacesScreen
+import com.mhss.app.presentation.CalendarScreen
 import com.mhss.app.ui.navigation.Screen
 
 @Composable
@@ -28,7 +29,21 @@ fun NavigationGraph(
             enterTransition = { fadeIn(tween(0)) },
             exitTransition = { fadeOut(tween(0)) },
         ) {
-            DashboardScreen(mainNavController)
+            DashboardScreen(
+                navController = mainNavController,
+                onCalendarClick = {
+                    navController.navigate(Screen.CalendarScreen) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+        composable<Screen.CalendarScreen>(
+            enterTransition = { fadeIn(tween(0)) },
+            exitTransition = { fadeOut(tween(0)) },
+        ) {
+            CalendarScreen(navController = mainNavController)
         }
         composable<Screen.SpacesScreen>(
             enterTransition = { fadeIn(tween(0)) },

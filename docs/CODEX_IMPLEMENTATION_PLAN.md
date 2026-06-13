@@ -521,7 +521,7 @@ adb logcat -d
 
 #### DF-008 日历升级为主导航栏位
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-005
 - 目标：
   - 底栏固定为概览、日历、空间、设置。
@@ -532,6 +532,10 @@ adb logcat -d
   - 概览日历卡片切换到日历 tab。
   - 事件详情、Deep Link 和返回栈保持兼容。
 - 验收：四个主栏位可恢复状态，日期新增事件使用所选日期，设备测试通过。
+- 完成记录（2026-06-13）：
+  - 月视图成为新的默认值，旧版列表视图偏好使用独立键隔离。
+  - Android 9 / API 28 雷电实例完成启动、四栏切换和 Calendar Deep Link 冒烟验证。
+  - `testDebugUnitTest`、`lintDebug` 和 `:app:assembleDebug` 通过。
 
 #### DF-009 提前执行 SecretStore 审计和迁移
 

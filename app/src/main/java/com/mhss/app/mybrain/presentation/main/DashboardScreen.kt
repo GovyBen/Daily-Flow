@@ -25,6 +25,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun DashboardScreen(
     navController: NavHostController,
+    onCalendarClick: () -> Unit,
     viewModel: MainViewModel = koinViewModel()
 ) {
     Scaffold(
@@ -40,11 +41,7 @@ fun DashboardScreen(
                         .fillMaxWidth()
                         .aspectRatio(1.5f),
                     events = viewModel.uiState.dashBoardEvents,
-                    onClick = {
-                        navController.navigate(
-                            Screen.CalendarScreen
-                        )
-                    },
+                    onClick = onCalendarClick,
                     onPermission = {
                         viewModel.onDashboardEvent(DashboardEvent.ReadPermissionChanged(it))
                     },

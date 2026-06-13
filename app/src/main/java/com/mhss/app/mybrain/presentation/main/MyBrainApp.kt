@@ -37,7 +37,6 @@ import com.mhss.app.presentation.BookmarkDetailsScreen
 import com.mhss.app.presentation.BookmarkSearchScreen
 import com.mhss.app.presentation.BookmarksScreen
 import com.mhss.app.presentation.CalendarEventDetailsScreen
-import com.mhss.app.presentation.CalendarScreen
 import com.mhss.app.presentation.DiaryChartScreen
 import com.mhss.app.presentation.DiaryEntryDetailsScreen
 import com.mhss.app.presentation.DiaryScreen
@@ -128,6 +127,7 @@ fun MyBrainApp(
         LaunchedEffect(Unit) {
             when (val defaultScreen = viewModel.defaultStartUpScreen.first()) {
                 StartUpScreenSettings.DASHBOARD.value -> startDestination = Screen.DashboardScreen
+                StartUpScreenSettings.CALENDAR.value -> startDestination = Screen.CalendarScreen
                 StartUpScreenSettings.SPACES.value -> Unit
                 else -> navController.navigate(defaultScreen.toStartUpScreen().screen)
             }
@@ -278,7 +278,14 @@ fun MyBrainApp(
                     enterTransition = { slideInTransition() },
                     exitTransition = { slideOutTransition() },
                 ) {
-                    CalendarScreen(navController = navController)
+                    MainScreen(
+                        startUpScreen = Screen.CalendarScreen,
+                        mainNavController = navController,
+                        appLockManager = appLockManager,
+                        modifier = Modifier
+                            .consumeWindowInsets(WindowInsets.systemBars)
+                            .padding(paddingValues)
+                    )
                 }
                 composable<Screen.CalendarEventDetailsScreen>(
                     deepLinks = listOf(

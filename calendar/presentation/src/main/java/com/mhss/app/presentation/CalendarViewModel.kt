@@ -194,7 +194,7 @@ class CalendarViewModel(
         viewModeJob?.cancel()
         viewModeJob = getPreference(
             booleanPreferencesKey(PrefsConstants.CALENDAR_VIEW_MODE_KEY),
-            false
+            true
         ).onEach { isMonthView ->
             _uiState.update { it.copy(isMonthView = isMonthView) }
             loadEvents()

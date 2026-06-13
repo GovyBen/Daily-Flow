@@ -23,7 +23,12 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
     val bottomNavItems =
-        listOf(BottomNavItem.Dashboard, BottomNavItem.Spaces, BottomNavItem.Settings)
+        listOf(
+            BottomNavItem.Dashboard,
+            BottomNavItem.Calendar,
+            BottomNavItem.Spaces,
+            BottomNavItem.Settings
+        )
     Scaffold(
         modifier = modifier,
         bottomBar = {

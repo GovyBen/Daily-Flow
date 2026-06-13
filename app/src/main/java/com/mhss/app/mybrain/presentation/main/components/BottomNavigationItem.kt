@@ -8,6 +8,12 @@ sealed class BottomNavItem(val title: Int, val icon: Int, val iconSelected: Int,
     data object Dashboard : BottomNavItem(R.string.dashboard, R.drawable.ic_home, R.drawable.ic_home_filled,
         Screen.DashboardScreen
     )
+    data object Calendar : BottomNavItem(
+        R.string.calendar,
+        R.drawable.ic_calendar,
+        R.drawable.ic_calendar,
+        Screen.CalendarScreen
+    )
     data object Spaces : BottomNavItem(R.string.spaces, R.drawable.ic_spaces, R.drawable.ic_spaces_filled,
         Screen.SpacesScreen
     )

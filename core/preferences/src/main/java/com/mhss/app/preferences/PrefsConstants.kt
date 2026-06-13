@@ -15,7 +15,7 @@ object PrefsConstants {
     const val BOOKMARK_ORDER_KEY = "bookmark_order"
     const val DIARY_ORDER_KEY = "diary_order"
     const val EXCLUDED_CALENDARS_KEY = "excluded_calendars"
-    const val CALENDAR_VIEW_MODE_KEY = "calendar_view_mode"
+    const val CALENDAR_VIEW_MODE_KEY = "calendar_view_mode_v2"
     const val FIRST_DAY_OF_WEEK_KEY = "first_day_of_week"
     const val APP_FONT_KEY = "app_font"
     const val BLOCK_SCREENSHOTS_KEY = "block_screen_shots"
