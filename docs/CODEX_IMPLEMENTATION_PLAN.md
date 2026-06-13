@@ -837,7 +837,7 @@ adb logcat -d
 
 #### DF-202 建立通用动态字段渲染器
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-106、DF-201
 - 目标：单一入口按 TrackerType 渲染控件。
 - 优先复用：
@@ -845,6 +845,13 @@ adb logcat -d
   - Track & Graph 快速输入布局。
 - 禁止：每种类型建立一套页面和 ViewModel。
 - 验收：八种控件均输出 sealed input value，错误由验证器统一显示。
+- 完成记录（2026-06-13）：
+  新增单一 `TrackingFieldInput` 入口，按字段配置渲染多选、单选、计数、
+  滑条、布尔、时长、数值和文本控件；所有交互输出
+  `TrackerInputValue`，并使用 `TrackerValueValidator` 统一显示必填、范围、
+  步进、选项状态和配置错误。类型不匹配会显示错误而非崩溃，控件包含
+  英文、简体中文资源和稳定测试标签。雷电 Android 9 上 19 个 tracking
+  仪器测试通过；全应用单元测试、debug 构建及 lint 通过。
 
 #### DF-203 移植 SuggestedValueHelper
 

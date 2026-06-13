@@ -5,4 +5,21 @@
     <string name="tracking_clear_duration">Clear</string>
     <string name="tracking_select_date">Select record date</string>
     <string name="tracking_select_time">Select record time</string>
+    <string name="tracking_required_field_label">%1$s *</string>
+    <string name="tracking_character_count">%1$d / %2$d</string>
+    <string name="tracking_clear_value">Clear</string>
+    <string name="tracking_number_value">Value</string>
+    <string name="tracking_error_required">This field is required.</string>
+    <string name="tracking_error_type_mismatch">The value type does not match this field.</string>
+    <string name="tracking_error_inactive_option">The selected option is no longer available.</string>
+    <string name="tracking_error_too_many_selections">Too many options are selected.</string>
+    <string name="tracking_error_non_integer">Enter a whole number.</string>
+    <string name="tracking_error_non_finite">Enter a finite number.</string>
+    <string name="tracking_error_below_minimum">The value is below the minimum.</string>
+    <string name="tracking_error_above_maximum">The value is above the maximum.</string>
+    <string name="tracking_error_invalid_step">The value does not match the allowed step.</string>
+    <string name="tracking_error_too_many_decimal_places">The value has too many decimal places.</string>
+    <string name="tracking_error_text_too_long">The text is too long.</string>
+    <string name="tracking_error_multiline_not_allowed">Line breaks are not allowed.</string>
+    <string name="tracking_error_invalid_configuration">This field is configured incorrectly.</string>
 </resources>

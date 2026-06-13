@@ -5,4 +5,21 @@
     <string name="tracking_clear_duration">清空</string>
     <string name="tracking_select_date">选择记录日期</string>
     <string name="tracking_select_time">选择记录时间</string>
+    <string name="tracking_required_field_label">%1$s *</string>
+    <string name="tracking_character_count">%1$d / %2$d</string>
+    <string name="tracking_clear_value">清空</string>
+    <string name="tracking_number_value">数值</string>
+    <string name="tracking_error_required">此项为必填项。</string>
+    <string name="tracking_error_type_mismatch">值类型与此字段不匹配。</string>
+    <string name="tracking_error_inactive_option">所选选项已不可用。</string>
+    <string name="tracking_error_too_many_selections">选择的选项过多。</string>
+    <string name="tracking_error_non_integer">请输入整数。</string>
+    <string name="tracking_error_non_finite">请输入有限数值。</string>
+    <string name="tracking_error_below_minimum">数值低于最小值。</string>
+    <string name="tracking_error_above_maximum">数值高于最大值。</string>
+    <string name="tracking_error_invalid_step">数值不符合步进要求。</string>
+    <string name="tracking_error_too_many_decimal_places">小数位数过多。</string>
+    <string name="tracking_error_text_too_long">文本过长。</string>
+    <string name="tracking_error_multiline_not_allowed">不允许换行。</string>
+    <string name="tracking_error_invalid_configuration">此字段配置有误。</string>
 </resources>
