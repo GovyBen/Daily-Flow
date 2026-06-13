@@ -14,6 +14,11 @@ interface TrackingRepository {
         nowEpochMilli: Long
     ): String
 
+    suspend fun createTemplateIfAbsent(
+        draft: TrackingTemplateDraft,
+        nowEpochMilli: Long
+    ): Boolean
+
     suspend fun updateTemplate(
         templateId: String,
         draft: TrackingTemplateDraft,

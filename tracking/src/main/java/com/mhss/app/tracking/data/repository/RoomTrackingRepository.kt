@@ -57,6 +57,21 @@ class RoomTrackingRepository(
         saveTemplateAggregate(null, draft, nowEpochMilli)
     }
 
+    override suspend fun createTemplateIfAbsent(
+        draft: TrackingTemplateDraft,
+        nowEpochMilli: Long
+    ): Boolean = withContext(ioDispatcher) {
+        val templateId = requireNotNull(draft.id) {
+            "A default template must have a stable ID"
+        }
+        if (templateDao.getTemplate(templateId) != null) {
+            false
+        } else {
+            saveTemplateAggregate(templateId, draft, nowEpochMilli)
+            true
+        }
+    }
+
     override suspend fun updateTemplate(
         templateId: String,
         draft: TrackingTemplateDraft,
@@ -75,6 +90,7 @@ class RoomTrackingRepository(
     ): String = withContext(ioDispatcher) {
         val source = loadTemplateDraft(templateId)
         val draft = source.copy(
+            id = null,
             fields = source.fields.map { field ->
                 field.copy(
                     id = null,
@@ -206,8 +222,9 @@ class RoomTrackingRepository(
     ): String {
         require(draft.name.isNotBlank()) { "Template name must not be blank" }
         val currentTemplate = templateId?.let { templateDao.getTemplate(it) }
+        val allowNewStableIds = currentTemplate == null && draft.id != null
         val template = RecordTemplateEntity(
-            id = templateId ?: idGenerator.newId(),
+            id = templateId ?: draft.id ?: idGenerator.newId(),
             name = draft.name,
             description = draft.description,
             icon = draft.icon,
@@ -221,7 +238,7 @@ class RoomTrackingRepository(
         val trackers = mutableListOf<TrackerEntity>()
         val options = mutableListOf<TrackerOptionEntity>()
         val fields = draft.fields.map { field ->
-            val tracker = field.toTrackerEntity(nowEpochMilli)
+            val tracker = field.toTrackerEntity(nowEpochMilli, allowNewStableIds)
             trackers += tracker
             options += field.tracker.options.map { option ->
                 option.toEntity(tracker.id)
@@ -242,14 +259,18 @@ class RoomTrackingRepository(
     }
 
     private suspend fun TrackingFieldDraft.toTrackerEntity(
-        nowEpochMilli: Long
+        nowEpochMilli: Long,
+        allowNewStableIds: Boolean
     ): TrackerEntity {
         val current = trackerId?.let { trackerDao.getTracker(it) }
-        if (trackerId != null) {
+        val createsStableTracker = allowNewStableIds &&
+            tracker.id != null &&
+            tracker.id == trackerId
+        if (trackerId != null && !createsStableTracker) {
             checkNotNull(current) { "Cannot reference a tracker that does not exist" }
         }
         return TrackerEntity(
-            id = trackerId ?: idGenerator.newId(),
+            id = trackerId ?: tracker.id ?: idGenerator.newId(),
             name = tracker.name,
             type = tracker.config.trackerType.name,
             unit = tracker.unit,
@@ -303,6 +324,7 @@ class RoomTrackingRepository(
             )
         }
         return TrackingTemplateDraft(
+            id = template.id,
             name = template.name,
             description = template.description,
             icon = template.icon,

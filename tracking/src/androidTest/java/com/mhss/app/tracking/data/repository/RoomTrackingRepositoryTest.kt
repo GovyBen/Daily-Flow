@@ -8,6 +8,7 @@ import com.mhss.app.tracking.data.database.TrackingTransactionStore
 import com.mhss.app.tracking.data.factory.TrackingEntityFactory
 import com.mhss.app.tracking.data.mapping.TrackerValueMapper
 import com.mhss.app.tracking.domain.id.TrackingIdGenerator
+import com.mhss.app.tracking.domain.defaults.DefaultTrackingTemplates
 import com.mhss.app.tracking.domain.model.MultiSelectConfig
 import com.mhss.app.tracking.domain.model.RecordSessionCommand
 import com.mhss.app.tracking.domain.model.TextConfig
@@ -180,6 +181,22 @@ class RoomTrackingRepositoryTest {
         assertTrue(database.sessionDao().getSessionsInRange(templateId, 0, 2_000).isEmpty())
     }
 
+    @Test
+    fun defaultTemplateCreationIsIdempotentAndDoesNotReactivate() = runBlocking {
+        val draft = DefaultTrackingTemplates.templates.first()
+
+        assertTrue(repository.createTemplateIfAbsent(draft, 1_000))
+        database.templateDao().deactivateTemplate(draft.id!!, 2_000)
+        assertTrue(!repository.createTemplateIfAbsent(draft, 3_000))
+
+        val stored = database.templateDao().getTemplate(draft.id)
+        assertEquals(false, stored?.isActive)
+        assertEquals(
+            draft.fields.map { it.trackerId },
+            database.templateDao().getFields(draft.id).map { it.trackerId }
+        )
+    }
+
     private fun templateDraft(name: String) = TrackingTemplateDraft(
         name = name,
         color = 1,
@@ -234,6 +251,7 @@ class RoomTrackingRepositoryTest {
 
 private fun com.mhss.app.tracking.domain.model.TrackingTemplateSummary.toDraft() =
     TrackingTemplateDraft(
+        id = id,
         name = name,
         description = description,
         icon = icon,

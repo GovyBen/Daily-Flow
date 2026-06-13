@@ -3,6 +3,7 @@ package com.mhss.app.tracking.domain.model
 import com.mhss.app.tracking.domain.validation.TrackerInputValue
 
 data class TrackingTemplateDraft(
+    val id: String? = null,
     val name: String,
     val description: String = "",
     val icon: String = "",
@@ -22,6 +23,7 @@ data class TrackingFieldDraft(
 )
 
 data class TrackingTrackerDraft(
+    val id: String? = null,
     val name: String,
     val config: TrackerConfig,
     val unit: String? = null,

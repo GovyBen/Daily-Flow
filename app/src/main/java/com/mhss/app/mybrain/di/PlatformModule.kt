@@ -5,6 +5,7 @@ import com.mhss.app.mybrain.dataStore
 import com.mhss.app.mybrain.data.security.AndroidKeystoreSecretStore
 import com.mhss.app.mybrain.data.security.LegacySecretMigration
 import com.mhss.app.mybrain.data.security.redactSensitiveHeaders
+import com.mhss.app.mybrain.data.tracking.DefaultTrackingTemplateInitializer
 import com.mhss.app.preferences.domain.repository.SecretStore
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.logging.Logger
@@ -21,6 +22,12 @@ val platformModule = module {
         )
     }
     single { LegacySecretMigration(dataStore = get(), secretStore = get()) }
+    single {
+        DefaultTrackingTemplateInitializer(
+            preferenceRepository = get(),
+            trackingRepository = get()
+        )
+    }
     single { OkHttp.create() }
     single<Logger> { AndroidHttpLogger() }
 

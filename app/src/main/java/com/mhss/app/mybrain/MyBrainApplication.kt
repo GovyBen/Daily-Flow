@@ -29,6 +29,7 @@ import com.mhss.app.mybrain.di.MainPresentationModule
 import com.mhss.app.mybrain.di.platformModule
 import com.mhss.app.mybrain.data.security.LegacySecretMigration
 import com.mhss.app.mybrain.data.security.redactSensitiveHeaders
+import com.mhss.app.mybrain.data.tracking.DefaultTrackingTemplateInitializer
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.di.PreferencesModule
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
@@ -62,6 +63,7 @@ class MyBrainApplication : Application() {
 
     private val getPreference: GetPreferenceUseCase by inject()
     private val legacySecretMigration: LegacySecretMigration by inject()
+    private val defaultTrackingTemplateInitializer: DefaultTrackingTemplateInitializer by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -100,6 +102,15 @@ class MyBrainApplication : Application() {
                 .onFailure {
                     Log.e("SecretMigration", "Secret migration will retry on the next launch.")
                 }
+            runCatching {
+                defaultTrackingTemplateInitializer.initialize(System.currentTimeMillis())
+            }.onFailure {
+                Log.e(
+                    "TrackingTemplates",
+                    "Default templates will retry on the next launch.",
+                    it
+                )
+            }
         }
         loadNotesModule()
 
