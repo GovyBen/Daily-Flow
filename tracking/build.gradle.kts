@@ -45,6 +45,7 @@ android {
 
 dependencies {
     implementation(project(":core:database"))
+    implementation(project(":core:ui"))
 
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)
@@ -65,4 +66,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.compose.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }

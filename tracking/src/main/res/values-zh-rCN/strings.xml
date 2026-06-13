@@ -1,0 +1,8 @@
+<resources>
+    <string name="tracking_duration_hours">小时</string>
+    <string name="tracking_duration_minutes">分钟</string>
+    <string name="tracking_duration_seconds">秒</string>
+    <string name="tracking_clear_duration">清空</string>
+    <string name="tracking_select_date">选择记录日期</string>
+    <string name="tracking_select_time">选择记录时间</string>
+</resources>

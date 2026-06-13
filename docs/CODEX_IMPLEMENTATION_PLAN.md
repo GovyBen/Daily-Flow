@@ -818,7 +818,7 @@ adb logcat -d
 
 #### DF-201 移植日期时间和时长输入组件
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-101
 - 来源：
   - Track & Graph `DurationInput.kt`
@@ -828,6 +828,12 @@ adb logcat -d
   - 无障碍 label。
   - 24/12 小时制跟随系统。
 - 测试：Compose UI 测试覆盖输入、清空、确认和配置变化。
+- 完成记录（2026-06-13）：从固定 Track & Graph 提交适配时长输入和日期时间
+  选择按钮，移除上游 ViewModel/MiniNumericTextField 依赖，统一输出秒数和 epoch
+  milliseconds；日期时间对话框复用 `core:ui` 并显式跟随系统 12/24 小时制。
+  英文和简体中文字符串、TalkBack 描述和稳定测试标签已加入。雷电 Android 9
+  上 14 个 tracking 仪器测试通过，覆盖输入、清空、保存恢复及日期/时间确认；
+  `:tracking:testDebugUnitTest`、tracking/app lint、App 构建和安装冒烟通过。
 
 #### DF-202 建立通用动态字段渲染器
 

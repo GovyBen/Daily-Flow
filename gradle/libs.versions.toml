@@ -57,6 +57,7 @@ androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workManager" }

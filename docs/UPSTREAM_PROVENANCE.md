@@ -39,6 +39,8 @@ The following files have been migrated or approved for later evaluation:
 | DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/sampling/DataSample.kt` | `tracking/.../analytics/sampling/DataSample.kt` | Migrated 2026-06-13; raw point type adapted |
 | DF-102 | `app/data/src/main/java/com/samco/trackandgraph/data/sampling/RawDataSample.kt` | `tracking/.../analytics/sampling/RawDataSample.kt` | Migrated 2026-06-13; raw point type adapted |
 | DF-104 | `app/data/src/main/java/com/samco/trackandgraph/data/database/entity/DataPoint.kt` | `core/database/.../tracking/data/database/entity/DataPointEntity.kt` | Adapted 2026-06-13; generated ID, session/option references and nullable values; persistence contract moved to the main database module in DF-109 |
+| DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DurationInput.kt` | `tracking/.../presentation/components/DurationInput.kt` | Adapted 2026-06-13; ViewModel and upstream mini text field replaced with a controlled Material 3 seconds input |
+| DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DateTimeSelectorButtons.kt` | `tracking/.../presentation/components/DateTimeSelectorButtons.kt` | Adapted 2026-06-13; reuses Daily Flow core dialogs and epoch-millisecond storage |
 | DF-104 | `app/data/src/main/java/com/samco/trackandgraph/data/database/dto/DataPoint.kt` | `tracking/.../data/factory/TrackingEntityFactory.kt` | Adapted 2026-06-13; timestamp fields and generated identity |
 | DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DurationInput.kt` | - | Reference only |
 | DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DateTimeSelectorButtons.kt` | - | Reference only |

@@ -1,0 +1,8 @@
+<resources>
+    <string name="tracking_duration_hours">Hours</string>
+    <string name="tracking_duration_minutes">Minutes</string>
+    <string name="tracking_duration_seconds">Seconds</string>
+    <string name="tracking_clear_duration">Clear</string>
+    <string name="tracking_select_date">Select record date</string>
+    <string name="tracking_select_time">Select record time</string>
+</resources>

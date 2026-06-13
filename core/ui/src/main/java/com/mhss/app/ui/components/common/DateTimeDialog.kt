@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -36,12 +37,14 @@ fun DateTimeDialog(
     onDismissRequest: () -> Unit,
     onDatePicked: (Long) -> Unit,
 ) {
+    val context = LocalContext.current
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = initialDate
     )
     val timePickerState = rememberTimePickerState(
         initialHour = initialDate.hour,
-        initialMinute = initialDate.minute
+        initialMinute = initialDate.minute,
+        is24Hour = android.text.format.DateFormat.is24HourFormat(context)
     )
     var showTime by remember {
         mutableStateOf(false)
@@ -133,9 +136,11 @@ fun TimeDialog(
     onDismissRequest: () -> Unit,
     onTimePicked: (Long) -> Unit,
 ) {
+    val context = LocalContext.current
     val timePickerState = rememberTimePickerState(
         initialHour = initialDate.hour,
-        initialMinute = initialDate.minute
+        initialMinute = initialDate.minute,
+        is24Hour = android.text.format.DateFormat.is24HourFormat(context)
     )
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
