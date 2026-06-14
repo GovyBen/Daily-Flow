@@ -145,4 +145,31 @@
         <item quantity="other">%1$d records today</item>
     </plurals>
     <string name="tracking_chart_no_data">No data available for this chart.</string>
+    <string name="tracking_analytics_title">Statistics</string>
+    <string name="tracking_analytics">Statistics</string>
+    <string name="tracking_analytics_tracker">Tracker</string>
+    <string name="tracking_analytics_range">Range</string>
+    <string name="tracking_analytics_range_day">Day</string>
+    <string name="tracking_analytics_range_week">Week</string>
+    <string name="tracking_analytics_range_month">Month</string>
+    <string name="tracking_analytics_aggregation">Aggregation</string>
+    <string name="tracking_analytics_sum">Sum</string>
+    <string name="tracking_analytics_count">Count</string>
+    <string name="tracking_analytics_average">Average</string>
+    <string name="tracking_analytics_minimum">Minimum</string>
+    <string name="tracking_analytics_maximum">Maximum</string>
+    <string name="tracking_analytics_today_summary">Today</string>
+    <string name="tracking_analytics_samples">Samples</string>
+    <string name="tracking_analytics_current_streak">Current streak</string>
+    <string name="tracking_analytics_longest_streak">Longest streak</string>
+    <string name="tracking_analytics_streak_days">%1$d days</string>
+    <string name="tracking_analytics_line_chart">Line</string>
+    <string name="tracking_analytics_bar_chart">Bar</string>
+    <string name="tracking_analytics_series_title">%1$s · %2$s</string>
+    <string name="tracking_analytics_distribution">Option distribution</string>
+    <string name="tracking_analytics_no_data">No records are available for this period.</string>
+    <string name="tracking_analytics_no_trackers">No statistical trackers</string>
+    <string name="tracking_analytics_no_trackers_detail">Add a non-text field to a tracking template to view statistics.</string>
+    <string name="tracking_analytics_load_failed">Statistics could not be loaded.</string>
+    <string name="tracking_analytics_retry">Retry</string>
 </resources>

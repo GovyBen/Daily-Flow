@@ -1114,7 +1114,7 @@ adb logcat -d
 
 #### DF-305 实现统计页面
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-303、DF-304
 - 能力：
   - 日、周、月范围。
@@ -1124,6 +1124,17 @@ adb logcat -d
   - 无数据说明。
 - 性能：统计计算使用后台 dispatcher；切换范围可取消旧任务。
 - 验收：一年日数据的交互无明显主线程卡顿。
+- 完成记录（2026-06-14）：
+  新增 typed navigation 统计页及模板列表总入口/单模板入口，支持最近 365 日日箱、
+  约 52 周周箱和 12 个月月箱，提供 tracker、sum/count/average/min/max 聚合、
+  折线/柱状切换、选项分布、今日摘要和当前/最长连续天数。页面只复用 tracking
+  repository 与统计用例；新增日序列用例以满足一年日数据验收。加载器在命名
+  `defaultDispatcher` 上并行组装结果，范围、tracker 或聚合变化通过
+  `flatMapLatest` 取消旧请求，并正确传播协程取消。JVM 测试覆盖 365 日序列在
+  3 秒预算内完成、后台线程执行、请求取消和日期范围；Compose 测试覆盖选择器、
+  图表、分布、连续天数及无 tracker 空态。tracking JVM 测试、lint、app debug
+  和 R8 release 构建通过；雷电 Android 9 上 44/44 仪器测试通过，真实 APK 完成
+  统计入口、周范围、平均值、折线/柱状和分布图交互，日志无崩溃或 Koin 异常。
 
 #### DF-306 移植 CSV 读写
 

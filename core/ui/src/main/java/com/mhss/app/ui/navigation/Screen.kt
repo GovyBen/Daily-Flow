@@ -33,6 +33,11 @@ sealed class Screen {
     ) : Screen()
 
     @Serializable
+    data class TrackingAnalyticsScreen(
+        val templateId: String? = null
+    ) : Screen()
+
+    @Serializable
     data object DashboardScreen : Screen()
 
     @Serializable

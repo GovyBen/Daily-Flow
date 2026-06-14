@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
@@ -81,6 +82,7 @@ fun trackingTemplatePinTag(id: String) = "tracking-template-pin-$id"
 fun trackingTemplateDuplicateTag(id: String) = "tracking-template-duplicate-$id"
 fun trackingTemplateEditTag(id: String) = "tracking-template-edit-$id"
 fun trackingTemplateHistoryTag(id: String) = "tracking-template-history-$id"
+fun trackingTemplateAnalyticsTag(id: String) = "tracking-template-analytics-$id"
 fun trackingTemplateDeactivateTag(id: String) = "tracking-template-deactivate-$id"
 
 @Composable
@@ -89,6 +91,7 @@ fun TrackingTemplateListScreen(
     onTemplateClick: (String) -> Unit = {},
     onEditTemplate: (String) -> Unit = {},
     onOpenHistory: (String?) -> Unit = {},
+    onOpenAnalytics: (String?) -> Unit = {},
     onCreateTemplate: (() -> Unit)? = null,
     viewModel: TrackingTemplateListViewModel = koinViewModel()
 ) {
@@ -115,6 +118,7 @@ fun TrackingTemplateListScreen(
         onTemplateClick = onTemplateClick,
         onEditTemplate = onEditTemplate,
         onOpenHistory = onOpenHistory,
+        onOpenAnalytics = onOpenAnalytics,
         onCreateTemplate = onCreateTemplate,
         onCreate = viewModel::create,
         onPin = viewModel::togglePinned,
@@ -134,6 +138,7 @@ fun TrackingTemplateListContent(
     onTemplateClick: (String) -> Unit = {},
     onEditTemplate: (String) -> Unit = {},
     onOpenHistory: (String?) -> Unit = {},
+    onOpenAnalytics: (String?) -> Unit = {},
     onCreateTemplate: (() -> Unit)? = null,
     onCreate: (String) -> Unit = {},
     onPin: (TrackingTemplateSummary) -> Unit = {},
@@ -158,6 +163,14 @@ fun TrackingTemplateListContent(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { onOpenAnalytics(null) }) {
+                        Icon(
+                            Icons.Rounded.BarChart,
+                            contentDescription = stringResource(
+                                R.string.tracking_analytics
+                            )
+                        )
+                    }
                     IconButton(onClick = { onOpenHistory(null) }) {
                         Icon(
                             Icons.Rounded.History,
@@ -222,6 +235,7 @@ fun TrackingTemplateListContent(
                             onClick = { onTemplateClick(template.id) },
                             onEdit = { onEditTemplate(template.id) },
                             onHistory = { onOpenHistory(template.id) },
+                            onAnalytics = { onOpenAnalytics(template.id) },
                             onPin = { onPin(template) },
                             onDuplicate = { onDuplicate(template.id) },
                             onMoveUp = { onMoveUp(template.id) },
@@ -291,6 +305,7 @@ private fun TrackingTemplateCard(
     onClick: () -> Unit,
     onEdit: () -> Unit,
     onHistory: () -> Unit,
+    onAnalytics: () -> Unit,
     onPin: () -> Unit,
     onDuplicate: () -> Unit,
     onMoveUp: () -> Unit,
@@ -411,6 +426,19 @@ private fun TrackingTemplateCard(
                             onHistory()
                         },
                         modifier = Modifier.testTag(trackingTemplateHistoryTag(template.id))
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.tracking_analytics)) },
+                        leadingIcon = {
+                            Icon(Icons.Rounded.BarChart, contentDescription = null)
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onAnalytics()
+                        },
+                        modifier = Modifier.testTag(
+                            trackingTemplateAnalyticsTag(template.id)
+                        )
                     )
                     DropdownMenuItem(
                         text = {

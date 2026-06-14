@@ -143,4 +143,31 @@
         <item quantity="other">今天 %1$d 条记录</item>
     </plurals>
     <string name="tracking_chart_no_data">暂无可用于此图表的数据。</string>
+    <string name="tracking_analytics_title">统计</string>
+    <string name="tracking_analytics">统计</string>
+    <string name="tracking_analytics_tracker">跟踪项</string>
+    <string name="tracking_analytics_range">范围</string>
+    <string name="tracking_analytics_range_day">日</string>
+    <string name="tracking_analytics_range_week">周</string>
+    <string name="tracking_analytics_range_month">月</string>
+    <string name="tracking_analytics_aggregation">聚合方式</string>
+    <string name="tracking_analytics_sum">总和</string>
+    <string name="tracking_analytics_count">次数</string>
+    <string name="tracking_analytics_average">平均值</string>
+    <string name="tracking_analytics_minimum">最小值</string>
+    <string name="tracking_analytics_maximum">最大值</string>
+    <string name="tracking_analytics_today_summary">今日摘要</string>
+    <string name="tracking_analytics_samples">样本数</string>
+    <string name="tracking_analytics_current_streak">当前连续</string>
+    <string name="tracking_analytics_longest_streak">最长连续</string>
+    <string name="tracking_analytics_streak_days">%1$d 天</string>
+    <string name="tracking_analytics_line_chart">折线</string>
+    <string name="tracking_analytics_bar_chart">柱状</string>
+    <string name="tracking_analytics_series_title">%1$s · %2$s</string>
+    <string name="tracking_analytics_distribution">选项分布</string>
+    <string name="tracking_analytics_no_data">此时间范围内暂无记录。</string>
+    <string name="tracking_analytics_no_trackers">暂无可统计的跟踪项</string>
+    <string name="tracking_analytics_no_trackers_detail">请在记录模板中添加非文本字段后查看统计。</string>
+    <string name="tracking_analytics_load_failed">无法加载统计数据。</string>
+    <string name="tracking_analytics_retry">重试</string>
 </resources>

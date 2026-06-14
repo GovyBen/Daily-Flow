@@ -20,6 +20,28 @@ class GetDailySummaryUseCase(
 }
 
 @Factory
+class GetDailySeriesUseCase(
+    private val engine: TrackingAnalyticsQueryEngine
+) {
+    suspend operator fun invoke(
+        trackerId: String,
+        startDate: LocalDate,
+        endDateExclusive: LocalDate,
+        operation: AggregationOperation,
+        preferences: AggregationPreferences = AggregationPreferences(),
+        booleanMode: BooleanSampleMode = BooleanSampleMode.TRUE_RATIO
+    ) = engine.series(
+        trackerId = trackerId,
+        startDate = startDate,
+        endDateExclusive = endDateExclusive,
+        operation = operation,
+        binSize = FixedBinSize.DAY,
+        preferences = preferences,
+        booleanMode = booleanMode
+    )
+}
+
+@Factory
 class GetWeeklySeriesUseCase(
     private val engine: TrackingAnalyticsQueryEngine
 ) {
