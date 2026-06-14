@@ -514,17 +514,6 @@ private fun RecordSessionEntity.toHistory(
     points = points.map(DataPointEntity::toRecordedPoint)
 )
 
-private fun DataPointEntity.toRecordedPoint() = TrackingRecordedPoint(
-    id = id,
-    trackerId = trackerId,
-    epochMilli = epochMilli,
-    utcOffsetSeconds = utcOffsetSeconds,
-    value = value,
-    label = label,
-    note = note,
-    optionId = optionId
-)
-
 private fun DataPointEntity.toSuggestedValue(usageCount: Int) = TrackingSuggestedValue(
     value = value,
     label = label,

@@ -2,6 +2,7 @@ package com.mhss.app.tracking.analytics.sampling
 
 import com.mhss.app.tracking.domain.model.TrackerType
 import com.mhss.app.tracking.domain.model.TrackingRecordedPoint
+import org.koin.core.annotation.Factory
 import kotlin.time.Instant
 
 enum class BooleanSampleMode {
@@ -17,6 +18,7 @@ data class AdaptedTrackingDataSamples(
 /**
  * Converts persistence-independent tracking history into analytics samples.
  */
+@Factory
 class TrackingDataSampleAdapter {
 
     fun adapt(
