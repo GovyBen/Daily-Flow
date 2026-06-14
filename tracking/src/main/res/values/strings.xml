@@ -144,4 +144,5 @@
         <item quantity="one">%1$d record today</item>
         <item quantity="other">%1$d records today</item>
     </plurals>
+    <string name="tracking_chart_no_data">No data available for this chart.</string>
 </resources>

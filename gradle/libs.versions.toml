@@ -1,5 +1,6 @@
 [versions]
 activityCompose = "1.12.4"
+androidplotCore = "1.5.11"
 appcompat = "1.7.1"
 biometric = "1.4.0-alpha05"
 calf = "0.9.0"
@@ -33,6 +34,7 @@ liquid = "1.1.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidplot-core = { module = "com.androidplot:androidplot-core", version.ref = "androidplotCore" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }

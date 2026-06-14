@@ -142,4 +142,5 @@
     <plurals name="tracking_dashboard_today_count">
         <item quantity="other">今天 %1$d 条记录</item>
     </plurals>
+    <string name="tracking_chart_no_data">暂无可用于此图表的数据。</string>
 </resources>

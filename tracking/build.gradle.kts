@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.bundles.compose)
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidplot.core)
     api(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     api(libs.kotlinx.coroutines.core)

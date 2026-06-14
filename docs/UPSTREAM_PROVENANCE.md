@@ -25,7 +25,7 @@ Graph is not a submodule, composite build or runtime dependency.
 | B: My Brain modified | Branding, deep links, CI, Gradle download URL, widget lint correction |
 | C: Track & Graph migrated | Sampling interfaces listed below |
 | D: Daily Flow new code | Planning/provenance documents, test fixtures and provenance report script |
-| E: New dependency | None |
+| E: New dependency | AndroidPlot 1.5.11 and transitive figlib 1.0.11, both Apache-2.0 |
 
 ## Track & Graph Migration Ledger
 
@@ -54,6 +54,8 @@ The following files have been migrated or approved for later evaluation:
 | DF-301 | upstream moving average, time helper and filter tests | `tracking/.../analytics/aggregation/AggregatorTest.kt` and `TimeBinHelperTest.kt` | Adapted 2026-06-14; added Daily Flow ordering, operation and time-zone boundaries |
 | DF-302 | No direct upstream equivalent; Daily Flow `TrackingRecordedPoint` and tracker types | `tracking/.../analytics/sampling/TrackingDataSampleAdapter.kt` | New glue 2026-06-14; isolates Room, preserves snapshots, groups selections, excludes text and defines boolean count/ratio semantics |
 | DF-303 | No direct upstream equivalent; composes DF-301 aggregation and DF-302 sampling | `tracking/.../analytics/model/`, `repository/` and `usecase/` | New Daily Flow code 2026-06-14; range-only repository, DST-safe summaries/series, option distribution and streak queries |
+| DF-304 | `graphstatview/ui/LineGraphView.kt`, `BarChartView.kt`, `PieChartView.kt` and `GraphStatUICommon.kt` | `tracking/.../presentation/analytics/chart/TrackingCharts.kt` | Adapted 2026-06-14; reduced to reusable Compose `AndroidView` wrappers with Daily Flow models, theme colors, empty state, dynamic font sizing and accessibility summaries |
+| DF-304 | Track & Graph AndroidPlot dependency selection | `com.androidplot:androidplot-core:1.5.11` | Selected 2026-06-14 from Maven Central; Apache-2.0, transitive `com.halfhp.fig:figlib:1.0.11` also Apache-2.0; R8 consumer rule retained |
 | DF-306 | `app/data/src/main/java/com/samco/trackandgraph/data/csvreadwriter/CSVReadWriterImpl.kt` | - | Reference only |
 | DF-402 | `app/app/src/main/java/com/samco/trackandgraph/reminders/` | - | Reference only |
 

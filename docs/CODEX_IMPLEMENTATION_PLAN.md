@@ -1093,7 +1093,7 @@ adb logcat -d
 
 #### DF-304 接入开源图表实现
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-303
 - 首选：
   1. 评估移植 Track & Graph 当前 AndroidPlot 图表层。
@@ -1102,6 +1102,15 @@ adb logcat -d
 - 禁止：用 Canvas 从零重写折线、坐标轴、缩放和标签布局。
 - 产物：在 `docs/UPSTREAM_PROVENANCE.md` 记录选型。
 - 验收：折线、柱状、饼图在空数据和大字体下可用。
+- 完成记录（2026-06-14）：
+  采用固定 Track & Graph 上游提交使用的 AndroidPlot `1.5.11`，通过 Compose
+  `AndroidView` 封装折线、柱状和饼图，不另行实现坐标轴、标签或图形绘制。新增统一
+  `TrackingChartValue` 模型、有限值过滤、共享空态、Material 主题色、自动范围、
+  标签抽样、饼图换行图例和图表无障碍摘要；图表高度与轴标签跟随字体缩放。AndroidPlot
+  与传递依赖 figlib 均为 Apache-2.0，并加入 tracking consumer R8 保留规则。
+  Compose 仪器测试覆盖三类图表空数据和 2 倍字体渲染；雷电 Android 9 上 tracking
+  41/41 测试通过。`tracking` JVM 测试、lint、app debug 构建及 R8 minified unsigned
+  release APK 构建通过。
 
 #### DF-305 实现统计页面
 
