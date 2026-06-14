@@ -12,15 +12,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -52,6 +55,7 @@ import androidx.navigation.NavHostController
 import com.mhss.app.domain.model.Calendar
 import com.mhss.app.domain.model.CalendarDay
 import com.mhss.app.domain.model.CalendarEvent
+import com.mhss.app.tracking.domain.model.TrackingTemplateSummary
 import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.LiquidFloatingActionButton
 import com.mhss.app.ui.components.common.MyBrainAppBar
@@ -66,7 +70,7 @@ import com.mhss.app.util.permissions.rememberPermissionState
 import io.github.fletchmckee.liquid.liquefiable
 import io.github.fletchmckee.liquid.rememberLiquidState
 import kotlinx.coroutines.launch
-import kotlinx.datetime.number
+import kotlinx.datetime.yearMonth
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -79,19 +83,25 @@ fun CalendarScreen(
     val listViewState = rememberLazyListState()
     val dayEventsState = rememberLazyListState()
     var settingsVisible by remember { mutableStateOf(false) }
+    var addTargetVisible by remember { mutableStateOf(false) }
+    var templatePickerVisible by remember { mutableStateOf(false) }
     val readCalendarPermissionState = rememberPermissionState(
         permission = Permission.READ_CALENDAR
     )
     val today = remember { currentLocalDate() }
-    val viewMode = if (state.isMonthView) CalendarViewMode.Month else CalendarViewMode.List
+    val viewMode = if (!readCalendarPermissionState.isGranted || state.isMonthView) {
+        CalendarViewMode.Month
+    } else {
+        CalendarViewMode.List
+    }
 
     val months = state.months
     val loadedMonths = state.loadedMonths
     val currentMonth = state.currentMonth
     val selectedDate = state.selectedDate
     
-    val selectedDay = remember(selectedDate, currentMonth, loadedMonths[selectedDate.month.number]) {
-        loadedMonths[selectedDate.month.number]?.days?.firstOrNull { it.date == selectedDate }
+    val selectedDay = remember(selectedDate, currentMonth, loadedMonths[selectedDate.yearMonth]) {
+        loadedMonths[selectedDate.yearMonth]?.days?.firstOrNull { it.date == selectedDate }
             ?: CalendarDay(
                 date = selectedDate,
                 isCurrentMonth = selectedDate.year == currentMonth.year && selectedDate.month == currentMonth.month,
@@ -122,6 +132,13 @@ fun CalendarScreen(
         if (viewMode == CalendarViewMode.Month && settingsVisible) {
             settingsVisible = false
         }
+    }
+    LaunchedEffect(readCalendarPermissionState.isGranted) {
+        viewModel.onEvent(
+            CalendarViewModelEvent.ReadPermissionChanged(
+                readCalendarPermissionState.isGranted
+            )
+        )
     }
 
     Scaffold(
@@ -158,37 +175,27 @@ fun CalendarScreen(
                         }
                     }
 
-                    ViewModeToggleButton(
-                        mode = viewMode,
-                        onToggle = {
-                            val nextIsMonth = viewMode == CalendarViewMode.List
-                            viewModel.onEvent(
-                                CalendarViewModelEvent.ViewModeChanged(nextIsMonth)
-                            )
-                        }
-                    )
+                    if (readCalendarPermissionState.isGranted) {
+                        ViewModeToggleButton(
+                            mode = viewMode,
+                            onToggle = {
+                                val nextIsMonth = viewMode == CalendarViewMode.List
+                                viewModel.onEvent(
+                                    CalendarViewModelEvent.ViewModeChanged(nextIsMonth)
+                                )
+                            }
+                        )
+                    }
                 }
             )
         },
         floatingActionButton = {
-            if (readCalendarPermissionState.isGranted) {
-                LiquidFloatingActionButton(
-                    onClick = {
-                        val createEventStartMillis =
-                            if (viewMode == CalendarViewMode.Month) selectedDate.withTimeFrom(now() + HOUR_MILLIS)
-                            else null
-                        navController.navigate(
-                            Screen.CalendarEventDetailsScreen(
-                                eventId = null,
-                                initialStartMillis = createEventStartMillis
-                            )
-                        )
-                    },
-                    iconPainter = painterResource(R.drawable.ic_add),
-                    contentDescription = stringResource(R.string.add_event),
-                    liquidState = liquidState
-                )
-            }
+            LiquidFloatingActionButton(
+                onClick = { addTargetVisible = true },
+                iconPainter = painterResource(R.drawable.ic_add),
+                contentDescription = stringResource(R.string.calendar_add_for_day),
+                liquidState = liquidState
+            )
         },
     ) { paddingValues ->
         Column(
@@ -197,14 +204,8 @@ fun CalendarScreen(
                 .padding(paddingValues)
                 .liquefiable(liquidState)
         ) {
-            if (readCalendarPermissionState.isGranted) {
-                LaunchedEffect(true) {
-                    viewModel.onEvent(
-                        CalendarViewModelEvent
-                            .ReadPermissionChanged(readCalendarPermissionState.isGranted)
-                    )
-                }
-                if (viewMode == CalendarViewMode.List) {
+            if (viewMode == CalendarViewMode.List) {
+                if (readCalendarPermissionState.isGranted) {
                     Row(
                         Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -238,51 +239,191 @@ fun CalendarScreen(
                         }
                     )
                 } else {
-                    MonthlyCalendar(
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp),
-                        loadedMonths = loadedMonths,
-                        onLoadMonth = viewModel::loadMonth,
-                        initialMonth = currentMonth,
-                        selectedDate = selectedDate,
-                        today = today,
-                        firstDayOfWeek = state.firstDayOfWeek,
-                        onDaySelected = { date ->
-                            viewModel.onEvent(CalendarViewModelEvent.SelectedDateChanged(date))
+                    NoReadCalendarPermissionMessage(
+                        shouldShowRationale = readCalendarPermissionState.shouldShowRationale,
+                        onOpenSettings = {
+                            readCalendarPermissionState.openAppSettings()
                         },
-                        onMonthChanged = {
-                            viewModel.onEvent(CalendarViewModelEvent.MonthChanged(it))
-                        }
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    DayEventsList(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        state = dayEventsState,
-                        selectedDate = selectedDay,
-                        onEventClick = { event ->
-                            navController.navigate(
-                                Screen.CalendarEventDetailsScreen(
-                                    event.id
-                                )
-                            )
+                        onRequest = {
+                            readCalendarPermissionState.launchRequest()
                         }
                     )
                 }
             } else {
-                NoReadCalendarPermissionMessage(
-                    shouldShowRationale = readCalendarPermissionState.shouldShowRationale,
-                    onOpenSettings = {
-                        readCalendarPermissionState.openAppSettings()
+                MonthlyCalendar(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp),
+                    loadedMonths = loadedMonths,
+                    trackingDates = state.trackingRecordsByDate.keys,
+                    onLoadMonth = viewModel::loadMonth,
+                    initialMonth = currentMonth,
+                    selectedDate = selectedDate,
+                    today = today,
+                    firstDayOfWeek = state.firstDayOfWeek,
+                    onDaySelected = { date ->
+                        viewModel.onEvent(CalendarViewModelEvent.SelectedDateChanged(date))
                     },
-                    onRequest = {
-                        readCalendarPermissionState.launchRequest()
+                    onMonthChanged = {
+                        viewModel.onEvent(CalendarViewModelEvent.MonthChanged(it))
+                    }
+                )
+                Spacer(Modifier.height(16.dp))
+                DayEventsList(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    state = dayEventsState,
+                    selectedDate = selectedDay,
+                    trackingRecords = state.trackingRecordsByDate[selectedDate].orEmpty(),
+                    hasCalendarPermission = state.hasCalendarPermission,
+                    onEventClick = { event ->
+                        navController.navigate(
+                            Screen.CalendarEventDetailsScreen(
+                                event.id
+                            )
+                        )
                     }
                 )
             }
         }
     }
 
+    if (addTargetVisible) {
+        CalendarAddTargetDialog(
+            hasCalendarPermission = readCalendarPermissionState.isGranted,
+            onDismiss = { addTargetVisible = false },
+            onAddCalendarEvent = {
+                addTargetVisible = false
+                if (readCalendarPermissionState.isGranted) {
+                    val createEventStartMillis =
+                        if (viewMode == CalendarViewMode.Month) {
+                            selectedDate.withTimeFrom(now() + HOUR_MILLIS)
+                        } else {
+                            null
+                        }
+                    navController.navigate(
+                        Screen.CalendarEventDetailsScreen(
+                            eventId = null,
+                            initialStartMillis = createEventStartMillis
+                        )
+                    )
+                } else {
+                    readCalendarPermissionState.launchRequest()
+                }
+            },
+            onAddTrackingRecord = {
+                addTargetVisible = false
+                templatePickerVisible = true
+            }
+        )
+    }
+    if (templatePickerVisible) {
+        TrackingTemplatePickerDialog(
+            templates = state.trackingTemplates,
+            onDismiss = { templatePickerVisible = false },
+            onTemplateSelected = { template ->
+                templatePickerVisible = false
+                navController.navigate(
+                    Screen.TrackingQuickRecordScreen(
+                        templateId = template.id,
+                        initialOccurredAtEpochMilli =
+                            selectedDate.withTimeFrom(now() + HOUR_MILLIS)
+                    )
+                )
+            },
+            onManageTemplates = {
+                templatePickerVisible = false
+                navController.navigate(Screen.TrackingTemplatesScreen)
+            }
+        )
+    }
+}
+
+@Composable
+private fun CalendarAddTargetDialog(
+    hasCalendarPermission: Boolean,
+    onDismiss: () -> Unit,
+    onAddCalendarEvent: () -> Unit,
+    onAddTrackingRecord: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.calendar_add_for_day)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(
+                    onClick = onAddCalendarEvent,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        if (hasCalendarPermission) {
+                            stringResource(R.string.calendar_add_event_target)
+                        } else {
+                            stringResource(R.string.calendar_add_event_target_permission)
+                        }
+                    )
+                }
+                TextButton(
+                    onClick = onAddTrackingRecord,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.calendar_add_tracking_target))
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.calendar_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun TrackingTemplatePickerDialog(
+    templates: List<TrackingTemplateSummary>,
+    onDismiss: () -> Unit,
+    onTemplateSelected: (TrackingTemplateSummary) -> Unit,
+    onManageTemplates: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.calendar_choose_tracking_template)) },
+        text = {
+            if (templates.isEmpty()) {
+                Text(stringResource(R.string.calendar_no_tracking_templates))
+            } else {
+                LazyColumn(
+                    modifier = Modifier.heightIn(max = 360.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(
+                        items = templates,
+                        key = { it.id }
+                    ) { template ->
+                        TextButton(
+                            onClick = { onTemplateSelected(template) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(template.name)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (templates.isEmpty()) {
+                TextButton(onClick = onManageTemplates) {
+                    Text(stringResource(R.string.calendar_manage_tracking_templates))
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.calendar_cancel))
+            }
+        }
+    )
 }
 
 @Composable

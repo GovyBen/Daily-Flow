@@ -9,6 +9,7 @@ import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.use_case.GetAllCalendarsUseCase
 import com.mhss.app.domain.use_case.GetAllEventsUseCase
 import com.mhss.app.domain.use_case.GetMonthEventsUseCase
+import com.mhss.app.domain.use_case.monthGridDateRange
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
 import com.mhss.app.preferences.domain.model.intPreferencesKey
@@ -16,11 +17,16 @@ import com.mhss.app.preferences.domain.model.stringSetPreferencesKey
 import com.mhss.app.preferences.domain.use_case.GetPreferenceUseCase
 import com.mhss.app.preferences.domain.use_case.SavePreferenceUseCase
 import com.mhss.app.presentation.model.CalendarMonth
+import com.mhss.app.tracking.domain.model.TrackingCalendarRecord
+import com.mhss.app.tracking.domain.model.TrackingTemplateSummary
+import com.mhss.app.tracking.domain.usecase.ObserveCalendarRecordsUseCase
+import com.mhss.app.tracking.domain.usecase.ObserveTemplatesUseCase
 import com.mhss.app.ui.FirstDayOfWeekSettings
 import com.mhss.app.ui.toIntList
 import com.mhss.app.util.date.currentLocalDate
 import com.mhss.app.util.date.formatDateForMapping
 import com.mhss.app.util.date.monthName
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,13 +42,18 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.atTime
 import kotlinx.datetime.minus
 import kotlinx.datetime.minusMonth
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.plusMonth
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.yearMonth
+import kotlin.time.Instant
 import org.koin.android.annotation.KoinViewModel
 
 
@@ -55,7 +66,9 @@ class CalendarViewModel(
     private val getMonthEventsUseCase: GetMonthEventsUseCase,
     private val getAllCalendarsUseCase: GetAllCalendarsUseCase,
     private val savePreference: SavePreferenceUseCase,
-    private val getPreference: GetPreferenceUseCase
+    private val getPreference: GetPreferenceUseCase,
+    private val observeCalendarRecords: ObserveCalendarRecordsUseCase,
+    private val observeTemplates: ObserveTemplatesUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())
@@ -65,54 +78,67 @@ class CalendarViewModel(
 
     private var updateEventsJob: Job? = null
     private var viewModeJob: Job? = null
+    private var trackingRecordsJob: Job? = null
+    private var hasReadCalendarPermission = false
 
     fun loadMonth(month: YearMonth, forceRefresh: Boolean = false) {
-        val loadedMonthValue = month.month.number
         val loadedMonths = _uiState.value.loadedMonths
         val firstDayOfWeek = _uiState.value.firstDayOfWeek
         viewModelScope.launch {
             loadMutex.withLock {
                 val monthData = async {
-                    if (!forceRefresh && loadedMonths.containsKey(loadedMonthValue)) null
-                    else {
-                        val days = getMonthEventsUseCase(month, _uiState.value.excludedCalendars, firstDayOfWeek)
-                        CalendarMonth(month.month.number, days)
-                    }
+                    if (!forceRefresh && loadedMonths.containsKey(month)) null
+                    else loadCalendarMonth(month, firstDayOfWeek)
                 }
                 val prevMonthData = async {
                     val prevMonth = month.minusMonth()
-                    if (!forceRefresh && loadedMonths.containsKey(prevMonth.month.number)) null
-                    else {
-                        val prevMonth = month.minus(1, DateTimeUnit.MONTH)
-                        val days =
-                            getMonthEventsUseCase(prevMonth, _uiState.value.excludedCalendars, firstDayOfWeek)
-                        CalendarMonth(prevMonth.month.number, days)
-                    }
+                    if (!forceRefresh && loadedMonths.containsKey(prevMonth)) null
+                    else loadCalendarMonth(prevMonth, firstDayOfWeek)
                 }
                 val nextMonthData = async {
                     val nextMonth = month.plusMonth()
-                    if (!forceRefresh && loadedMonths.containsKey(nextMonth.month.number)) null
-                    else {
-                        val days =
-                            getMonthEventsUseCase(nextMonth, _uiState.value.excludedCalendars, firstDayOfWeek)
-                        CalendarMonth(nextMonth.month.number, days)
-                    }
+                    if (!forceRefresh && loadedMonths.containsKey(nextMonth)) null
+                    else loadCalendarMonth(nextMonth, firstDayOfWeek)
                 }
 
                 val map = _uiState.value.loadedMonths
 
-                // if we guarantee that the map will have at most 4 items, we won't have key collisions from different years.
-                monthData.await()?.let { map[it.monthNumber] = it }
-                prevMonthData.await()?.let { map[it.monthNumber] = it }
-                nextMonthData.await()?.let { map[it.monthNumber] = it }
+                monthData.await()?.let { map[it.month] = it }
+                prevMonthData.await()?.let { map[it.month] = it }
+                nextMonthData.await()?.let { map[it.month] = it }
 
                 // keeping max of 4 months in memory
                 if (map.size > 4) {
-                    map.remove(month.minus(3, DateTimeUnit.MONTH).month.number)
-                    map.remove(month.plus(3, DateTimeUnit.MONTH).month.number)
+                    map.remove(month.minus(3, DateTimeUnit.MONTH))
+                    map.remove(month.plus(3, DateTimeUnit.MONTH))
                 }
             }
         }
+    }
+
+    private suspend fun loadCalendarMonth(
+        month: YearMonth,
+        firstDayOfWeek: DayOfWeek
+    ): CalendarMonth {
+        val excludedCalendars = _uiState.value.excludedCalendars
+        val days = try {
+            getMonthEventsUseCase(
+                month = month,
+                excludedCalendars = excludedCalendars,
+                firstDayOfWeek = firstDayOfWeek,
+                includeCalendarEvents = hasReadCalendarPermission
+            )
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (_: Exception) {
+            getMonthEventsUseCase(
+                month = month,
+                excludedCalendars = excludedCalendars,
+                firstDayOfWeek = firstDayOfWeek,
+                includeCalendarEvents = false
+            )
+        }
+        return CalendarMonth(month, days)
     }
 
     init {
@@ -128,7 +154,12 @@ class CalendarViewModel(
                 FirstDayOfWeekSettings.MONDAY -> DayOfWeek.MONDAY
             }
             _uiState.update { it.copy(firstDayOfWeek = firstDay) }
+            loadEvents()
+            observeTrackingRecords(_uiState.value.currentMonth.yearMonth)
         }
+        observeTemplates().onEach { templates ->
+            _uiState.update { it.copy(trackingTemplates = templates) }
+        }.launchIn(viewModelScope)
         collectViewMode()
     }
 
@@ -140,12 +171,27 @@ class CalendarViewModel(
             )
 
             is CalendarViewModelEvent.ReadPermissionChanged -> {
-                if (event.hasPermission) collectSettings()
-                else updateEventsJob?.cancel()
+                hasReadCalendarPermission = event.hasPermission
+                _uiState.update { it.copy(hasCalendarPermission = event.hasPermission) }
+                if (event.hasPermission) {
+                    collectSettings()
+                } else {
+                    updateEventsJob?.cancel()
+                    _uiState.value.loadedMonths.clear()
+                    _uiState.update {
+                        it.copy(
+                            events = emptyMap(),
+                            calendars = emptyMap(),
+                            months = emptyList()
+                        )
+                    }
+                    loadEvents()
+                }
             }
 
             is CalendarViewModelEvent.MonthChanged -> {
                 _uiState.update { it.copy(currentMonth = event.newMonth) }
+                observeTrackingRecords(event.newMonth.yearMonth)
             }
 
             is CalendarViewModelEvent.SelectedDateChanged -> {
@@ -175,11 +221,18 @@ class CalendarViewModel(
     }
 
     private fun collectSettings() {
+        updateEventsJob?.cancel()
         updateEventsJob = getPreference(
             stringSetPreferencesKey(PrefsConstants.EXCLUDED_CALENDARS_KEY),
             emptySet()
         ).onEach { calendarsSet ->
-            val calendars = getAllCalendarsUseCase(calendarsSet.toIntList())
+            val calendars = try {
+                getAllCalendarsUseCase(calendarsSet.toIntList())
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (_: Exception) {
+                emptyMap()
+            }
             _uiState.update {state ->
                 state.copy(
                     excludedCalendars = calendarsSet.map { it.toInt() }.toMutableList(),
@@ -205,10 +258,27 @@ class CalendarViewModel(
         if (_uiState.value.isMonthView) {
             loadMonth(_uiState.value.currentMonth.yearMonth, forceRefresh = true)
             _uiState.update { it.copy(events = emptyMap()) }
-        } else {
+        } else if (hasReadCalendarPermission) {
             loadListEvents()
             _uiState.value.loadedMonths.clear()
+        } else {
+            _uiState.update { it.copy(events = emptyMap(), months = emptyList()) }
         }
+    }
+
+    private fun observeTrackingRecords(month: YearMonth) {
+        trackingRecordsJob?.cancel()
+        val timeZone = TimeZone.currentSystemDefault()
+        val range = monthGridDateRange(month, _uiState.value.firstDayOfWeek)
+        val startInclusive = range.start.atTime(0, 0).toInstant(timeZone).toEpochMilliseconds()
+        val endExclusive = range.endExclusive.atTime(0, 0).toInstant(timeZone).toEpochMilliseconds()
+        trackingRecordsJob = observeCalendarRecords(startInclusive, endExclusive)
+            .onEach { records ->
+                _uiState.update {
+                    it.copy(trackingRecordsByDate = records.groupByDeviceDate(timeZone))
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun loadListEvents() {
@@ -231,8 +301,11 @@ class CalendarViewModel(
         val isMonthView: Boolean = false,
         val currentMonth: LocalDate = currentLocalDate(),
         val selectedDate: LocalDate = currentLocalDate(),
-        val loadedMonths: SnapshotStateMap<Int, CalendarMonth> = mutableStateMapOf(),
-        val firstDayOfWeek: DayOfWeek = DayOfWeek.SUNDAY
+        val loadedMonths: SnapshotStateMap<YearMonth, CalendarMonth> = mutableStateMapOf(),
+        val firstDayOfWeek: DayOfWeek = DayOfWeek.SUNDAY,
+        val hasCalendarPermission: Boolean = false,
+        val trackingTemplates: List<TrackingTemplateSummary> = emptyList(),
+        val trackingRecordsByDate: Map<LocalDate, List<TrackingCalendarRecord>> = emptyMap()
     )
 
     private fun List<Int>.addAndToStringSet(id: Int): Set<String> =
@@ -240,4 +313,12 @@ class CalendarViewModel(
 
     private fun List<Int>.removeAndToStringSet(id: Int): Set<String> =
         this.filterNot { it == id }.map { it.toString() }.toHashSet()
+}
+
+internal fun List<TrackingCalendarRecord>.groupByDeviceDate(
+    timeZone: TimeZone
+): Map<LocalDate, List<TrackingCalendarRecord>> = groupBy { record ->
+    Instant.fromEpochMilliseconds(record.occurredAtEpochMilli)
+        .toLocalDateTime(timeZone)
+        .date
 }

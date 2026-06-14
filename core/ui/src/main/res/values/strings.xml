@@ -118,6 +118,18 @@
     <string name="grant_permission">Grant permission</string>
     <string name="go_to_settings">Go to settings</string>
     <string name="add_event">Add event</string>
+    <string name="calendar_add_for_day" tools:ignore="MissingTranslation">Add to this day</string>
+    <string name="calendar_add_event_target" tools:ignore="MissingTranslation">Calendar Provider event</string>
+    <string name="calendar_add_event_target_permission" tools:ignore="MissingTranslation">Calendar Provider event (permission required)</string>
+    <string name="calendar_add_tracking_target" tools:ignore="MissingTranslation">Local tracking record</string>
+    <string name="calendar_choose_tracking_template" tools:ignore="MissingTranslation">Choose a tracking template</string>
+    <string name="calendar_no_tracking_templates" tools:ignore="MissingTranslation">Create a tracking template before adding a local record.</string>
+    <string name="calendar_manage_tracking_templates" tools:ignore="MissingTranslation">Manage templates</string>
+    <string name="calendar_events_section" tools:ignore="MissingTranslation">Calendar events</string>
+    <string name="calendar_records_section" tools:ignore="MissingTranslation">Local records</string>
+    <string name="calendar_no_records" tools:ignore="MissingTranslation">No records yet</string>
+    <string name="calendar_events_permission_required" tools:ignore="MissingTranslation">Calendar permission is not granted. Local records remain available.</string>
+    <string name="calendar_cancel" tools:ignore="MissingTranslation">Cancel</string>
     <string name="include_calendars">Include calendars :</string>
     <string name="added_task">Added to tasks</string>
     <string name="diary_chart">Diary chart</string>

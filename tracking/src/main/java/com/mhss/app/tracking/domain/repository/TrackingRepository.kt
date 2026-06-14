@@ -1,6 +1,7 @@
 package com.mhss.app.tracking.domain.repository
 
 import com.mhss.app.tracking.domain.model.RecordSessionCommand
+import com.mhss.app.tracking.domain.model.TrackingCalendarRecord
 import com.mhss.app.tracking.domain.model.TrackingRecordHistory
 import com.mhss.app.tracking.domain.model.TrackingSuggestedValue
 import com.mhss.app.tracking.domain.model.TrackingTemplateDraft
@@ -65,6 +66,11 @@ interface TrackingRepository {
         startInclusive: Long,
         endExclusive: Long
     ): Flow<List<TrackingRecordHistory>>
+
+    fun observeCalendarRecords(
+        startInclusive: Long,
+        endExclusive: Long
+    ): Flow<List<TrackingCalendarRecord>>
 
     suspend fun getSuggestedValues(
         trackerId: String,

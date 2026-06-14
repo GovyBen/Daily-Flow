@@ -23,7 +23,8 @@ sealed class Screen {
 
     @Serializable
     data class TrackingQuickRecordScreen(
-        val templateId: String
+        val templateId: String,
+        val initialOccurredAtEpochMilli: Long? = null
     ) : Screen()
 
     @Serializable

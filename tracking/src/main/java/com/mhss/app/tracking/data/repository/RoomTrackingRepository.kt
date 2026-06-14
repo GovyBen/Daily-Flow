@@ -17,6 +17,8 @@ import com.mhss.app.tracking.data.mapping.TrackerValueMappingRequest
 import com.mhss.app.tracking.data.serialization.TrackerConfigJson
 import com.mhss.app.tracking.domain.id.TrackingIdGenerator
 import com.mhss.app.tracking.domain.model.RecordSessionCommand
+import com.mhss.app.tracking.domain.model.RecordSource
+import com.mhss.app.tracking.domain.model.TrackingCalendarRecord
 import com.mhss.app.tracking.domain.model.TrackingFieldDraft
 import com.mhss.app.tracking.domain.model.TrackingOptionDraft
 import com.mhss.app.tracking.domain.model.TrackingRecordHistory
@@ -238,6 +240,28 @@ class RoomTrackingRepository(
                 session.toHistory(pointsBySession[session.id].orEmpty())
             }
         }.flowOn(ioDispatcher)
+    }
+
+    override fun observeCalendarRecords(
+        startInclusive: Long,
+        endExclusive: Long
+    ): Flow<List<TrackingCalendarRecord>> {
+        return sessionDao.observeCalendarRecords(startInclusive, endExclusive)
+            .map { rows ->
+                rows.map { row ->
+                    TrackingCalendarRecord(
+                        id = row.id,
+                        templateId = row.templateId,
+                        templateName = row.templateName,
+                        templateColor = row.templateColor,
+                        occurredAtEpochMilli = row.occurredAtEpochMilli,
+                        zoneId = row.zoneId,
+                        note = row.note,
+                        source = RecordSource.valueOf(row.source)
+                    )
+                }
+            }
+            .flowOn(ioDispatcher)
     }
 
     override suspend fun getSuggestedValues(

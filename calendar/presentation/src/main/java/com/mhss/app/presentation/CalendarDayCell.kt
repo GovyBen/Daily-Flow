@@ -30,6 +30,7 @@ import com.mhss.app.domain.model.CalendarDay
 @Composable
 fun CalendarDayCell(
     day: CalendarDay,
+    hasTrackingRecords: Boolean,
     isSelected: Boolean,
     isToday: Boolean,
     onDaySelected: (CalendarDay) -> Unit
@@ -53,6 +54,7 @@ fun CalendarDayCell(
         backgroundColor = backgroundColor,
         fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
         eventColors = eventColors,
+        hasTrackingRecords = hasTrackingRecords,
         onClick = { onDaySelected(day) }
     )
 }
@@ -64,7 +66,8 @@ fun EmptyCalendarDayCell() {
         textColor = Color.Transparent,
         backgroundColor = Color.Transparent,
         fontWeight = FontWeight.Normal,
-        eventColors = emptyList()
+        eventColors = emptyList(),
+        hasTrackingRecords = false
     )
 }
 
@@ -75,6 +78,7 @@ fun CalendarDayCellContent(
     backgroundColor: Color,
     fontWeight: FontWeight,
     eventColors: List<Int>,
+    hasTrackingRecords: Boolean,
     onClick: (() -> Unit) = {}
 ) {
     Column(
@@ -96,7 +100,22 @@ fun CalendarDayCellContent(
         )
         Spacer(Modifier.height(5.dp))
         EventDots(colors = eventColors)
+        Spacer(Modifier.height(3.dp))
+        TrackingIndicator(visible = hasTrackingRecords)
     }
+}
+
+@Composable
+private fun TrackingIndicator(visible: Boolean) {
+    Box(
+        modifier = Modifier
+            .width(12.dp)
+            .height(3.dp)
+            .clip(RoundedCornerShape(2.dp))
+            .background(
+                if (visible) MaterialTheme.colorScheme.secondary else Color.Transparent
+            )
+    )
 }
 
 @Composable
@@ -134,6 +153,7 @@ fun CalendarDayCellContentPreview() {
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 fontWeight = FontWeight.Bold,
                 eventColors = listOf(0xFFEA4335.toInt(), 0xFF34A853.toInt(), 0xFF4285F4.toInt()),
+                hasTrackingRecords = true,
                 onClick = {}
             )
         }

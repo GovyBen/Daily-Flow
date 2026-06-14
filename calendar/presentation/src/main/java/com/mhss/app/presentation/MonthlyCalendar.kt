@@ -54,7 +54,8 @@ fun getOrderedWeekDays(firstDayOfWeek: DayOfWeek): List<DayOfWeek> {
 @Composable
 fun MonthlyCalendar(
     modifier: Modifier = Modifier,
-    loadedMonths: SnapshotStateMap<Int, CalendarMonth>,
+    loadedMonths: SnapshotStateMap<YearMonth, CalendarMonth>,
+    trackingDates: Set<LocalDate>,
     onLoadMonth: (YearMonth) -> Unit,
     initialMonth: LocalDate,
     selectedDate: LocalDate,
@@ -109,7 +110,7 @@ fun MonthlyCalendar(
             val offset = page - initialPage
             val month = remember(offset) { anchorMonth.yearMonth.plus(offset, DateTimeUnit.MONTH) }
 
-            val monthData = loadedMonths[month.month.number]
+            val monthData = loadedMonths[month]
 
             LaunchedEffect(monthData, pagerState.settledPage, selectedDate) {
                 val data = monthData ?: return@LaunchedEffect
@@ -138,6 +139,7 @@ fun MonthlyCalendar(
                     ) { day ->
                         CalendarDayCell(
                             day = day,
+                            hasTrackingRecords = day.date in trackingDates,
                             isSelected = day.date == selectedDate,
                             isToday = day.date == today,
                             onDaySelected = {

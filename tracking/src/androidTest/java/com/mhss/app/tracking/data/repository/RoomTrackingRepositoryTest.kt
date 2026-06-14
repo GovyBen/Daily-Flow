@@ -182,6 +182,33 @@ class RoomTrackingRepositoryTest {
     }
 
     @Test
+    fun calendarRecordsKeepTemplateDetailsAfterTemplateIsDeactivated() = runBlocking {
+        val templateId = repository.createTemplate(templateDraft("Archived health"), 1_000)
+        val template = repository.observeTemplates().first().single()
+        val selectField = template.fields.first()
+        val textField = template.fields.last()
+        val option = selectField.tracker.options.first()
+        val sessionId = repository.saveRecordSession(
+            command(
+                templateId = templateId,
+                selectFieldId = selectField.id!!,
+                textFieldId = textField.id!!,
+                selectedOptions = setOf(option.id!!),
+                note = "Point note"
+            ).copy(note = "Visible in calendar"),
+            nowEpochMilli = 2_000
+        )
+        repository.deactivateTemplate(templateId, 3_000)
+
+        val record = repository.observeCalendarRecords(0, 2_000).first().single()
+
+        assertEquals(sessionId, record.id)
+        assertEquals("Archived health", record.templateName)
+        assertEquals("Visible in calendar", record.note)
+        assertTrue(repository.observeTemplates().first().isEmpty())
+    }
+
+    @Test
     fun requiredMissingFieldIsRejectedWithoutSavingSession() = runBlocking {
         val templateId = repository.createTemplate(templateDraft("Health"), 1_000)
         val template = repository.observeTemplates().first().single()

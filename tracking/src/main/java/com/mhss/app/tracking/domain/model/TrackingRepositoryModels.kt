@@ -85,6 +85,17 @@ data class TrackingRecordHistory(
     val points: List<TrackingRecordedPoint>
 )
 
+data class TrackingCalendarRecord(
+    val id: String,
+    val templateId: String,
+    val templateName: String,
+    val templateColor: Long,
+    val occurredAtEpochMilli: Long,
+    val zoneId: String,
+    val note: String?,
+    val source: RecordSource
+)
+
 data class TrackingRecordedPoint(
     val id: String,
     val trackerId: String,

@@ -15,4 +15,5 @@ dependencies {
     ksp(libs.koin.ksp.compiler)
 
     implementation(libs.kotlinx.datetime)
+    testImplementation(libs.junit)
 }

@@ -1,6 +1,7 @@
 package com.mhss.app.tracking.domain.usecase
 
 import com.mhss.app.tracking.domain.model.RecordSessionCommand
+import com.mhss.app.tracking.domain.model.TrackingCalendarRecord
 import com.mhss.app.tracking.domain.model.TrackingRecordHistory
 import com.mhss.app.tracking.domain.model.TrackingSuggestedValue
 import com.mhss.app.tracking.domain.model.TrackingTemplateDraft
@@ -124,6 +125,11 @@ private class FakeTrackingRepository : TrackingRepository {
         startInclusive: Long,
         endExclusive: Long
     ): Flow<List<TrackingRecordHistory>> = flowOf(emptyList())
+
+    override fun observeCalendarRecords(
+        startInclusive: Long,
+        endExclusive: Long
+    ): Flow<List<TrackingCalendarRecord>> = flowOf(emptyList())
 
     override suspend fun getSuggestedValues(
         trackerId: String,

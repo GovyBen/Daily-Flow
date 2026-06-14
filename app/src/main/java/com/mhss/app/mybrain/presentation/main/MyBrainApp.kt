@@ -338,6 +338,7 @@ fun MyBrainApp(
                     val args = it.toRoute<Screen.TrackingQuickRecordScreen>()
                     TrackingQuickRecordScreen(
                         templateId = args.templateId,
+                        initialOccurredAtEpochMilli = args.initialOccurredAtEpochMilli,
                         onBack = navController::navigateUp
                     )
                 }

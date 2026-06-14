@@ -38,7 +38,7 @@ class TrackingQuickRecordViewModel(
     private val saveInFlight = AtomicBoolean(false)
     private var loadedTemplateId: String? = null
 
-    fun load(templateId: String) {
+    fun load(templateId: String, initialOccurredAtEpochMilli: Long? = null) {
         if (loadedTemplateId != null) return
         loadedTemplateId = templateId
         viewModelScope.launch {
@@ -57,7 +57,7 @@ class TrackingQuickRecordViewModel(
                 isLoading = false,
                 template = template,
                 fields = fields,
-                occurredAtEpochMilli = System.currentTimeMillis()
+                occurredAtEpochMilli = initialOccurredAtEpochMilli ?: System.currentTimeMillis()
             )
             loadSuggestions(template)
         }

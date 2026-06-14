@@ -65,6 +65,7 @@ fun trackingQuickRecordSuggestionTag(fieldId: String, index: Int) =
 @Composable
 fun TrackingQuickRecordScreen(
     templateId: String,
+    initialOccurredAtEpochMilli: Long? = null,
     onBack: () -> Unit,
     viewModel: TrackingQuickRecordViewModel = koinViewModel()
 ) {
@@ -72,8 +73,8 @@ fun TrackingQuickRecordScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
 
-    LaunchedEffect(templateId) {
-        viewModel.load(templateId)
+    LaunchedEffect(templateId, initialOccurredAtEpochMilli) {
+        viewModel.load(templateId, initialOccurredAtEpochMilli)
     }
     LaunchedEffect(viewModel) {
         viewModel.events.collectLatest { event ->

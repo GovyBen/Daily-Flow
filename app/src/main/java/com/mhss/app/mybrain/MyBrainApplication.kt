@@ -116,7 +116,7 @@ class MyBrainApplication : Application() {
 
         createRemindersNotificationChannel()
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
-            Log.e("DailyFlow", "Uncaught application exception.")
+            Log.e("DailyFlow", "Uncaught application exception.", e)
             "```\n${e.stackTraceToString().redactSensitiveHeaders()}\n```".copyToClipboard()
             Handler(Looper.getMainLooper()).post {
                 Toast.makeText(this, getString(R.string.exception_stack_trace_copied), Toast.LENGTH_LONG).show()

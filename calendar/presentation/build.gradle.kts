@@ -44,6 +44,7 @@ android {
 
 dependencies {
     implementation(project(":calendar:domain"))
+    implementation(project(":tracking"))
     implementation(project(":core:util"))
     
     implementation(project(":core:ui"))

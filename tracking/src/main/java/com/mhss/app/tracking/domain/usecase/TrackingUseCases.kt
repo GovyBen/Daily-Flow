@@ -115,6 +115,12 @@ class ObserveRecordHistoryUseCase(private val repository: TrackingRepository) {
 }
 
 @Factory
+class ObserveCalendarRecordsUseCase(private val repository: TrackingRepository) {
+    operator fun invoke(startInclusive: Long, endExclusive: Long) =
+        repository.observeCalendarRecords(startInclusive, endExclusive)
+}
+
+@Factory
 class GetSuggestedValuesUseCase(private val repository: TrackingRepository) {
     suspend operator fun invoke(trackerId: String, limit: Int) =
         repository.getSuggestedValues(trackerId, limit)

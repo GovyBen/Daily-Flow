@@ -15,6 +15,22 @@ data class TemplateLastRecordedAt(
     val lastRecordedAtEpochMilli: Long
 )
 
+data class TrackingCalendarRecordRow(
+    val id: String,
+    @androidx.room.ColumnInfo(name = "template_id")
+    val templateId: String,
+    @androidx.room.ColumnInfo(name = "template_name")
+    val templateName: String,
+    @androidx.room.ColumnInfo(name = "template_color")
+    val templateColor: Long,
+    @androidx.room.ColumnInfo(name = "occurred_at_epoch_milli")
+    val occurredAtEpochMilli: Long,
+    @androidx.room.ColumnInfo(name = "zone_id")
+    val zoneId: String,
+    val note: String?,
+    val source: String
+)
+
 @Dao
 interface TrackingSessionDao {
 
@@ -50,6 +66,29 @@ interface TrackingSessionDao {
         startInclusive: Long,
         endExclusive: Long
     ): List<RecordSessionEntity>
+
+    @Query(
+        """
+        SELECT sessions.id,
+               sessions.template_id,
+               templates.name AS template_name,
+               templates.color AS template_color,
+               sessions.occurred_at_epoch_milli,
+               sessions.zone_id,
+               sessions.note,
+               sessions.source
+        FROM tracking_record_sessions AS sessions
+        INNER JOIN tracking_templates AS templates
+            ON templates.id = sessions.template_id
+        WHERE sessions.occurred_at_epoch_milli >= :startInclusive
+          AND sessions.occurred_at_epoch_milli < :endExclusive
+        ORDER BY sessions.occurred_at_epoch_milli, sessions.id
+        """
+    )
+    fun observeCalendarRecords(
+        startInclusive: Long,
+        endExclusive: Long
+    ): Flow<List<TrackingCalendarRecordRow>>
 
     @Query(
         """

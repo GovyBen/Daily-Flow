@@ -5,6 +5,7 @@ import com.mhss.app.preferences.domain.model.PrefsKey
 import com.mhss.app.preferences.domain.repository.PreferenceRepository
 import com.mhss.app.tracking.domain.defaults.DefaultTrackingTemplates
 import com.mhss.app.tracking.domain.model.RecordSessionCommand
+import com.mhss.app.tracking.domain.model.TrackingCalendarRecord
 import com.mhss.app.tracking.domain.model.TrackingRecordHistory
 import com.mhss.app.tracking.domain.model.TrackingSuggestedValue
 import com.mhss.app.tracking.domain.model.TrackingTemplateDraft
@@ -145,6 +146,11 @@ private class FakeTrackingRepository(
         startInclusive: Long,
         endExclusive: Long
     ): Flow<List<TrackingRecordHistory>> = emptyFlow()
+
+    override fun observeCalendarRecords(
+        startInclusive: Long,
+        endExclusive: Long
+    ): Flow<List<TrackingCalendarRecord>> = emptyFlow()
 
     override suspend fun getSuggestedValues(
         trackerId: String,
