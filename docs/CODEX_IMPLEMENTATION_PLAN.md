@@ -1050,7 +1050,7 @@ adb logcat -d
 
 #### DF-302 实现 DataPoint 到 DataSample 适配器
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-102、DF-104
 - 目标：统计算法不直接依赖 Room entity。
 - 规则：
@@ -1059,6 +1059,14 @@ adb logcat -d
   - text 默认过滤。
   - boolean 允许 count 或比例。
 - 验收：相同输入在适配前后含义一致。
+- 完成记录（2026-06-14）：
+  新增只依赖领域模型 `TrackingRecordedPoint` 的纯 Kotlin 适配器，analytics API
+  不暴露 Room entity。数值字段保留时间和值快照并按从新到旧排序；单选和多选保留
+  写入时 label/数值快照，同时提供按 label 稳定分组的样本；文本完全排除于数值和
+  raw 样本；duration 标记传递到 `DataSampleProperties`。布尔提供 `TRUE_COUNT`
+  和 `TRUE_RATIO` 两种明确模式，分别可与 count 和 average 聚合组合。空值、非有限
+  数值、非法布尔值和混入其他 tracker 的输入安全过滤或拒绝。定向测试覆盖语义保持、
+  分组、文本隐私、计数/比例和 duration，`tracking` 全量 JVM 测试与 lint 通过。
 
 #### DF-303 实现统计查询用例
 
