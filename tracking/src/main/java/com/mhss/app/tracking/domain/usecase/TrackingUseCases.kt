@@ -6,48 +6,83 @@ import com.mhss.app.tracking.domain.model.TrackingTemplateDraft
 import com.mhss.app.tracking.domain.repository.TrackingRepository
 import com.mhss.app.tracking.domain.suggestion.SuggestedValueHelper
 import com.mhss.app.tracking.domain.validation.TrackerInputValue
+import com.mhss.app.widget.WidgetUpdater
 import org.koin.core.annotation.Factory
 
 @Factory
-class CreateTemplateUseCase(private val repository: TrackingRepository) {
-    suspend operator fun invoke(draft: TrackingTemplateDraft, nowEpochMilli: Long) =
-        repository.createTemplate(draft, nowEpochMilli)
+class CreateTemplateUseCase(
+    private val repository: TrackingRepository,
+    private val widgetUpdater: WidgetUpdater
+) {
+    suspend operator fun invoke(draft: TrackingTemplateDraft, nowEpochMilli: Long): String {
+        val templateId = repository.createTemplate(draft, nowEpochMilli)
+        widgetUpdater.updateTrackingWidget()
+        return templateId
+    }
 }
 
 @Factory
-class UpdateTemplateUseCase(private val repository: TrackingRepository) {
+class UpdateTemplateUseCase(
+    private val repository: TrackingRepository,
+    private val widgetUpdater: WidgetUpdater
+) {
     suspend operator fun invoke(
         templateId: String,
         draft: TrackingTemplateDraft,
         nowEpochMilli: Long
-    ) = repository.updateTemplate(templateId, draft, nowEpochMilli)
+    ) {
+        repository.updateTemplate(templateId, draft, nowEpochMilli)
+        widgetUpdater.updateTrackingWidget()
+    }
 }
 
 @Factory
-class DuplicateTemplateUseCase(private val repository: TrackingRepository) {
-    suspend operator fun invoke(templateId: String, nowEpochMilli: Long) =
-        repository.duplicateTemplate(templateId, nowEpochMilli)
+class DuplicateTemplateUseCase(
+    private val repository: TrackingRepository,
+    private val widgetUpdater: WidgetUpdater
+) {
+    suspend operator fun invoke(templateId: String, nowEpochMilli: Long): String {
+        val duplicateId = repository.duplicateTemplate(templateId, nowEpochMilli)
+        widgetUpdater.updateTrackingWidget()
+        return duplicateId
+    }
 }
 
 @Factory
-class ReorderTemplatesUseCase(private val repository: TrackingRepository) {
-    suspend operator fun invoke(ids: List<String>, nowEpochMilli: Long) =
+class ReorderTemplatesUseCase(
+    private val repository: TrackingRepository,
+    private val widgetUpdater: WidgetUpdater
+) {
+    suspend operator fun invoke(ids: List<String>, nowEpochMilli: Long) {
         repository.reorderTemplates(ids, nowEpochMilli)
+        widgetUpdater.updateTrackingWidget()
+    }
 }
 
 @Factory
-class SetTemplatePinnedUseCase(private val repository: TrackingRepository) {
+class SetTemplatePinnedUseCase(
+    private val repository: TrackingRepository,
+    private val widgetUpdater: WidgetUpdater
+) {
     suspend operator fun invoke(
         templateId: String,
         isPinned: Boolean,
         nowEpochMilli: Long
-    ) = repository.setTemplatePinned(templateId, isPinned, nowEpochMilli)
+    ) {
+        repository.setTemplatePinned(templateId, isPinned, nowEpochMilli)
+        widgetUpdater.updateTrackingWidget()
+    }
 }
 
 @Factory
-class DeactivateTemplateUseCase(private val repository: TrackingRepository) {
-    suspend operator fun invoke(templateId: String, nowEpochMilli: Long) =
+class DeactivateTemplateUseCase(
+    private val repository: TrackingRepository,
+    private val widgetUpdater: WidgetUpdater
+) {
+    suspend operator fun invoke(templateId: String, nowEpochMilli: Long) {
         repository.deactivateTemplate(templateId, nowEpochMilli)
+        widgetUpdater.updateTrackingWidget()
+    }
 }
 
 @Factory
@@ -100,4 +135,8 @@ class GetTrackingValueSuggestionsUseCase(
         limit = limit,
         includeTextHistory = includeTextHistory
     )
+}
+
+private suspend fun WidgetUpdater.updateTrackingWidget() {
+    updateAll(WidgetUpdater.WidgetType.Tracking)
 }

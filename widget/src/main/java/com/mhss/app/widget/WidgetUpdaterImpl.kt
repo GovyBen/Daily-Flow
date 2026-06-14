@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.glance.appwidget.updateAll
 import com.mhss.app.widget.calendar.CalendarWidget
 import com.mhss.app.widget.tasks.TasksWidget
+import com.mhss.app.widget.tracking.TrackingWidget
 import org.koin.core.annotation.Single
 
 @Single
@@ -17,6 +18,9 @@ class WidgetUpdaterImpl(
             }
             WidgetUpdater.WidgetType.Tasks -> {
                 TasksWidget().updateAll(context)
+            }
+            WidgetUpdater.WidgetType.Tracking -> {
+                TrackingWidget().updateAll(context)
             }
         }
     }

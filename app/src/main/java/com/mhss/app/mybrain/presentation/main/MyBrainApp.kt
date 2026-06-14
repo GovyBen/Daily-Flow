@@ -288,6 +288,11 @@ fun MyBrainApp(
                     ContentLibraryScreen(navController = navController)
                 }
                 composable<Screen.TrackingTemplatesScreen>(
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern = Constants.TRACKING_TEMPLATES_URI
+                        }
+                    ),
                     enterTransition = { slideInTransition() },
                     exitTransition = { slideOutTransition() },
                 ) {
@@ -321,6 +326,12 @@ fun MyBrainApp(
                     )
                 }
                 composable<Screen.TrackingQuickRecordScreen>(
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern =
+                                "${Constants.TRACKING_QUICK_RECORD_URI}/{templateId}"
+                        }
+                    ),
                     enterTransition = { slideInTransition() },
                     exitTransition = { slideOutTransition() },
                 ) {

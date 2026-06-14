@@ -7,5 +7,6 @@ interface WidgetUpdater {
     sealed interface WidgetType {
         data object Calendar : WidgetType
         data object Tasks : WidgetType
+        data object Tracking : WidgetType
     }
 }

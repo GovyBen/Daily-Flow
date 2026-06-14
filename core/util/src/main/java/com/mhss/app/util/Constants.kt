@@ -19,6 +19,8 @@ object Constants {
     const val NOTES_SCREEN_URI = "app://com.dailyflow.app.notes"
     const val NOTE_DETAILS_URI = "app://com.dailyflow.app.note_details"
     const val NOTE_ID_ARG = "noteId"
+    const val TRACKING_TEMPLATES_URI = "app://com.dailyflow.app.tracking_templates"
+    const val TRACKING_QUICK_RECORD_URI = "app://com.dailyflow.app.tracking_quick_record"
 
     // lINKS
     const val PROJECT_GITHUB_LINK = "https://github.com/mhss1/ByBrain"

@@ -50,6 +50,7 @@ dependencies {
     implementation(project(":calendar:domain"))
     implementation(project(":notes:domain"))
     implementation(project(":settings:domain"))
+    implementation(project(":tracking"))
     implementation(project(":core:preferences"))
     
     implementation(project(":core:ui"))

@@ -980,7 +980,7 @@ adb logcat -d
 
 #### DF-209 增加桌面快捷记录
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-206、DF-208
 - 复用：My Brain `widget` 和 `core:widget`。
 - 范围：
@@ -988,6 +988,15 @@ adb logcat -d
   - 点击打开对应快速记录页。
   - 首版不在 widget 内直接编辑所有字段。
 - 验收：模板停用后 widget 不崩溃并提示重新配置。
+- 完成记录（2026-06-14）：
+  新增 Glance 自定义记录桌面小组件，按模板顺序展示最多四个已固定且仍启用的模板；
+  标题和空态可进入模板配置，模板行通过 typed deep link 打开对应快速记录页。模板
+  创建、更新、复制、排序、固定和停用后统一刷新 widget，停用最后一个固定模板后
+  自动回到重新配置空态。JVM 测试覆盖模板筛选、顺序、数量上限以及固定和停用触发
+  刷新；全工程 JVM 测试、lint、app debug 与 instrumentation APK 组装通过。最新
+  APK 在雷电 Android 9 上验证 Provider 注册、绑定实例生成 RemoteViews、两条深链
+  和无崩溃日志，tracking 仪器测试 35/35。雷电 Launcher3 不支持
+  `requestPinAppWidget`，因此使用系统 AppWidget 服务绑定实例完成渲染链路验证。
 
 #### DF-210 按日期整合日历事件和自定义记录
 

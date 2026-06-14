@@ -24,6 +24,8 @@
     <string name="calendar">日历</string>
     <string name="content_library">内容库</string>
     <string name="tracking_templates">自定义记录</string>
+    <string name="tracking_widget_empty">请先在自定义记录中固定要显示的模板。</string>
+    <string name="tracking_widget_configure">配置模板</string>
     <string name="content_filter_all">全部</string>
     <string name="content_filter_notes">笔记</string>
     <string name="content_filter_diary">日记</string>

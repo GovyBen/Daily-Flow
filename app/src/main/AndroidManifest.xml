@@ -48,6 +48,8 @@
                 <data android:host="com.dailyflow.app.calendar_event_details" />
                 <data android:host="com.dailyflow.app.notes" />
                 <data android:host="com.dailyflow.app.note_details" />
+                <data android:host="com.dailyflow.app.tracking_templates" />
+                <data android:host="com.dailyflow.app.tracking_quick_record" />
             </intent-filter>
 
         </activity>
@@ -170,6 +172,20 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/notes_widget_info" />
+        </receiver>
+
+        <!-- Custom tracking widget-->
+        <receiver
+            android:name="com.mhss.app.widget.tracking.TrackingWidgetReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/tracking_templates">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/tracking_widget_info" />
         </receiver>
 
         <provider

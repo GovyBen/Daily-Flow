@@ -24,6 +24,8 @@
     <string name="calendar">Calendar</string>
     <string name="content_library" tools:ignore="MissingTranslation">Content library</string>
     <string name="tracking_templates" tools:ignore="MissingTranslation">Custom tracking</string>
+    <string name="tracking_widget_empty" tools:ignore="MissingTranslation">Pin templates in Custom tracking to show them here.</string>
+    <string name="tracking_widget_configure" tools:ignore="MissingTranslation">Configure templates</string>
     <string name="content_filter_all" tools:ignore="MissingTranslation">All</string>
     <string name="content_filter_notes" tools:ignore="MissingTranslation">Notes</string>
     <string name="content_filter_diary" tools:ignore="MissingTranslation">Diary</string>

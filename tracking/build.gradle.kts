@@ -46,6 +46,7 @@ android {
 dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:ui"))
+    implementation(project(":core:widget"))
 
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)
