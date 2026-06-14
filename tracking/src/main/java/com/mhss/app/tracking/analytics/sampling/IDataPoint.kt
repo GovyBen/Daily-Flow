@@ -7,12 +7,12 @@
  * (at your option) any later version.
  *
  * Daily Flow modification: adapted the package and timestamp type to
- * kotlinx.datetime.Instant.
+ * kotlin.time.Instant.
  */
 
 package com.mhss.app.tracking.analytics.sampling
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 abstract class IDataPoint {
     abstract val timestamp: Instant

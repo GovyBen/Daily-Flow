@@ -1026,7 +1026,7 @@ adb logcat -d
 
 #### DF-301 移植时间分箱和聚合函数
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-102、DF-108
 - 来源：
   - `FixedBinAggregator.kt`
@@ -1039,6 +1039,14 @@ adb logcat -d
   - 需要时保留 moving average。
 - 排除：Lua、自定义函数图、首版未使用的复杂组合器。
 - 验收：上游测试和 Daily Flow 时区边界测试通过。
+- 完成记录（2026-06-14）：
+  从固定 Track & Graph 提交适配 `FixedBinAggregator`、`MovingAggregator`、
+  `TimeHelper`、值/标签过滤和组合函数；使用 Kotlin datetime 日历运算实现日、周、
+  月固定分箱，并提供 sum、count、average、min、max 和通用移动窗口聚合。保留
+  `DataSample` 的惰性读取、属性、原始点访问和释放回调，统一输入顺序为从新到旧。
+  测试覆盖上游移动平均参考序列、惰性消费、过滤组合、空分箱、混合标签、非法顺序、
+  自定义日界线、周起始日、跨月以及纽约 DST 23 小时日。`tracking` 全量 JVM 测试和
+  lint 通过；Lua、自定义图函数及首版未用复杂组合器未移植。
 
 #### DF-302 实现 DataPoint 到 DataSample 适配器
 

@@ -7,12 +7,12 @@
  * (at your option) any later version.
  *
  * Daily Flow modification: replaced the numeric feature ID and ThreeTen
- * timestamp with Daily Flow tracker IDs and kotlinx.datetime.Instant.
+ * timestamp with Daily Flow tracker IDs and kotlin.time.Instant.
  */
 
 package com.mhss.app.tracking.analytics.sampling
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 data class RawDataPoint(
     val timestamp: Instant,

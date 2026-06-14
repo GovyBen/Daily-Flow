@@ -1,6 +1,6 @@
 # Upstream Provenance
 
-Last updated: 2026-06-13
+Last updated: 2026-06-14
 
 ## Fixed Sources
 
@@ -46,7 +46,12 @@ The following files have been migrated or approved for later evaluation:
 | DF-201 | `app/app/src/main/java/com/samco/trackandgraph/ui/compose/ui/DateTimeSelectorButtons.kt` | - | Reference only |
 | DF-203 | `app/app/src/main/java/com/samco/trackandgraph/adddatapoint/SuggestedValueHelper.kt` | `tracking/.../domain/suggestion/SuggestedValueHelper.kt` | Adapted 2026-06-13; repository-backed recent/frequent/default groups, stable ties, sealed inputs, counter increment and text privacy limit |
 | DF-206 | `app/app/src/main/java/com/samco/trackandgraph/adddatapoint/AddDataPointsView.kt` and `AddDataPointsViewModel.kt` | `tracking/.../presentation/record/` | Reference only 2026-06-13; Daily Flow uses one scrollable template form, explicit single-flight save state and repository session results |
-| DF-302 | `app/app/src/main/java/com/samco/trackandgraph/graphstatview/functions/aggregation/` | - | Reference only |
+| DF-301 | `app/app/src/main/java/com/samco/trackandgraph/graphstatview/functions/aggregation/FixedBinAggregator.kt` | `tracking/.../analytics/aggregation/FixedBinAggregator.kt` | Adapted 2026-06-14; explicit operations, Kotlin datetime calendar bins and newest-first validation |
+| DF-301 | `app/app/src/main/java/com/samco/trackandgraph/graphstatview/functions/aggregation/MovingAggregator.kt` | `tracking/.../analytics/aggregation/MovingAggregator.kt` | Adapted 2026-06-14; Kotlin duration and sum/count/average/min/max operations |
+| DF-301 | `app/app/src/main/java/com/samco/trackandgraph/graphstatview/functions/helpers/TimeHelper.kt` | `tracking/.../analytics/aggregation/TimeBinHelper.kt` | Adapted 2026-06-14; scoped to DST-safe day/week/month bins |
+| DF-301 | `app/app/src/main/java/com/samco/trackandgraph/graphstatview/functions/aggregation/AggregationCommon.kt` and `AggregationPreferences.kt` | `tracking/.../analytics/aggregation/AggregationModels.kt` | Adapted 2026-06-14; explicit time zone and supported operation factory |
+| DF-301 | `app/app/src/main/java/com/samco/trackandgraph/graphstatview/functions/data_sample_functions/` filter, composite and function contracts | `tracking/.../analytics/aggregation/DataSampleFunction.kt` and `FilterFunctions.kt` | Adapted 2026-06-14; retained lazy filtering, composition and disposal semantics |
+| DF-301 | upstream moving average, time helper and filter tests | `tracking/.../analytics/aggregation/AggregatorTest.kt` and `TimeBinHelperTest.kt` | Adapted 2026-06-14; added Daily Flow ordering, operation and time-zone boundaries |
 | DF-306 | `app/data/src/main/java/com/samco/trackandgraph/data/csvreadwriter/CSVReadWriterImpl.kt` | - | Reference only |
 | DF-402 | `app/app/src/main/java/com/samco/trackandgraph/reminders/` | - | Reference only |
 
