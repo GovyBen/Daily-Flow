@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":core:alarm"))
     implementation(project(":core:preferences"))
     implementation(project(":core:widget"))
     implementation(libs.kotlinx.coroutines.core)

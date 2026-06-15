@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
 import com.mhss.app.util.Constants
+import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.Priority
 import com.mhss.app.domain.model.Task
 import com.mhss.app.ui.R
@@ -100,6 +101,65 @@ fun NotificationManager.sendReminderNotification(
             context.getString(R.string.complete),
             completePendingIntent
         )
+        .setAutoCancel(true)
+        .build()
+
+    notify(reminderId, notification)
+}
+
+/**
+ * Sends a calendar event reminder notification.
+ */
+fun NotificationManager.sendCalendarReminderNotification(
+    event: CalendarEvent,
+    context: Context,
+    reminderId: Int
+) {
+    val detailIntent = Intent(
+        Intent.ACTION_VIEW,
+        "${Constants.CALENDAR_DETAILS_SCREEN_URI}/${event.id}".toUri()
+    )
+    val detailPendingIntent = TaskStackBuilder.create(context).run {
+        addNextIntentWithParentStack(detailIntent)
+        getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    val notification = NotificationCompat.Builder(context, Constants.REMINDERS_CHANNEL_ID)
+        .setSmallIcon(R.drawable.notification_icon)
+        .setContentTitle(event.title)
+        .setContentText(event.description)
+        .setContentIntent(detailPendingIntent)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setAutoCancel(true)
+        .build()
+
+    notify(reminderId, notification)
+}
+
+/**
+ * Sends a record prompt notification that opens the quick record page
+ * for the given template.
+ */
+fun NotificationManager.sendRecordPromptNotification(
+    templateId: String,
+    context: Context,
+    reminderId: Int
+) {
+    val recordIntent = Intent(
+        Intent.ACTION_VIEW,
+        "${Constants.TRACKING_QUICK_RECORD_URI}/$templateId".toUri()
+    )
+    val recordPendingIntent = TaskStackBuilder.create(context).run {
+        addNextIntentWithParentStack(recordIntent)
+        getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    val notification = NotificationCompat.Builder(context, Constants.REMINDERS_CHANNEL_ID)
+        .setSmallIcon(R.drawable.notification_icon)
+        .setContentTitle(context.getString(R.string.record_prompt_title))
+        .setContentText(context.getString(R.string.record_prompt_message))
+        .setContentIntent(recordPendingIntent)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .setAutoCancel(true)
         .build()
 

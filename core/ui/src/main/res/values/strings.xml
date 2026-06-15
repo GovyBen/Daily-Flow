@@ -306,4 +306,16 @@
     <string name="sunday">Sunday</string>
     <string name="monday">Monday</string>
     <string name="saturday">Saturday</string>
+    <string name="record_prompt_title">Record reminder</string>
+    <string name="record_prompt_message">Time to record your daily entry. Tap to open.</string>
+    <string name="add_reminder">Add reminder</string>
+    <string name="reminder_at_time">At time</string>
+    <string name="reminder_before_5min">5 minutes before</string>
+    <string name="reminder_before_15min">15 minutes before</string>
+    <string name="reminder_before_30min">30 minutes before</string>
+    <string name="reminder_before_1hour">1 hour before</string>
+    <string name="reminder_before_1day">1 day before</string>
+    <string name="reminder_custom_time">Custom time</string>
+    <string name="reminder_duplicate">Duplicate reminder not allowed</string>
+    <string name="reminder_past">Reminder time is in the past</string>
 </resources>

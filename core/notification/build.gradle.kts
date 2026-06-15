@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:alarm"))
     implementation(project(":tasks:domain"))
+    implementation(project(":calendar:domain"))
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)
