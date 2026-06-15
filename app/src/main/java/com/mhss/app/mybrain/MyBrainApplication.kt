@@ -30,6 +30,7 @@ import com.mhss.app.mybrain.di.platformModule
 import com.mhss.app.mybrain.data.security.LegacySecretMigration
 import com.mhss.app.mybrain.data.security.redactSensitiveHeaders
 import com.mhss.app.mybrain.data.tracking.DefaultTrackingTemplateInitializer
+import com.mhss.app.notification.di.NotificationModule
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.di.PreferencesModule
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
@@ -75,6 +76,7 @@ class MyBrainApplication : Application() {
                 platformModule,
                 MainPresentationModule().module,
                 AlarmModule().module,
+                NotificationModule().module,
                 databaseModule,
                 TrackingModule().module,
                 coroutinesModule,

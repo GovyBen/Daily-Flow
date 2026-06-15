@@ -6,9 +6,9 @@
 
 - 当前阶段：P4 统一多重提醒
 - 已完成：DF-001 至 DF-011、DF-013 至 DF-015、DF-101 至 DF-110、
-  DF-201 至 DF-210、DF-301 至 DF-306、DF-601 至 DF-603
-- 正在推进：DF-402 调度降级模式
-- 下一批：DF-403 统一提醒数据模型、DF-404 提醒重算与同步
+  DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-402、DF-601 至 DF-603
+- 正在推进：DF-403 统一提醒数据模型
+- 下一批：DF-404 提醒重算与同步、DF-405 任务多提醒迁移
 
 ## 当前任务进度
 
@@ -68,6 +68,28 @@
 - 已验证：真实流程复现“触发后任务仍保留旧 alarm ID”风险，日志无崩溃、ANR、
   SQLite 约束或调度权限异常。
 - 已完成：DF-401 验收关闭，下一步移植 DF-402 调度降级策略。
+
+### DF-402 调度降级模式
+
+- 已完成：提取纯 Kotlin 调度策略，exact 可用时使用精确 alarm 和 5 分钟后备，
+  不可用时使用非精确 alarm 和 15 分钟后备。
+- 已完成：现有 `AlarmSchedulerImpl` 改为 AlarmManager 与唯一 WorkManager
+  双调度，修改和取消会替换/清理同 alarm ID 的两条系统路径。
+- 已完成：新增 fallback worker，在 alarm 行仍匹配预期时间时复用现有
+  `AlarmReceiver` 发出通知，不建立第二套通知基础设施。
+- 已完成：现有 boot receiver 改为触发唯一恢复 worker，并扩展到日期、系统时间、
+  时区和应用升级广播，不新增第二个 boot receiver。
+- 已修复：exact 权限不可用时仍持久化并调度降级提醒；调度异常会回滚 alarm 行。
+- 已修复：`AlarmReceiver` 所有路径通过 `finally` 结束异步广播，悬空 alarm 也会清理。
+- 已验证：策略 2/2、任务 domain 6/6 测试通过；notification lint 无问题，
+  app debug 与 R8 release 构建通过。
+- 已验证：雷电 Android 9 中 alarm ID 2 同时登记 RTC_WAKEUP 和唯一
+  `alarm_fallback_2`，后备延迟为目标时间加 5 分钟。
+- 已验证：带活动提醒覆盖安装后 restore worker 成功，原 alarm ID/requestCode
+  被重建且后备 work UUID 被替换，没有重复提醒。
+- 已验证：关闭截止时间后 alarm 表为空、任务 alarm ID 清空、后备 work 取消，
+  系统无活动 Daily Flow alarm；日志无崩溃、ANR、Koin、worker 或权限异常。
+- 已完成：DF-402 验收关闭，下一步新增统一提醒实体。
 
 ## 已具备能力
 

@@ -1203,7 +1203,7 @@ adb logcat -d
 
 #### DF-402 移植 Track & Graph 调度降级模式
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-401
 - 来源：
   - Track & Graph `reminders/`
@@ -1213,6 +1213,19 @@ adb logcat -d
 - 适配：使用 Koin、My Brain notification 和现有 receiver。
 - 禁止：保留两套并行 boot receiver 或 notification 基础设施。
 - 验收：调度策略为纯接口，单测可使用 fake scheduler。
+- 完成记录（2026-06-15）：参考固定 Track & Graph 提交的
+  `AndroidPlatformScheduler`、fallback/ensure workers 和 recreate receiver，
+  保留 Daily Flow 现有 `AlarmScheduler`、`AlarmReceiver`、通知 channel 和唯一
+  boot receiver。新增纯 Kotlin 策略：exact 可用时使用精确 alarm 加 5 分钟
+  WorkManager 后备，不可用时使用非精确 alarm 加 15 分钟后备。fallback 在
+  alarm ID/时间仍匹配时复用现有 receiver；修改、取消和恢复均以 alarm ID
+  替换唯一工作。boot receiver 通过唯一 restore worker 处理开机、日期/时间/
+  时区和应用升级，逐条隔离失败并有限重试。exact 权限不足不再丢弃提醒，
+  scheduler 异常会回滚 alarm 行；receiver 所有路径保证结束异步广播。
+  策略 2/2、任务 domain 6/6 测试、notification lint 和 R8 release 构建通过。
+  雷电 Android 9 验证 alarm ID 2 同时存在 RTC_WAKEUP 与
+  `alarm_fallback_2`，覆盖安装成功重建且未重复，取消后两条路径均清理，
+  日志无崩溃、ANR、Koin、worker 或权限异常。
 
 #### DF-403 新增统一 ReminderEntity
 

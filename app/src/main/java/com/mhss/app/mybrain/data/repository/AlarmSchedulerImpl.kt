@@ -6,11 +6,18 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.AlarmManagerCompat
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.mhss.app.alarm.model.Alarm
+import com.mhss.app.alarm.model.AlarmDeliveryMode
+import com.mhss.app.alarm.model.AlarmSchedulePolicy
 import com.mhss.app.alarm.repository.AlarmScheduler
 import com.mhss.app.notification.AlarmReceiver
+import com.mhss.app.notification.worker.AlarmFallbackWorker
 import com.mhss.app.util.Constants
 import org.koin.core.annotation.Factory
+import java.util.concurrent.TimeUnit
 
 @Factory
 class AlarmSchedulerImpl(
@@ -18,7 +25,10 @@ class AlarmSchedulerImpl(
 ): AlarmScheduler {
 
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    private val workManager by lazy { WorkManager.getInstance(context) }
+
     override fun scheduleAlarm(alarm: Alarm) {
+        cancelAlarm(alarm.id)
         val intent = Intent(context, AlarmReceiver::class.java)
         intent.putExtra(Constants.ALARM_ID_EXTRA, alarm.id)
         val pendingIntent = PendingIntent.getBroadcast(
@@ -27,8 +37,33 @@ class AlarmSchedulerImpl(
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        AlarmManagerCompat.setExactAndAllowWhileIdle(alarmManager, AlarmManager.RTC_WAKEUP, alarm.time, pendingIntent)
+        val plan = AlarmSchedulePolicy.create(canScheduleExactAlarms())
+        when (plan.deliveryMode) {
+            AlarmDeliveryMode.EXACT -> AlarmManagerCompat.setExactAndAllowWhileIdle(
+                alarmManager,
+                AlarmManager.RTC_WAKEUP,
+                alarm.time,
+                pendingIntent
+            )
 
+            AlarmDeliveryMode.INEXACT -> AlarmManagerCompat.setAndAllowWhileIdle(
+                alarmManager,
+                AlarmManager.RTC_WAKEUP,
+                alarm.time,
+                pendingIntent
+            )
+        }
+        val fallbackDelay = (alarm.time - System.currentTimeMillis())
+            .coerceAtLeast(0L) + plan.fallbackDelayMillis
+        val fallback = OneTimeWorkRequestBuilder<AlarmFallbackWorker>()
+            .setInputData(AlarmFallbackWorker.inputData(alarm.id, alarm.time))
+            .setInitialDelay(fallbackDelay, TimeUnit.MILLISECONDS)
+            .build()
+        workManager.enqueueUniqueWork(
+            AlarmFallbackWorker.workName(alarm.id),
+            ExistingWorkPolicy.REPLACE,
+            fallback
+        )
     }
 
     override fun cancelAlarm(schedulerId: Int) {
@@ -40,6 +75,7 @@ class AlarmSchedulerImpl(
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         alarmManager.cancel(pendingIntent)
+        workManager.cancelUniqueWork(AlarmFallbackWorker.workName(schedulerId))
     }
 
     override fun canScheduleExactAlarms(): Boolean {

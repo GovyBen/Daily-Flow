@@ -73,25 +73,38 @@ class UpsertTaskUseCaseTest {
     }
 
     @Test
-    fun deniedExactAlarmPermissionKeepsTaskButReportsUnscheduledReminder() = runBlocking {
+    fun deniedExactAlarmPermissionStillPersistsAndSchedulesDegradedReminder() = runBlocking {
         val fixture = Fixture(canScheduleExact = false)
+        val task = task(dueDate = futureTime())
+
+        val result = fixture.useCase(task)
+
+        assertTrue(result)
+        assertEquals(100, fixture.taskRepository.savedTask?.alarmId)
+        assertEquals(listOf(Alarm(100, task.dueDate)), fixture.alarmScheduler.scheduled)
+    }
+
+    @Test
+    fun platformSchedulingFailureRollsBackAlarmAndReportsUnscheduledTask() = runBlocking {
+        val fixture = Fixture(throwOnSchedule = true)
         val task = task(dueDate = futureTime())
 
         val result = fixture.useCase(task)
 
         assertFalse(result)
         assertNull(fixture.taskRepository.savedTask?.alarmId)
-        assertTrue(fixture.alarmRepository.upserted.isEmpty())
-        assertTrue(fixture.alarmScheduler.scheduled.isEmpty())
+        assertEquals(listOf(100), fixture.alarmScheduler.cancelled)
+        assertEquals(listOf(100), fixture.alarmRepository.deletedIds)
     }
 
     private class Fixture(
         canScheduleExact: Boolean = true,
-        nextAlarmId: Int = 100
+        nextAlarmId: Int = 100,
+        throwOnSchedule: Boolean = false
     ) {
         val taskRepository = FakeTaskRepository()
         val alarmRepository = FakeAlarmRepository(nextAlarmId)
-        val alarmScheduler = FakeAlarmScheduler(canScheduleExact)
+        val alarmScheduler = FakeAlarmScheduler(canScheduleExact, throwOnSchedule)
         val widgetUpdater = FakeWidgetUpdater()
         val useCase = UpsertTaskUseCase(
             tasksRepository = taskRepository,
@@ -124,12 +137,14 @@ class UpsertTaskUseCaseTest {
     }
 
     private class FakeAlarmScheduler(
-        private val canScheduleExact: Boolean
+        private val canScheduleExact: Boolean,
+        private val throwOnSchedule: Boolean
     ) : AlarmScheduler {
         val scheduled = mutableListOf<Alarm>()
         val cancelled = mutableListOf<Int>()
 
         override fun scheduleAlarm(alarm: Alarm) {
+            if (throwOnSchedule) error("Platform scheduling failed")
             scheduled += alarm
         }
 

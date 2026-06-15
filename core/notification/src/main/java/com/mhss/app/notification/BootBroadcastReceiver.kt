@@ -3,38 +3,30 @@ package com.mhss.app.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.mhss.app.alarm.repository.AlarmScheduler
-import com.mhss.app.alarm.use_case.GetAllAlarmsUseCase
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import org.koin.core.qualifier.named
-import kotlin.getValue
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.mhss.app.notification.worker.RestoreAlarmsWorker
 
-class BootBroadcastReceiver : BroadcastReceiver(), KoinComponent {
-
-    private val getAllAlarms: GetAllAlarmsUseCase by inject()
-    private val alarmScheduler: AlarmScheduler by inject()
-    private val ioDispatcher: CoroutineDispatcher by inject(named("ioDispatcher"))
-    private val scope = CoroutineScope(ioDispatcher)
+class BootBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
-            val pendingResult = goAsync()
-            scope.launch {
-                try {
-                    val alarms = getAllAlarms()
-                    alarms.forEach {
-                        alarmScheduler.scheduleAlarm(it)
-                    }
-                } finally {
-                    pendingResult.finish()
-                }
-            }
-        }
+        if (context == null || intent?.action !in RESTORE_ACTIONS) return
 
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            RestoreAlarmsWorker.WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            OneTimeWorkRequestBuilder<RestoreAlarmsWorker>().build()
+        )
     }
 
+    private companion object {
+        val RESTORE_ACTIONS = setOf(
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_DATE_CHANGED,
+            Intent.ACTION_TIME_CHANGED,
+            Intent.ACTION_TIMEZONE_CHANGED,
+            Intent.ACTION_MY_PACKAGE_REPLACED
+        )
+    }
 }
