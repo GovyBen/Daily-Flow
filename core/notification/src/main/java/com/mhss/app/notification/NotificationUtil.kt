@@ -52,3 +52,56 @@ fun NotificationManager.sendNotification(task: Task, context: Context, id: Int) 
 
     notify(id, notification)
 }
+
+/**
+ * Sends a task reminder notification keyed by the unified [reminderId].
+ * Uses the task's string ID in the complete action so
+ * [TaskActionButtonBroadcastReceiver] can look it up without an alarm ID.
+ */
+fun NotificationManager.sendReminderNotification(
+    task: Task,
+    context: Context,
+    reminderId: Int
+) {
+    val completeIntent = Intent(context, TaskActionButtonBroadcastReceiver::class.java).apply {
+        action = Constants.ACTION_COMPLETE
+        putExtra(Constants.TASK_ID_EXTRA, task.id)
+    }
+    val completePendingIntent = PendingIntent.getBroadcast(
+        context,
+        reminderId,
+        completeIntent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+
+    val taskDetailIntent = Intent(
+        Intent.ACTION_VIEW,
+        "${Constants.TASK_DETAILS_URI}/${task.id}".toUri()
+    )
+    val taskDetailsPendingIntent = TaskStackBuilder.create(context).run {
+        addNextIntentWithParentStack(taskDetailIntent)
+        getPendingIntent(0, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    val notification = NotificationCompat.Builder(context, Constants.REMINDERS_CHANNEL_ID)
+        .setSmallIcon(R.drawable.notification_icon)
+        .setContentTitle(task.title)
+        .setContentText(task.description)
+        .setContentIntent(taskDetailsPendingIntent)
+        .setPriority(
+            when (task.priority) {
+                Priority.LOW -> NotificationCompat.PRIORITY_DEFAULT
+                Priority.MEDIUM -> NotificationCompat.PRIORITY_HIGH
+                Priority.HIGH -> NotificationCompat.PRIORITY_MAX
+            }
+        )
+        .addAction(
+            R.drawable.ic_check,
+            context.getString(R.string.complete),
+            completePendingIntent
+        )
+        .setAutoCancel(true)
+        .build()
+
+    notify(reminderId, notification)
+}

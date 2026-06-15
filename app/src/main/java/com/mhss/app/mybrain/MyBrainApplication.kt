@@ -30,6 +30,7 @@ import com.mhss.app.mybrain.di.platformModule
 import com.mhss.app.mybrain.data.security.LegacySecretMigration
 import com.mhss.app.mybrain.data.security.redactSensitiveHeaders
 import com.mhss.app.mybrain.data.tracking.DefaultTrackingTemplateInitializer
+import com.mhss.app.domain.use_case.MigrateLegacyTaskAlarmsUseCase
 import com.mhss.app.notification.di.NotificationModule
 import com.mhss.app.notification.worker.RestoreAlarmsWorkScheduler
 import com.mhss.app.preferences.PrefsConstants
@@ -66,6 +67,7 @@ class MyBrainApplication : Application() {
     private val getPreference: GetPreferenceUseCase by inject()
     private val legacySecretMigration: LegacySecretMigration by inject()
     private val defaultTrackingTemplateInitializer: DefaultTrackingTemplateInitializer by inject()
+    private val migrateLegacyTaskAlarms: MigrateLegacyTaskAlarmsUseCase by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -112,6 +114,15 @@ class MyBrainApplication : Application() {
                 Log.e(
                     "TrackingTemplates",
                     "Default templates will retry on the next launch.",
+                    it
+                )
+            }
+            runCatching {
+                migrateLegacyTaskAlarms()
+            }.onFailure {
+                Log.e(
+                    "TaskAlarmMigration",
+                    "Legacy task alarm migration will retry on the next launch.",
                     it
                 )
             }

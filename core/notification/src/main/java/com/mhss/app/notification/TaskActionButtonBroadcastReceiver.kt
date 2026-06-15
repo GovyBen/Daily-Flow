@@ -33,7 +33,16 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
                     updateTaskCompleted(task, true)
                     val manager =
                         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    manager.cancel(task.alarmId ?: return@launch)
+                    // Cancel by whatever ID was used for the notification.
+                    // For old alarm-based notifications: task.alarmId
+                    // For new reminder-based notifications: the notification ID
+                    // equals the PendingIntent request code (which is the alarm/reminder id).
+                    val notificationId = intent.getIntExtra(
+                        Constants.ALARM_ID_EXTRA, -1
+                    ).takeIf { it != -1 }
+                        ?: task.alarmId
+                        ?: return@launch
+                    manager.cancel(notificationId)
                 } finally {
                     pendingResult.finish()
                 }
@@ -43,7 +52,7 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
 
     // The new is uuid string but previously it was an int which is same as alarm id
     private suspend fun Intent.getTaskBackwardsCompat(): Task? {
-        val taskId = getStringExtra(Constants.TASK_ID_EXTRA) // uuid
+        val taskId = getStringExtra(Constants.TASK_ID_EXTRA)
         taskId?.let { return getTaskById(it) }
         val alarmId = getIntExtra(Constants.TASK_ID_EXTRA, -1).takeIf { it != -1 }
         return alarmId?.let { getTaskByAlarm(it) }
