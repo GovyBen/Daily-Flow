@@ -1176,7 +1176,7 @@ adb logcat -d
 
 #### DF-401 审计 My Brain 现有提醒行为
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-004
 - 阅读：
   - `UpsertTaskUseCase`
@@ -1191,6 +1191,15 @@ adb logcat -d
   - Android 12+ exact alarm 权限。
   - 通知 channel。
 - 验收：现有单提醒行为有自动测试或可重复手工步骤。
+- 完成记录（2026-06-15）：新增 `REMINDER_CURRENT_STATE.md`，记录任务截止时间即
+  单提醒时间的完整链路、alarm 自增 ID/requestCode 复用、修改/删除取消语义、
+  epoch 时间与设备时区行为、开机恢复范围、exact alarm 和通知权限、通知 channel
+  以及接收器消费流程。审计确认当前缺少非精确/WorkManager 降级，只监听
+  `BOOT_COMPLETED`，不会过滤过期提醒或响应时区/应用升级变化，且已触发提醒不会
+  清空任务中的旧 alarm ID。新增纯 JVM 回归测试锁定新建、未来时间修改、移除
+  截止时间、完成任务和 exact 权限拒绝五条现有行为，并给出雷电复验步骤。
+  任务 domain 5/5 测试和 app debug 构建通过；雷电 Android 9 真实验证 alarm
+  创建、到点通知、同 ID 修改和取消，且日志无崩溃、ANR、SQLite 或权限异常。
 
 #### DF-402 移植 Track & Graph 调度降级模式
 
