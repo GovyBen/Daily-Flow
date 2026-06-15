@@ -31,6 +31,7 @@ import com.mhss.app.mybrain.data.security.LegacySecretMigration
 import com.mhss.app.mybrain.data.security.redactSensitiveHeaders
 import com.mhss.app.mybrain.data.tracking.DefaultTrackingTemplateInitializer
 import com.mhss.app.notification.di.NotificationModule
+import com.mhss.app.notification.worker.RestoreAlarmsWorkScheduler
 import com.mhss.app.preferences.PrefsConstants
 import com.mhss.app.preferences.di.PreferencesModule
 import com.mhss.app.preferences.domain.model.booleanPreferencesKey
@@ -99,6 +100,7 @@ class MyBrainApplication : Application() {
             )
             workManagerFactory()
         }
+        RestoreAlarmsWorkScheduler.enqueue(this)
         runBlocking {
             runCatching { legacySecretMigration.migrate() }
                 .onFailure {

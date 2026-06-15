@@ -26,6 +26,22 @@
 - 雷电 Android 9 已验证同一目标两条提醒不会覆盖、旧数据保留和真实 APK
   覆盖升级到数据库 v8。
 
+## DF-404 统一调度和重算
+
+- 统一提醒现在有独立 `ReminderScheduler`、`ReminderReceiver` 和
+  `reminder_fallback_<id>`，但继续复用现有 AlarmManager、WorkManager、
+  exact/inexact 降级策略和唯一恢复 worker。
+- `ScheduleReminder`、`CancelReminder`、`RescheduleTargetReminders`、
+  `RestoreAllReminders`、`ReconcileScheduledReminders` 已可由后续任务调用。
+- 相对任务提醒按任务 dueDate 减 offset 计算；相对日历提醒按事件 start 计算。
+  目标暂不可读取时保持 `PENDING`，不会弹出或丢弃。
+- 未来提醒为 `SCHEDULED`，系统恢复时过期提醒转为 `MISSED`，到点触发转为
+  `DELIVERED`；三个终态均不会重新排程。
+- boot、日期/系统时间/时区、应用升级、exact alarm 权限状态广播和应用启动
+  会入队同一个恢复工作。重复调用只替换同 ID 系统调度，不改写未变化状态。
+- DF-404 只完成通用调度和状态消费；任务、日历和记录提示的通知文案、动作和
+  深链分别由 DF-405、DF-406、DF-407 接入，当前生产流程尚不会创建统一 reminder。
+
 ## 当前数据和调度流程
 
 1. 任务的 `dueDate` 同时是截止时间和唯一提醒时间，`Task.alarmId` 是可空外键式引用。
@@ -144,4 +160,4 @@ DF-402 实测结果：
 - 恢复会重排过期提醒，尚未按目标状态做统一核对或清理。
 - WorkManager 后备提供送达安全网，但系统仍可因省电策略延迟执行。
 - 单一 `dueDate` 仍无法表示截止时间与多个绝对/相对提醒；统一实体已就绪，
-  DF-404/DF-405 将接通调度和旧任务迁移。
+  DF-404 已接通通用调度，DF-405 将迁移旧任务并接入通知。

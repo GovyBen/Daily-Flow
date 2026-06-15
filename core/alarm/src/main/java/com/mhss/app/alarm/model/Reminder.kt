@@ -33,6 +33,16 @@ data class Reminder(
         }
         return id.toInt()
     }
+
+    fun resolveTriggerAt(targetEpochMilli: Long?): Long? {
+        return absoluteTriggerAt ?: targetEpochMilli?.minus(
+            relativeOffsetMinutes!!.toLong() * MILLIS_PER_MINUTE
+        )
+    }
+
+    private companion object {
+        const val MILLIS_PER_MINUTE = 60_000L
+    }
 }
 
 enum class ReminderTargetType {

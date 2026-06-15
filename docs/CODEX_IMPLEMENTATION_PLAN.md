@@ -1251,7 +1251,7 @@ adb logcat -d
 
 #### DF-404 实现提醒重算和同步用例
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-402、DF-403
 - 用例：
   - ScheduleReminder
@@ -1266,6 +1266,12 @@ adb logcat -d
   - 应用升级。
   - 权限变化。
 - 验收：重复调用幂等，过期提醒不重复弹出。
+- 完成记录（2026-06-15）：实现五个计划用例及统一触发消费用例，未来提醒进入
+  `SCHEDULED`，过期提醒进入 `MISSED`，目标暂不可解析时保留 `PENDING`。
+  AlarmManager/WorkManager 使用 reminder ID 的唯一 request code/work name；
+  boot、日期/时间/时区、应用升级、exact alarm 权限广播和应用启动均触发统一恢复。
+  JVM 17/17、任务回归 6/6、notification lint、R8 release 和雷电真实调度通过；
+  重复恢复不改写终态时间戳，已送达/过期提醒不会重新排程。
 
 #### DF-405 改造任务提醒
 

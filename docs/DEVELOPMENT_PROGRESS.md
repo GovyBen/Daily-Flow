@@ -6,9 +6,9 @@
 
 - 当前阶段：P4 统一多重提醒
 - 已完成：DF-001 至 DF-011、DF-013 至 DF-015、DF-101 至 DF-110、
-  DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-403、DF-601 至 DF-603
-- 正在推进：DF-404 提醒重算与同步
-- 下一批：DF-405 任务多提醒迁移、DF-406 日历事件多提醒
+  DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-404、DF-601 至 DF-603
+- 正在推进：DF-405 任务多提醒迁移
+- 下一批：DF-406 日历事件多提醒、DF-407 记录提示
 
 ## 当前任务进度
 
@@ -116,6 +116,42 @@
   `D343DA34EEA6ED1FB22694B4ECA7C17AE381F7AAF500EAB4C0439BC9D51EBD08`。
 - 已完成：DF-403 验收关闭，开发进入 DF-404 提醒重算与同步。
 
+### DF-404 提醒重算与同步
+
+- 已完成：实现 `ScheduleReminder`、`CancelReminder`、
+  `RescheduleTargetReminders`、`RestoreAllReminders` 和
+  `ReconcileScheduledReminders`，并增加统一触发消费用例。
+- 已完成：绝对提醒直接使用 epoch millisecond；相对提醒通过目标时间解析接口
+  计算，TASK 使用未完成任务的 dueDate，CALENDAR_EVENT 使用 Provider 事件 start，
+  RECORD_PROMPT 的周期目标解析留给 DF-407。
+- 已完成：未来启用提醒进入 `SCHEDULED`；过期提醒取消系统调度并进入 `MISSED`；
+  目标暂不可读取或不存在时取消旧系统调度、保留 enabled + `PENDING` 以便权限/
+  目标恢复后重试。
+- 已完成：取消、送达、过期终态重复重算不会再次写库；同一 reminder ID 重复调度
+  只替换相同 request code 和唯一 `reminder_fallback_<id>`，严格保持幂等。
+- 已完成：新增统一 `ReminderReceiver` 和 WorkManager fallback；触发时复算当前
+  时间，旧 trigger 或系统时钟回拨不会误送，真实到期只把状态消费为
+  `DELIVERED` 一次。
+- 已完成：现有 `AlarmSchedulerImpl` 同时实现旧 alarm 与统一 reminder scheduler，
+  继续复用 DF-402 的 exact/inexact + 5/15 分钟后备策略。
+- 已完成：现有唯一恢复 worker 同时恢复旧 alarm 和统一 reminders；触发来源覆盖
+  boot、日期/系统时间/时区、应用升级、exact alarm 权限状态广播和应用进程启动。
+- 已验证：Koin 自动绑定旧/新 scheduler、目标时间 resolver 和两个 worker；
+  合并 Manifest 中统一 receiver 为非导出组件。
+- 已验证：核心 alarm 17/17 JVM 测试通过，其中 DF-404 用例 10/10；任务 domain
+  6/6 回归通过，notification lint 无问题。
+- 已验证：雷电 Android 9 中未来 reminder 注册单一 RTC_WAKEUP 和唯一 fallback；
+  连续两次恢复仍只有一个系统 alarm。
+- 已验证：雷电中已过期 reminder 变为 `MISSED`，目标缺失的相对 reminder 保持
+  `PENDING`，未来 reminder 到点变为 `DELIVERED` 并取消 fallback。
+- 已验证：终态和不可解析 `PENDING` 再次恢复时 `updatedAt` 不变；应用启动无需
+  手工广播即可运行恢复 worker，日志无崩溃、Koin、Room 或 worker 异常。
+- 已验证：测试提醒已从雷电数据库删除，系统 alarm 与 fallback 清理完成。
+- 已验证：app debug 与 R8 release 构建通过；unsigned release APK 为
+  9,447,379 字节，SHA-256 为
+  `9EF54DAEFFD93D77D0F0DABDBB5BB2B2C05E984CE0162BEA75BCE3E86B436C78`。
+- 已完成：DF-404 验收关闭，下一步将旧任务单提醒迁移并接入目标通知内容。
+
 ## 已具备能力
 
 - Daily Flow 品牌、四栏主导航、完整日历入口和统一内容库
@@ -152,6 +188,7 @@
 - 统计计算在后台 dispatcher 执行，范围、tracker 或聚合切换会取消旧请求
 - tracking 雷电仪器测试 50/50，真实 APK 已验证统计入口和图表交互
 - 主数据库 v8 迁移和 schema 导出，统一 reminders 表与 repository 已就绪
+- 统一提醒调度、取消、重算、恢复、过期清理和单次触发状态机
 - 雷电模拟器构建、安装、启动和日志收集脚本
 
 ## 发布路径

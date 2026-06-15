@@ -6,6 +6,8 @@ object Constants {
     const val REMINDERS_CHANNEL_ID = "reminders_notification_channel"
     const val TASK_ID_EXTRA = "task_Id"
     const val ALARM_ID_EXTRA = "alarm_Id"
+    const val REMINDER_ID_EXTRA = "reminder_id"
+    const val REMINDER_TRIGGER_AT_EXTRA = "reminder_trigger_at"
     const val ACTION_COMPLETE = "com.dailyflow.app.COMPLETE_ACTION"
 
     // Navigation

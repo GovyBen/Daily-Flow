@@ -3,21 +3,14 @@ package com.mhss.app.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import com.mhss.app.notification.worker.RestoreAlarmsWorker
+import com.mhss.app.notification.worker.RestoreAlarmsWorkScheduler
 
 class BootBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent?.action !in RESTORE_ACTIONS) return
 
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            RestoreAlarmsWorker.WORK_NAME,
-            ExistingWorkPolicy.REPLACE,
-            OneTimeWorkRequestBuilder<RestoreAlarmsWorker>().build()
-        )
+        RestoreAlarmsWorkScheduler.enqueue(context)
     }
 
     private companion object {
@@ -26,7 +19,10 @@ class BootBroadcastReceiver : BroadcastReceiver() {
             Intent.ACTION_DATE_CHANGED,
             Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED,
-            Intent.ACTION_MY_PACKAGE_REPLACED
+            Intent.ACTION_MY_PACKAGE_REPLACED,
+            EXACT_ALARM_PERMISSION_ACTION
         )
+        const val EXACT_ALARM_PERMISSION_ACTION =
+            "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"
     }
 }

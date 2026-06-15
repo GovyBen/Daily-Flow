@@ -9,4 +9,5 @@ dependencies {
     ksp(libs.koin.ksp.compiler)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.core)
 }

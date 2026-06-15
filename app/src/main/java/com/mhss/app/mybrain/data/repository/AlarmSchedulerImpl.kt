@@ -13,8 +13,11 @@ import com.mhss.app.alarm.model.Alarm
 import com.mhss.app.alarm.model.AlarmDeliveryMode
 import com.mhss.app.alarm.model.AlarmSchedulePolicy
 import com.mhss.app.alarm.repository.AlarmScheduler
+import com.mhss.app.alarm.repository.ReminderScheduler
 import com.mhss.app.notification.AlarmReceiver
+import com.mhss.app.notification.ReminderReceiver
 import com.mhss.app.notification.worker.AlarmFallbackWorker
+import com.mhss.app.notification.worker.ReminderFallbackWorker
 import com.mhss.app.util.Constants
 import org.koin.core.annotation.Factory
 import java.util.concurrent.TimeUnit
@@ -22,7 +25,7 @@ import java.util.concurrent.TimeUnit
 @Factory
 class AlarmSchedulerImpl(
     private val context: Context
-): AlarmScheduler {
+): AlarmScheduler, ReminderScheduler {
 
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     private val workManager by lazy { WorkManager.getInstance(context) }
@@ -78,8 +81,72 @@ class AlarmSchedulerImpl(
         workManager.cancelUniqueWork(AlarmFallbackWorker.workName(schedulerId))
     }
 
+    override fun scheduleReminder(reminderId: Long, triggerAtEpochMilli: Long) {
+        val requestCode = reminderId.toRequestCode()
+        cancelReminder(reminderId)
+        val intent = Intent(context, ReminderReceiver::class.java)
+            .putExtra(Constants.REMINDER_ID_EXTRA, reminderId)
+            .putExtra(Constants.REMINDER_TRIGGER_AT_EXTRA, triggerAtEpochMilli)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val plan = AlarmSchedulePolicy.create(canScheduleExactAlarms())
+        when (plan.deliveryMode) {
+            AlarmDeliveryMode.EXACT -> AlarmManagerCompat.setExactAndAllowWhileIdle(
+                alarmManager,
+                AlarmManager.RTC_WAKEUP,
+                triggerAtEpochMilli,
+                pendingIntent
+            )
+
+            AlarmDeliveryMode.INEXACT -> AlarmManagerCompat.setAndAllowWhileIdle(
+                alarmManager,
+                AlarmManager.RTC_WAKEUP,
+                triggerAtEpochMilli,
+                pendingIntent
+            )
+        }
+        val fallbackDelay = (triggerAtEpochMilli - System.currentTimeMillis())
+            .coerceAtLeast(0L) + plan.fallbackDelayMillis
+        val fallback = OneTimeWorkRequestBuilder<ReminderFallbackWorker>()
+            .setInputData(
+                ReminderFallbackWorker.inputData(
+                    reminderId,
+                    triggerAtEpochMilli
+                )
+            )
+            .setInitialDelay(fallbackDelay, TimeUnit.MILLISECONDS)
+            .build()
+        workManager.enqueueUniqueWork(
+            ReminderFallbackWorker.workName(reminderId),
+            ExistingWorkPolicy.REPLACE,
+            fallback
+        )
+    }
+
+    override fun cancelReminder(reminderId: Long) {
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            reminderId.toRequestCode(),
+            Intent(context, ReminderReceiver::class.java),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE
+        )
+        pendingIntent?.let(alarmManager::cancel)
+        workManager.cancelUniqueWork(ReminderFallbackWorker.workName(reminderId))
+    }
+
     override fun canScheduleExactAlarms(): Boolean {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
+    }
+
+    private fun Long.toRequestCode(): Int {
+        require(this in 1..Int.MAX_VALUE.toLong()) {
+            "A persisted reminder ID is required for scheduling"
+        }
+        return toInt()
     }
 }
 
