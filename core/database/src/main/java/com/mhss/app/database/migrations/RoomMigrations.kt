@@ -398,3 +398,35 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         )
     }
 }
+
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `reminders` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `target_type` TEXT NOT NULL,
+                `target_id` TEXT NOT NULL,
+                `absolute_trigger_at` INTEGER,
+                `relative_offset_minutes` INTEGER,
+                `enabled` INTEGER NOT NULL,
+                `status` TEXT NOT NULL,
+                `created_at` INTEGER NOT NULL,
+                `updated_at` INTEGER NOT NULL
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_reminders_target_type_target_id`
+            ON `reminders` (`target_type`, `target_id`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_reminders_enabled_status`
+            ON `reminders` (`enabled`, `status`)
+            """.trimIndent()
+        )
+    }
+}

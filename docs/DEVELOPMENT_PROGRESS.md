@@ -6,9 +6,9 @@
 
 - 当前阶段：P4 统一多重提醒
 - 已完成：DF-001 至 DF-011、DF-013 至 DF-015、DF-101 至 DF-110、
-  DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-402、DF-601 至 DF-603
-- 正在推进：DF-403 统一提醒数据模型
-- 下一批：DF-404 提醒重算与同步、DF-405 任务多提醒迁移
+  DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-403、DF-601 至 DF-603
+- 正在推进：DF-404 提醒重算与同步
+- 下一批：DF-405 任务多提醒迁移、DF-406 日历事件多提醒
 
 ## 当前任务进度
 
@@ -91,6 +91,31 @@
   系统无活动 Daily Flow alarm；日志无崩溃、ANR、Koin、worker 或权限异常。
 - 已完成：DF-402 验收关闭，下一步新增统一提醒实体。
 
+### DF-403 统一提醒数据模型
+
+- 已完成：新增 `Reminder` 领域模型，覆盖 TASK、CALENDAR_EVENT 和 RECORD_PROMPT，
+  并定义 PENDING、SCHEDULED、DELIVERED、CANCELLED、MISSED 生命周期状态。
+- 已完成：绝对触发时间和相对提前分钟必须有且仅有一个；目标 ID、非负时间/
+  offset 和 createdAt/updatedAt 顺序在领域构造时统一校验。
+- 已完成：持久化提醒 ID 使用 Room 自增 `Long`；有效持久化 ID 在
+  `1..Int.MAX_VALUE` 内直接映射为 AlarmManager/通知 request code，避免同目标
+  多提醒互相覆盖。
+- 已完成：新增 `reminders` 表、目标与状态索引、DAO、repository 接口及 Koin
+  扫描实现；支持全量、按 ID、按目标、启用提醒查询和新增/更新/删除。
+- 已完成：主数据库升级到 v8，并加入 v7→v8 非破坏迁移；旧 `tasks` 和 `alarms`
+  表保持不变，旧单提醒迁移留给 DF-405。
+- 已验证：`core:alarm` 领域测试 7/7 通过，其中统一提醒模型 5/5。
+- 已验证：Room/KSP 主代码和 Android 测试源码编译通过，v8 schema 已导出，
+  identity hash 为 `45d701d8511ec412cc76ca7dc13132f6`。
+- 已验证：雷电 Android 9 执行 DAO 与 v7→v8 迁移仪器测试 2/2 通过；同一任务
+  两条提醒获得不同自增 ID/request code，旧任务和 alarm 行完整保留。
+- 已验证：真实 Debug APK 覆盖安装后数据库 `user_version=8` 且存在
+  `reminders` 表；应用启动无 Room、Koin、SQLite 崩溃。
+- 已验证：database lint、app debug 与 R8 release 构建通过；unsigned release
+  APK 为 9,430,927 字节，SHA-256 为
+  `D343DA34EEA6ED1FB22694B4ECA7C17AE381F7AAF500EAB4C0439BC9D51EBD08`。
+- 已完成：DF-403 验收关闭，开发进入 DF-404 提醒重算与同步。
+
 ## 已具备能力
 
 - Daily Flow 品牌、四栏主导航、完整日历入口和统一内容库
@@ -126,7 +151,7 @@
   折线/柱状、选项分布、今日摘要和当前/最长连续天数
 - 统计计算在后台 dispatcher 执行，范围、tracker 或聚合切换会取消旧请求
 - tracking 雷电仪器测试 50/50，真实 APK 已验证统计入口和图表交互
-- 主数据库 v7 迁移和 schema 导出
+- 主数据库 v8 迁移和 schema 导出，统一 reminders 表与 repository 已就绪
 - 雷电模拟器构建、安装、启动和日志收集脚本
 
 ## 发布路径

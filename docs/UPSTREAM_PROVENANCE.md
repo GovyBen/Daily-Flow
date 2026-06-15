@@ -1,6 +1,6 @@
 # Upstream Provenance
 
-Last updated: 2026-06-14
+Last updated: 2026-06-15
 
 ## Fixed Sources
 
@@ -60,6 +60,7 @@ The following files have been migrated or approved for later evaluation:
 | DF-306 | Track & Graph Commons CSV dependency selection | `org.apache.commons:commons-csv:1.14.1` | Retained 2026-06-15; Apache-2.0, resolved Commons IO 2.20.0 and Commons Codec 1.19.0 also Apache-2.0; precise R8 annotation warning rule added |
 | DF-306 | No direct upstream equivalent; Daily Flow Room aggregate and Android SAF | `tracking/.../data/csv/TrackingCsvSnapshotStore.kt`, `TrackingCsvManager.kt` and `presentation/csv/` | New Daily Flow integration 2026-06-15; consistent snapshot, transactional upsert, preview confirmation, custom CSV MIME picker and bilingual UI |
 | DF-402 | `reminders/PlatformScheduler.kt`, `androidplatform/AndroidPlatformScheduler.kt`, `ReminderFallbackWorker.kt`, `EnsureAlarmsWorker.kt` and `RecreateAlarmsBroadcastReceiver.kt` | `core/alarm/.../AlarmSchedulePlan.kt`, `core/notification/.../worker/`, existing receivers and `app/.../AlarmSchedulerImpl.kt` | Adapted 2026-06-15; retained Daily Flow scheduler/notification/boot infrastructure, added exact/inexact AlarmManager selection, unique WorkManager fallback, package/time restoration, Koin workers and rollback-safe scheduling |
+| DF-403 | No direct upstream equivalent; extends the existing My Brain alarm ID pattern and main Room database | `core/alarm/.../Reminder.kt`, `ReminderRepository.kt`, `core/database/.../ReminderEntity.kt`, DAO/migration/schema and `app/.../ReminderRepositoryImpl.kt` | New Daily Flow glue 2026-06-15; unified target model, mutually exclusive absolute/relative trigger validation, persisted-ID request codes and non-destructive v7→v8 migration |
 
 When a file is migrated, add its destination, original path, original
 copyright holder, modification date and Daily Flow modification summary here.

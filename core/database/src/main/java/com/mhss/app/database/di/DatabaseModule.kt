@@ -9,6 +9,7 @@ import com.mhss.app.database.migrations.MIGRATION_3_4
 import com.mhss.app.database.migrations.MIGRATION_4_5
 import com.mhss.app.database.migrations.MIGRATION_5_6
 import com.mhss.app.database.migrations.MIGRATION_6_7
+import com.mhss.app.database.migrations.MIGRATION_7_8
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -25,7 +26,8 @@ val databaseModule = module {
             MIGRATION_3_4,
             MIGRATION_4_5,
             MIGRATION_5_6,
-            MIGRATION_6_7
+            MIGRATION_6_7,
+            MIGRATION_7_8
         )
             .build()
     }
@@ -36,6 +38,7 @@ val databaseModule = module {
     single { get<MyBrainDatabase>().diaryDao() }
     single { get<MyBrainDatabase>().bookmarkDao() }
     single { get<MyBrainDatabase>().alarmDao() }
+    single { get<MyBrainDatabase>().reminderDao() }
     single { get<MyBrainDatabase>().templateDao() }
     single { get<MyBrainDatabase>().trackerDao() }
     single { get<MyBrainDatabase>().sessionDao() }

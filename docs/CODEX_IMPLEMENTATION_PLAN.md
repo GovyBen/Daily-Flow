@@ -1229,7 +1229,7 @@ adb logcat -d
 
 #### DF-403 新增统一 ReminderEntity
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-401
 - 字段：
   - id
@@ -1243,6 +1243,11 @@ adb logcat -d
 - 目标类型：TASK、CALENDAR_EVENT、RECORD_PROMPT。
 - 约束：绝对时间和相对 offset 必须有且仅有一种来源语义。
 - 测试：多提醒唯一 request code，不相互覆盖。
+- 完成记录（2026-06-15）：新增统一领域模型、repository、Room entity/DAO 和
+  v7→v8 迁移；持久化自增 ID 在 `Int` 范围内直接作为 request code。
+  领域测试 5/5、雷电 Room/迁移测试 2/2 通过；真实 Debug 数据库覆盖升级到
+  `user_version=8`，旧任务和 alarm 保留，应用启动无 Room/Koin/SQLite 异常；
+  database lint 和 app R8 release 构建通过。
 
 #### DF-404 实现提醒重算和同步用例
 

@@ -14,6 +14,18 @@
 
 当前日历事件没有 Daily Flow 自有提醒，tracking 也没有记录提示。
 
+## DF-403 统一数据模型
+
+- 主数据库 v8 已新增 `reminders` 表，旧 `alarms` 表暂时保留用于兼容现有任务链路。
+- `Reminder` 支持 TASK、CALENDAR_EVENT、RECORD_PROMPT 三类目标，以及绝对
+  epoch millisecond 或相对提前分钟两种互斥触发来源。
+- 每条提醒有独立自增 `Long` ID、enabled、status 和创建/更新时间；持久化 ID
+  在 `Int` 范围内直接作为唯一 request code。
+- DAO/repository 已支持全量、按 ID、按目标和启用状态查询，以及保存和删除。
+- v7→v8 迁移只建新表和索引，不改写旧任务或 alarm；旧单提醒转换属于 DF-405。
+- 雷电 Android 9 已验证同一目标两条提醒不会覆盖、旧数据保留和真实 APK
+  覆盖升级到数据库 v8。
+
 ## 当前数据和调度流程
 
 1. 任务的 `dueDate` 同时是截止时间和唯一提醒时间，`Task.alarmId` 是可空外键式引用。
@@ -131,4 +143,5 @@ DF-402 实测结果：
 - 已触发提醒只删除 alarm 行，不清空 `Task.alarmId`。
 - 恢复会重排过期提醒，尚未按目标状态做统一核对或清理。
 - WorkManager 后备提供送达安全网，但系统仍可因省电策略延迟执行。
-- 单一 `dueDate` 无法表示截止时间与多个绝对/相对提醒，DF-403 起改用统一提醒实体。
+- 单一 `dueDate` 仍无法表示截止时间与多个绝对/相对提醒；统一实体已就绪，
+  DF-404/DF-405 将接通调度和旧任务迁移。
