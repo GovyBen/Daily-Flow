@@ -162,7 +162,10 @@
     <string name="tracking_analytics_samples">Samples</string>
     <string name="tracking_analytics_current_streak">Current streak</string>
     <string name="tracking_analytics_longest_streak">Longest streak</string>
-    <string name="tracking_analytics_streak_days">%1$d days</string>
+    <plurals name="tracking_analytics_streak_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
     <string name="tracking_analytics_line_chart">Line</string>
     <string name="tracking_analytics_bar_chart">Bar</string>
     <string name="tracking_analytics_series_title">%1$s · %2$s</string>
@@ -172,4 +175,42 @@
     <string name="tracking_analytics_no_trackers_detail">Add a non-text field to a tracking template to view statistics.</string>
     <string name="tracking_analytics_load_failed">Statistics could not be loaded.</string>
     <string name="tracking_analytics_retry">Retry</string>
+    <string name="tracking_csv_title">Tracking CSV</string>
+    <string name="tracking_csv_export_title">Export tracking data</string>
+    <string name="tracking_csv_export_description">Create a versioned CSV snapshot of templates, trackers, options, fields, sessions, and recorded values.</string>
+    <string name="tracking_csv_export_action">Choose export folder</string>
+    <string name="tracking_csv_import_title">Import tracking data</string>
+    <string name="tracking_csv_import_description">Choose a Daily Flow tracking CSV. The whole file is validated before the database is changed.</string>
+    <string name="tracking_csv_choose_file">Choose CSV file</string>
+    <string name="tracking_csv_preview_title">Validated import preview</string>
+    <string name="tracking_csv_import_warning">Import runs in one transaction. Rows with the same IDs replace their current values; unrelated local rows remain.</string>
+    <string name="tracking_csv_cancel">Cancel</string>
+    <string name="tracking_csv_confirm_import">Import</string>
+    <string name="tracking_csv_dismiss">Dismiss</string>
+    <plurals name="tracking_csv_exported">
+        <item quantity="one">Exported %2$d row to %1$s.</item>
+        <item quantity="other">Exported %2$d rows to %1$s.</item>
+    </plurals>
+    <plurals name="tracking_csv_imported">
+        <item quantity="one">Imported %1$d row.</item>
+        <item quantity="other">Imported %1$d rows.</item>
+    </plurals>
+    <string name="tracking_csv_count_templates">Templates: %1$d</string>
+    <string name="tracking_csv_count_trackers">Trackers: %1$d</string>
+    <string name="tracking_csv_count_options">Options: %1$d</string>
+    <string name="tracking_csv_count_fields">Fields: %1$d</string>
+    <string name="tracking_csv_count_sessions">Sessions: %1$d</string>
+    <string name="tracking_csv_count_points">Data points: %1$d</string>
+    <string name="tracking_csv_error_headers">The CSV headers are invalid.</string>
+    <string name="tracking_csv_error_version">This CSV schema version is not supported.</string>
+    <string name="tracking_csv_error_record_type">The CSV contains an unknown record type.</string>
+    <string name="tracking_csv_error_missing_value">A required value is missing.</string>
+    <string name="tracking_csv_error_invalid_value">A value is invalid.</string>
+    <string name="tracking_csv_error_duplicate">The CSV contains a duplicate ID.</string>
+    <string name="tracking_csv_error_reference">A row references missing data.</string>
+    <string name="tracking_csv_error_read">The CSV file could not be read.</string>
+    <string name="tracking_csv_error_write">The CSV file could not be exported.</string>
+    <string name="tracking_csv_error_import">The CSV could not be imported. No changes were saved.</string>
+    <string name="tracking_csv_error_line">Line %1$d: %2$s</string>
+    <string name="tracking_csv_error_line_detail">Line %1$d: %2$s (%3$s)</string>
 </resources>

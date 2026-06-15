@@ -3,11 +3,15 @@ package com.mhss.app.tracking.data.database.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import com.mhss.app.tracking.data.database.entity.DataPointEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TrackingDataPointDao {
+
+    @Query("SELECT * FROM tracking_data_points ORDER BY epoch_milli, id")
+    suspend fun getAllDataPoints(): List<DataPointEntity>
 
     @Query(
         """
@@ -76,6 +80,9 @@ interface TrackingDataPointDao {
 
     @Insert
     suspend fun insertDataPoints(points: List<DataPointEntity>)
+
+    @Upsert
+    suspend fun upsertDataPoints(points: List<DataPointEntity>)
 
     @Query("DELETE FROM tracking_data_points WHERE session_id = :sessionId")
     suspend fun deleteDataPointsForSession(sessionId: String): Int

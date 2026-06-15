@@ -1138,7 +1138,7 @@ adb logcat -d
 
 #### DF-306 移植 CSV 读写
 
-- [ ] 状态
+- [x] 状态
 - 前置：DF-108
 - 来源：Track & Graph `CSVReadWriterImpl.kt` 及测试。
 - 依赖：优先保留 Apache Commons CSV；核对版本和许可证。
@@ -1154,6 +1154,21 @@ adb logcat -d
   - 错误包含行号。
   - 导入使用事务。
 - 验收：导出后重新导入等价；逗号、换行、中文和引号测试通过。
+- 完成记录（2026-06-15）：保留固定 Track & Graph 提交使用的 Apache Commons
+  CSV `1.14.1`，解析到 Commons IO `2.20.0` 和 Commons Codec `1.19.0`；
+  三者均为 Apache-2.0。Daily Flow CSV schema v1 使用 `record_type` 分别表示
+  模板、tracker、选项、字段、session 和数据点，覆盖六表全部持久化字段，
+  因而可表示无记录模板和未使用选项。导入先在 IO dispatcher 完整解析，校验
+  schema、记录类型、必填值、有限数值、时区、tracker JSON、重复 ID 和外键，
+  所有解析及引用错误均带 CSV 行号；确认后才在单一 Room 事务中按依赖顺序
+  upsert。Android SAF 页面支持文件夹导出、显式 CSV MIME 文件选择、预览计数
+  和确认导入。JVM 测试覆盖 UTF-8 BOM、逗号、换行、中文、引号、版本错误、
+  无效字段、断裂引用及完整往返；事务仪器测试覆盖等价导入和失败全回滚。
+  tracking JVM 79/79、雷电 Android 9 仪器测试 50/50、lint 0 issue 通过，
+  app debug 与 R8 release 构建通过。真实 APK 导出 32 行后重新导入成功，
+  再次导出文件与原文件 SHA-256 同为
+  `3E2F8A10771D69936134CEBB1D7071E44AE3DA2259982C0A941D3E6A32FA5B11`，
+  日志无崩溃、ANR、Koin 或 Room 约束异常。
 
 ### P4：统一多重提醒
 

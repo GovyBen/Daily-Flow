@@ -6,6 +6,7 @@ import androidx.compose.ui.test.StateRestorationTester
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
@@ -18,6 +19,26 @@ import org.junit.Test
 
 @OptIn(ExperimentalTestApi::class)
 class TrackingTemplateListScreenTest {
+
+    @Test
+    fun csvToolbarActionEmitsNavigationRequest() = runComposeUiTest {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        var csvRequested = false
+        setContent {
+            MaterialTheme {
+                TrackingTemplateListContent(
+                    state = TrackingTemplateListUiState(),
+                    onOpenCsv = { csvRequested = true }
+                )
+            }
+        }
+
+        onNodeWithContentDescription(
+            context.getString(R.string.tracking_csv_title)
+        ).performClick()
+
+        assertEquals(true, csvRequested)
+    }
 
     @Test
     fun createDialogRestoresNameAndEmitsCreate() = runComposeUiTest {

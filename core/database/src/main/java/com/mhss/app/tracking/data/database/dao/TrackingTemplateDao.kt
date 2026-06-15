@@ -26,12 +26,28 @@ interface TrackingTemplateDao {
 
     @Query(
         """
+        SELECT * FROM tracking_templates
+        ORDER BY display_order, created_at_epoch_milli, id
+        """
+    )
+    suspend fun getAllTemplates(): List<RecordTemplateEntity>
+
+    @Query(
+        """
         SELECT * FROM tracking_template_fields
         WHERE template_id = :templateId
         ORDER BY display_order, id
         """
     )
     suspend fun getFields(templateId: String): List<TemplateFieldEntity>
+
+    @Query(
+        """
+        SELECT * FROM tracking_template_fields
+        ORDER BY template_id, display_order, id
+        """
+    )
+    suspend fun getAllFields(): List<TemplateFieldEntity>
 
     @Query("DELETE FROM tracking_template_fields WHERE template_id = :templateId")
     suspend fun deleteFields(templateId: String): Int

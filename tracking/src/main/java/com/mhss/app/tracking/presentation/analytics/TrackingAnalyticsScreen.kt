@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -435,8 +436,9 @@ private fun StreakCard(
         ) {
             Text(title, style = MaterialTheme.typography.labelLarge)
             Text(
-                stringResource(
-                    R.string.tracking_analytics_streak_days,
+                pluralStringResource(
+                    R.plurals.tracking_analytics_streak_days,
+                    streak?.length ?: 0,
                     streak?.length ?: 0
                 ),
                 style = MaterialTheme.typography.headlineSmall,

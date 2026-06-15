@@ -38,6 +38,9 @@ sealed class Screen {
     ) : Screen()
 
     @Serializable
+    data object TrackingCsvScreen : Screen()
+
+    @Serializable
     data object DashboardScreen : Screen()
 
     @Serializable

@@ -21,6 +21,7 @@ import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.ImportExport
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.MoreVert
@@ -92,6 +93,7 @@ fun TrackingTemplateListScreen(
     onEditTemplate: (String) -> Unit = {},
     onOpenHistory: (String?) -> Unit = {},
     onOpenAnalytics: (String?) -> Unit = {},
+    onOpenCsv: () -> Unit = {},
     onCreateTemplate: (() -> Unit)? = null,
     viewModel: TrackingTemplateListViewModel = koinViewModel()
 ) {
@@ -119,6 +121,7 @@ fun TrackingTemplateListScreen(
         onEditTemplate = onEditTemplate,
         onOpenHistory = onOpenHistory,
         onOpenAnalytics = onOpenAnalytics,
+        onOpenCsv = onOpenCsv,
         onCreateTemplate = onCreateTemplate,
         onCreate = viewModel::create,
         onPin = viewModel::togglePinned,
@@ -139,6 +142,7 @@ fun TrackingTemplateListContent(
     onEditTemplate: (String) -> Unit = {},
     onOpenHistory: (String?) -> Unit = {},
     onOpenAnalytics: (String?) -> Unit = {},
+    onOpenCsv: () -> Unit = {},
     onCreateTemplate: (() -> Unit)? = null,
     onCreate: (String) -> Unit = {},
     onPin: (TrackingTemplateSummary) -> Unit = {},
@@ -163,6 +167,14 @@ fun TrackingTemplateListContent(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onOpenCsv) {
+                        Icon(
+                            Icons.Rounded.ImportExport,
+                            contentDescription = stringResource(
+                                R.string.tracking_csv_title
+                            )
+                        )
+                    }
                     IconButton(onClick = { onOpenAnalytics(null) }) {
                         Icon(
                             Icons.Rounded.BarChart,

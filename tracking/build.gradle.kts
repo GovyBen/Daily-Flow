@@ -52,7 +52,10 @@ dependencies {
     implementation(libs.bundles.compose)
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.documentfile)
     implementation(libs.androidplot.core)
+    implementation(libs.calf.file.picker)
+    implementation(libs.commons.csv)
     api(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     api(libs.kotlinx.coroutines.core)

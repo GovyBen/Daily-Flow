@@ -160,7 +160,9 @@
     <string name="tracking_analytics_samples">样本数</string>
     <string name="tracking_analytics_current_streak">当前连续</string>
     <string name="tracking_analytics_longest_streak">最长连续</string>
-    <string name="tracking_analytics_streak_days">%1$d 天</string>
+    <plurals name="tracking_analytics_streak_days">
+        <item quantity="other">%1$d 天</item>
+    </plurals>
     <string name="tracking_analytics_line_chart">折线</string>
     <string name="tracking_analytics_bar_chart">柱状</string>
     <string name="tracking_analytics_series_title">%1$s · %2$s</string>
@@ -170,4 +172,40 @@
     <string name="tracking_analytics_no_trackers_detail">请在记录模板中添加非文本字段后查看统计。</string>
     <string name="tracking_analytics_load_failed">无法加载统计数据。</string>
     <string name="tracking_analytics_retry">重试</string>
+    <string name="tracking_csv_title">记录 CSV</string>
+    <string name="tracking_csv_export_title">导出记录数据</string>
+    <string name="tracking_csv_export_description">生成包含模板、跟踪项、选项、字段、会话和记录值的版本化 CSV 快照。</string>
+    <string name="tracking_csv_export_action">选择导出文件夹</string>
+    <string name="tracking_csv_import_title">导入记录数据</string>
+    <string name="tracking_csv_import_description">选择 Daily Flow 记录 CSV。整份文件会先完成校验，之后才修改数据库。</string>
+    <string name="tracking_csv_choose_file">选择 CSV 文件</string>
+    <string name="tracking_csv_preview_title">导入校验通过</string>
+    <string name="tracking_csv_import_warning">导入会在单一事务中执行。相同 ID 的行会覆盖当前值，不相关的本地数据会保留。</string>
+    <string name="tracking_csv_cancel">取消</string>
+    <string name="tracking_csv_confirm_import">导入</string>
+    <string name="tracking_csv_dismiss">关闭</string>
+    <plurals name="tracking_csv_exported">
+        <item quantity="other">已将 %2$d 行导出到 %1$s。</item>
+    </plurals>
+    <plurals name="tracking_csv_imported">
+        <item quantity="other">已导入 %1$d 行。</item>
+    </plurals>
+    <string name="tracking_csv_count_templates">模板：%1$d</string>
+    <string name="tracking_csv_count_trackers">跟踪项：%1$d</string>
+    <string name="tracking_csv_count_options">选项：%1$d</string>
+    <string name="tracking_csv_count_fields">字段：%1$d</string>
+    <string name="tracking_csv_count_sessions">会话：%1$d</string>
+    <string name="tracking_csv_count_points">数据点：%1$d</string>
+    <string name="tracking_csv_error_headers">CSV 表头无效。</string>
+    <string name="tracking_csv_error_version">不支持此 CSV 架构版本。</string>
+    <string name="tracking_csv_error_record_type">CSV 包含未知记录类型。</string>
+    <string name="tracking_csv_error_missing_value">缺少必填值。</string>
+    <string name="tracking_csv_error_invalid_value">字段值无效。</string>
+    <string name="tracking_csv_error_duplicate">CSV 包含重复 ID。</string>
+    <string name="tracking_csv_error_reference">某行引用了不存在的数据。</string>
+    <string name="tracking_csv_error_read">无法读取 CSV 文件。</string>
+    <string name="tracking_csv_error_write">无法导出 CSV 文件。</string>
+    <string name="tracking_csv_error_import">无法导入 CSV，数据库未发生更改。</string>
+    <string name="tracking_csv_error_line">第 %1$d 行：%2$s</string>
+    <string name="tracking_csv_error_line_detail">第 %1$d 行：%2$s（%3$s）</string>
 </resources>

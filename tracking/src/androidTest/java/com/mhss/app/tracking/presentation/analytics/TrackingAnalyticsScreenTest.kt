@@ -60,10 +60,18 @@ class TrackingAnalyticsScreenTest {
 
         onNodeWithText("Health - Exercise").assertIsDisplayed()
         onNodeWithText(
-            context.getString(R.string.tracking_analytics_streak_days, 3)
+            context.resources.getQuantityString(
+                R.plurals.tracking_analytics_streak_days,
+                3,
+                3
+            )
         ).performScrollTo().assertIsDisplayed()
         onNodeWithText(
-            context.getString(R.string.tracking_analytics_streak_days, 8)
+            context.resources.getQuantityString(
+                R.plurals.tracking_analytics_streak_days,
+                8,
+                8
+            )
         ).performScrollTo().assertIsDisplayed()
         onNodeWithTag(TRACKING_ANALYTICS_CONTENT_TAG)
             .performScrollToNode(hasTestTag(TRACKING_LINE_CHART_TAG))

@@ -25,7 +25,7 @@ Graph is not a submodule, composite build or runtime dependency.
 | B: My Brain modified | Branding, deep links, CI, Gradle download URL, widget lint correction |
 | C: Track & Graph migrated | Sampling interfaces listed below |
 | D: Daily Flow new code | Planning/provenance documents, test fixtures and provenance report script |
-| E: New dependency | AndroidPlot 1.5.11 and transitive figlib 1.0.11, both Apache-2.0 |
+| E: New dependency | AndroidPlot 1.5.11, figlib 1.0.11, Commons CSV 1.14.1, Commons IO 2.20.0 and Commons Codec 1.19.0; all Apache-2.0 |
 
 ## Track & Graph Migration Ledger
 
@@ -56,7 +56,9 @@ The following files have been migrated or approved for later evaluation:
 | DF-303 | No direct upstream equivalent; composes DF-301 aggregation and DF-302 sampling | `tracking/.../analytics/model/`, `repository/` and `usecase/` | New Daily Flow code 2026-06-14; range-only repository, DST-safe summaries/series, option distribution and streak queries |
 | DF-304 | `graphstatview/ui/LineGraphView.kt`, `BarChartView.kt`, `PieChartView.kt` and `GraphStatUICommon.kt` | `tracking/.../presentation/analytics/chart/TrackingCharts.kt` | Adapted 2026-06-14; reduced to reusable Compose `AndroidView` wrappers with Daily Flow models, theme colors, empty state, dynamic font sizing and accessibility summaries |
 | DF-304 | Track & Graph AndroidPlot dependency selection | `com.androidplot:androidplot-core:1.5.11` | Selected 2026-06-14 from Maven Central; Apache-2.0, transitive `com.halfhp.fig:figlib:1.0.11` also Apache-2.0; R8 consumer rule retained |
-| DF-306 | `app/data/src/main/java/com/samco/trackandgraph/data/csvreadwriter/CSVReadWriterImpl.kt` | - | Reference only |
+| DF-306 | `app/data/src/main/java/com/samco/trackandgraph/data/csvreadwriter/CSVReadWriterImpl.kt` and CSV tests | `tracking/.../data/csv/TrackingCsvCodec.kt` and `TrackingCsvCodecTest.kt` | Adapted 2026-06-15; versioned six-table snapshot, UTF-8/BOM, Kotlin datetime, full-file preview validation, row-numbered errors and Daily Flow entities |
+| DF-306 | Track & Graph Commons CSV dependency selection | `org.apache.commons:commons-csv:1.14.1` | Retained 2026-06-15; Apache-2.0, resolved Commons IO 2.20.0 and Commons Codec 1.19.0 also Apache-2.0; precise R8 annotation warning rule added |
+| DF-306 | No direct upstream equivalent; Daily Flow Room aggregate and Android SAF | `tracking/.../data/csv/TrackingCsvSnapshotStore.kt`, `TrackingCsvManager.kt` and `presentation/csv/` | New Daily Flow integration 2026-06-15; consistent snapshot, transactional upsert, preview confirmation, custom CSV MIME picker and bilingual UI |
 | DF-402 | `app/app/src/main/java/com/samco/trackandgraph/reminders/` | - | Reference only |
 
 When a file is migrated, add its destination, original path, original

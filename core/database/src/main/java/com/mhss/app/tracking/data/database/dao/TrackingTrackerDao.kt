@@ -14,6 +14,9 @@ interface TrackingTrackerDao {
     @Query("SELECT * FROM tracking_trackers WHERE id = :id")
     suspend fun getTracker(id: String): TrackerEntity?
 
+    @Query("SELECT * FROM tracking_trackers ORDER BY created_at_epoch_milli, id")
+    suspend fun getAllTrackers(): List<TrackerEntity>
+
     @Query(
         """
         SELECT * FROM tracking_tracker_options
@@ -31,6 +34,14 @@ interface TrackingTrackerDao {
         """
     )
     suspend fun getOptions(trackerId: String): List<TrackerOptionEntity>
+
+    @Query(
+        """
+        SELECT * FROM tracking_tracker_options
+        ORDER BY tracker_id, display_order, id
+        """
+    )
+    suspend fun getAllOptions(): List<TrackerOptionEntity>
 
     @Insert
     suspend fun insertTracker(tracker: TrackerEntity)

@@ -54,6 +54,7 @@ import com.mhss.app.tracking.presentation.template.TrackingTemplateEditorScreen
 import com.mhss.app.tracking.presentation.record.TrackingQuickRecordScreen
 import com.mhss.app.tracking.presentation.history.TrackingHistoryScreen
 import com.mhss.app.tracking.presentation.analytics.TrackingAnalyticsScreen
+import com.mhss.app.tracking.presentation.csv.TrackingCsvScreen
 import com.mhss.app.ui.R
 import com.mhss.app.ui.StartUpScreenSettings
 import com.mhss.app.ui.navigation.Screen
@@ -313,6 +314,9 @@ fun MyBrainApp(
                         onOpenAnalytics = { templateId ->
                             navController.navigate(Screen.TrackingAnalyticsScreen(templateId))
                         },
+                        onOpenCsv = {
+                            navController.navigate(Screen.TrackingCsvScreen)
+                        },
                         onCreateTemplate = {
                             navController.navigate(Screen.TrackingTemplateEditorScreen())
                         }
@@ -365,6 +369,12 @@ fun MyBrainApp(
                         initialTemplateId = args.templateId,
                         onBack = navController::navigateUp
                     )
+                }
+                composable<Screen.TrackingCsvScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    TrackingCsvScreen(onBack = navController::navigateUp)
                 }
                 composable<Screen.CalendarScreen>(
                     deepLinks = listOf(

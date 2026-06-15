@@ -4,6 +4,7 @@ androidplotCore = "1.5.11"
 appcompat = "1.7.1"
 biometric = "1.4.0-alpha05"
 calf = "0.9.0"
+commonsCsv = "1.14.1"
 composeBom = "2026.02.01"
 coreKtx = "1.17.0"
 coroutines = "1.10.2"
@@ -77,6 +78,7 @@ koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref =
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime"}
 calf-file-picker = { module = "com.mohamedrejeb.calf:calf-file-picker", version.ref = "calf" }
+commons-csv = { module = "org.apache.commons:commons-csv", version.ref = "commonsCsv" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor"}

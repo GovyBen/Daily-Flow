@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.mhss.app.tracking.data.database.entity.RecordSessionEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -36,6 +37,14 @@ interface TrackingSessionDao {
 
     @Query("SELECT * FROM tracking_record_sessions WHERE id = :id")
     suspend fun getSession(id: String): RecordSessionEntity?
+
+    @Query(
+        """
+        SELECT * FROM tracking_record_sessions
+        ORDER BY occurred_at_epoch_milli, id
+        """
+    )
+    suspend fun getAllSessions(): List<RecordSessionEntity>
 
     @Query(
         """
@@ -104,6 +113,9 @@ interface TrackingSessionDao {
 
     @Update
     suspend fun updateSession(session: RecordSessionEntity)
+
+    @Upsert
+    suspend fun upsertSessions(sessions: List<RecordSessionEntity>)
 
     @Delete
     suspend fun deleteSession(session: RecordSessionEntity)
