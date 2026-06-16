@@ -24,4 +24,8 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.koog.agents)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.mockwebserver)
 }
