@@ -33,16 +33,18 @@ class DiaryToolSet(
     @Tool(PROPOSE_CREATE_DIARY_TOOL)
     @LLMDescription("Propose creating a diary entry. Returns a proposal ID for user confirmation.")
     suspend fun proposeCreateDiaryEntry(title: String, content: String, mood: Mood): ProposalResult {
-        val id = Uuid.random().toString()
-        return ProposalResult(proposalId = id, summary = "Create diary: $title", proposalJson = "")
+        return ProposalResult(
+            proposalId = Uuid.random().toString(),
+            summary = "Create diary: $title",
+            proposalJson = ""
+        )
     }
 
-    // Legacy direct-create kept for backward compatibility
     @Tool(CREATE_DIARY_ENTRY_TOOL)
     suspend fun createDiaryEntry(title: String, content: String, mood: Mood): DiaryEntryIdResult {
         val id = Uuid.random().toString()
-        addDiaryEntry(DiaryEntry(title = title, content = content, createdDate = nowMillis(),
-            updatedDate = nowMillis(), mood = mood, id = id))
+        addDiaryEntry(DiaryEntry(title = title, content = content,
+            createdDate = nowMillis(), updatedDate = nowMillis(), mood = mood, id = id))
         return DiaryEntryIdResult(createdDiaryEntryId = id)
     }
 }

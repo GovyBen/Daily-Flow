@@ -354,6 +354,21 @@ private fun ToolCallResultPreview(
                 }
             }
         }
+
+        is ToolCallResultObject.Proposal -> {
+            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
+                Text(
+                    text = "📋 Proposal: ${resultObject.summary}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Tap to review and confirm",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
 

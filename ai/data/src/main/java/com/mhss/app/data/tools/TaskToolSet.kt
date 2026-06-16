@@ -105,5 +105,24 @@ class TaskToolSet(
 @Serializable
 data class ProposalResult(val proposalId: String, val summary: String, val proposalJson: String)
 
+@Serializable
+data class TaskInput(
+    val title: String, val description: String = "", val priority: Priority = Priority.LOW,
+    @param:LLMDescription("Format: $llmDateTimeFormatUnicode") val dueDate: String? = null,
+    val subTasks: List<SubTaskInput>? = null, val recurring: Boolean = false,
+    val frequency: TaskFrequency = TaskFrequency.DAILY, val frequencyAmount: Int = 1)
+
+@Serializable
+data class SubTaskInput(val title: String, val isCompleted: Boolean = false)
+
+@Serializable
+data class SearchTasksResult(val tasks: List<Task>)
+
+@Serializable
+data class TaskIdResult(val createdTaskId: String)
+
+@Serializable
+data class TaskIdsResult(val createdTaskIds: List<String>)
+
 const val PROPOSE_CREATE_TASK_TOOL = "proposeCreateTask"
 const val PROPOSE_COMPLETE_TASK_TOOL = "proposeCompleteTask"

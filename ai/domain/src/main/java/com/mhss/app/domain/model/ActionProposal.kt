@@ -9,6 +9,7 @@ sealed interface ActionProposal {
     val proposalId: String
     val sourceText: String
     val summary: String
+    val missingFields: List<String> get() = emptyList()
 }
 
 data class CreateTaskProposal(
@@ -22,7 +23,7 @@ data class CreateTaskProposal(
     val recurring: Boolean = false,
     val frequency: TaskFrequency = TaskFrequency.DAILY,
     val frequencyAmount: Int = 1,
-    val missingFields: List<String> = emptyList()
+    override val missingFields: List<String> = emptyList()
 ) : ActionProposal {
     override val summary: String get() = "Create task: $title"
 }
@@ -41,7 +42,7 @@ data class CreateCalendarEventProposal(
     val frequency: CalendarEventFrequency = CalendarEventFrequency.NEVER,
     val interval: Int = 1,
     val weekDays: List<String> = emptyList(),
-    val missingFields: List<String> = emptyList()
+    override val missingFields: List<String> = emptyList()
 ) : ActionProposal {
     override val summary: String get() = "Create event: $title"
 }
@@ -52,7 +53,7 @@ data class CreateDiaryEntryProposal(
     val title: String,
     val content: String,
     val moodValue: Int = 2, // Default to NEUTRAL=2; matches Mood enum ordinal
-    val missingFields: List<String> = emptyList()
+    override val missingFields: List<String> = emptyList()
 ) : ActionProposal {
     override val summary: String get() = "Create diary entry: $title"
 }
@@ -65,7 +66,7 @@ data class CreateRecordSessionProposal(
     val occurredAtEpochMilli: Long,
     val note: String? = null,
     val fieldValues: List<ProposedFieldValue> = emptyList(),
-    val missingFields: List<String> = emptyList()
+    override val missingFields: List<String> = emptyList()
 ) : ActionProposal {
     override val summary: String get() = "Record entry in: ${templateName.ifBlank { templateId }}"
 }
@@ -88,6 +89,7 @@ data class ClarificationRequest(
     val options: List<String> = emptyList()
 ) : ActionProposal {
     override val summary: String get() = question
+    override val missingFields: List<String> get() = listOf(missingField)
     val needsClarification: Boolean = true
 }
 
