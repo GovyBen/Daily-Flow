@@ -1,161 +1,180 @@
 # Daily Flow 开发进度
 
-更新日期：2026-06-15
+更新日期：2026-06-16
 
 ## 当前里程碑
 
-- 当前阶段：P4 统一多重提醒
+- 当前阶段：P6 安全与备份已完成；下一阶段 P7 集成回归
 - 已完成：DF-001 至 DF-011、DF-013 至 DF-015、DF-101 至 DF-110、
-  DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-404、DF-601 至 DF-603
-- 正在推进：DF-405 任务多提醒迁移
-- 下一批：DF-406 日历事件多提醒、DF-407 记录提示
+  DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-408、DF-501 至 DF-509、
+  DF-601 至 DF-607
+- 遗留项：DF-005（并存验证）、DF-006（CI Runner 验证）、DF-012（Provider 契约测试）
+- 下一批：DF-012 → P7（DF-701~706）
 
 ## 当前任务进度
 
-### DF-306 CSV 读写
+### DF-405 任务多提醒迁移
 
-- 已完成：确定版本 1 的单文件多记录格式，覆盖模板、跟踪项、选项、字段、会话和数据点，
-  可完整表示无会话模板及从未使用的选项。
-- 已完成：加入 Apache Commons CSV 1.14.1，并实现 UTF-8、BOM、ISO `occurred_at`
-  和稳定表头的导入导出编解码。
-- 已完成：导入预览前校验 schema version、记录类型、必填值、布尔/整数/有限数值、
-  时区、tracker 配置 JSON、重复 ID 和六表引用完整性。
-- 已完成：解析及引用错误携带 CSV 行号；JVM 测试覆盖逗号、换行、中文、引号、
-  BOM、版本错误、字段错误和断裂引用。
-- 已完成：Room 全量快照读取和单事务 upsert 导入；已加入成功等价和失败全回滚仪器测试。
-- 已完成：Android 文件夹导出、文件导入、预览确认状态机、双语页面、模板页入口和类型安全导航。
-- 已验证：tracking JVM 测试通过，app debug APK 构建通过。
-- 已完成：Compose 页面测试覆盖导出/选文件回调、六类预览计数、显式确认、
-  行号错误提示和模板页全局入口；Android 测试源码编译通过。
-- 已验证：雷电 Android 9 上 tracking 事务与 Compose 仪器测试 50/50 通过，
-  包含 CSV 成功等价、失败全回滚、预览确认和错误行号。
-- 已验证：真实 APK 可从模板页进入 CSV 页面，并向下载目录导出 32 行、
-  6.45 kB 的版本 1 CSV。
-- 已修复：Calf 通用 `Document` 不接受 Android 9 的 `text/csv`；导入器改为
-  显式允许 CSV MIME 后，DocumentsUI 可正常选择导出文件。
-- 已验证：真实 APK 预览显示 3 模板、8 跟踪项、7 选项、8 字段、3 会话和
-  3 数据点，确认后成功导入 32 行。
-- 已验证：导入后再次导出的 6,449 字节 CSV 与导入前 SHA-256 完全一致：
-  `3E2F8A10771D69936134CEBB1D7071E44AE3DA2259982C0A941D3E6A32FA5B11`。
-- 已验证：真实流程日志无崩溃、ANR、Koin 或 Room 约束异常。
-- 已验证：tracking 79 项 JVM 测试通过，lint 0 错误且新增资源无警告；
-  app R8 release 构建通过。
-- 已完成：新增 `THIRD_PARTY_NOTICES.md`，记录 Track & Graph 固定提交、
-  CSV 改写范围、Commons CSV/IO/Codec 和 AndroidPlot/figlib 许可证。
-- 已完成：实现计划和来源迁移账本已写入 DF-306 的 schema、事务、测试、
-  真实 APK 与依赖验收结果。
-- 已验证：最近的复数资源和 CSV MIME 修正合入后，最终雷电 Android 9
-  tracking 仪器测试仍为 50/50 通过。
-- 已完成：DF-306 验收关闭，P3 阶段完成，开发进入 P4。
+- 已完成：`UpsertTaskUseCase` 改为通过 `ensureDefaultTaskReminder` 创建统一 Reminder
+  而非旧 alarm 行；任务截止时间与提醒时间完全分离。
+- 已完成：旧 `alarms` 表数据通过 `MigrateLegacyTaskAlarmsUseCase` 迁移到 `reminders` 表，
+  迁移后清空 `Task.alarmId`；旧 `alarms` 表保留但不新增行。
+- 已完成：任务 UI 集成 `MultiReminderEditor`，支持多提醒配置。
+- 已完成：修改截止时间后相对提醒自动重算；完成/删除任务后所有提醒全部取消。
+- 已验证：雷电 Android 9 真实验证旧任务迁移、新任务多提醒、通知触发和修改/取消链路。
+- 已完成：DF-405 验收关闭，提交 `98623e7`。
 
-### DF-401 提醒现状审计
+### DF-406 日历事件多提醒
 
-- 已完成：追踪任务保存、alarm 表、AlarmManager、通知接收器和开机恢复链路。
-- 已确认：alarm 自增 ID 同时作为任务引用、PendingIntent requestCode、广播参数
-  和通知 ID；未来时间修改复用 ID，移除截止时间、完成或删除任务会取消提醒。
-- 已确认：现有模型把截止时间直接当作唯一提醒时间；使用绝对 epoch 调度，
-  重复任务仅在完成时按当时设备时区推进下一周期。
-- 已确认：Android 12+ exact alarm 不可用时只返回失败并提示授权，没有非精确
-  AlarmManager 或 WorkManager 降级。
-- 已确认：开机恢复只监听 `BOOT_COMPLETED`，未覆盖时区、系统时间、应用升级，
-  也未过滤过期提醒或隔离单条调度失败。
-- 已完成：新增 `REMINDER_CURRENT_STATE.md`，记录通知 channel、权限、重启恢复、
-  已知风险、自动测试范围和雷电复验步骤。
-- 已完成：新增五条纯 JVM 基线测试，覆盖新建、修改、移除、完成和 exact 权限拒绝。
-- 已验证：任务 domain 5/5 测试和 app debug 构建通过。
-- 已验证：雷电 Android 9 创建任务后登记单一 RTC_WAKEUP，到点通知正常；
-  修改未来时间复用 alarm ID/requestCode 1，关闭截止时间后 alarm 表和系统调度均清空。
-- 已验证：真实流程复现“触发后任务仍保留旧 alarm ID”风险，日志无崩溃、ANR、
-  SQLite 约束或调度权限异常。
-- 已完成：DF-401 验收关闭，下一步移植 DF-402 调度降级策略。
+- 已完成：`AddCalendarEventUseCase` 创建事件后通过统一 Reminder 调度提醒；
+  Calendar Provider 事件 ID 与 `Reminder.targetId` 关联。
+- 已完成：`UpdateCalendarEventUseCase` 在事件时间修改后重新计算相对提醒；
+  `DeleteCalendarEventUseCase` 删除事件后取消关联提醒。
+- 已完成：外部删除日历事件时安全处理悬空 target（转为 `PENDING` → `MISSED`）；
+  无日历权限时不崩溃，权限恢复后可重新调度。
+- 已完成：`ReminderReceiver` 委托 `sendCalendarReminderNotification()` 发送日历提醒通知，
+  deep-link 到日历事件详情页。
+- 已验证：雷电 Android 9 验证日历事件创建→提醒触发、修改后重算、删除后取消全链路。
+- 已完成：DF-406 验收关闭，提交 `79053e6`。
 
-### DF-402 调度降级模式
+### DF-407 记录提示
 
-- 已完成：提取纯 Kotlin 调度策略，exact 可用时使用精确 alarm 和 5 分钟后备，
-  不可用时使用非精确 alarm 和 15 分钟后备。
-- 已完成：现有 `AlarmSchedulerImpl` 改为 AlarmManager 与唯一 WorkManager
-  双调度，修改和取消会替换/清理同 alarm ID 的两条系统路径。
-- 已完成：新增 fallback worker，在 alarm 行仍匹配预期时间时复用现有
-  `AlarmReceiver` 发出通知，不建立第二套通知基础设施。
-- 已完成：现有 boot receiver 改为触发唯一恢复 worker，并扩展到日期、系统时间、
-  时区和应用升级广播，不新增第二个 boot receiver。
-- 已修复：exact 权限不可用时仍持久化并调度降级提醒；调度异常会回滚 alarm 行。
-- 已修复：`AlarmReceiver` 所有路径通过 `finally` 结束异步广播，悬空 alarm 也会清理。
-- 已验证：策略 2/2、任务 domain 6/6 测试通过；notification lint 无问题，
-  app debug 与 R8 release 构建通过。
-- 已验证：雷电 Android 9 中 alarm ID 2 同时登记 RTC_WAKEUP 和唯一
-  `alarm_fallback_2`，后备延迟为目标时间加 5 分钟。
-- 已验证：带活动提醒覆盖安装后 restore worker 成功，原 alarm ID/requestCode
-  被重建且后备 work UUID 被替换，没有重复提醒。
-- 已验证：关闭截止时间后 alarm 表为空、任务 alarm ID 清空、后备 work 取消，
-  系统无活动 Daily Flow alarm；日志无崩溃、ANR、Koin、worker 或权限异常。
-- 已完成：DF-402 验收关闭，下一步新增统一提醒实体。
+- 已完成：`ReminderTargetType.RECORD_PROMPT` 类型支持，按模板设置每日/指定星期固定时间提示。
+- 已完成：点击通知通过 `Constants.TRACKING_QUICK_RECORD_URI/templateId` deep-link 直达快速记录页。
+- 已完成：模板停用后自动取消未来提示；首版支持每日和指定星期，复杂 RRULE 后置。
+- 已验证：雷电 Android 9 验证记录提示通知触发和 deep-link。
+- 已完成：DF-407 验收关闭，提交 `79053e6`。
 
-### DF-403 统一提醒数据模型
+### DF-408 多提醒编辑组件
 
-- 已完成：新增 `Reminder` 领域模型，覆盖 TASK、CALENDAR_EVENT 和 RECORD_PROMPT，
-  并定义 PENDING、SCHEDULED、DELIVERED、CANCELLED、MISSED 生命周期状态。
-- 已完成：绝对触发时间和相对提前分钟必须有且仅有一个；目标 ID、非负时间/
-  offset 和 createdAt/updatedAt 顺序在领域构造时统一校验。
-- 已完成：持久化提醒 ID 使用 Room 自增 `Long`；有效持久化 ID 在
-  `1..Int.MAX_VALUE` 内直接映射为 AlarmManager/通知 request code，避免同目标
-  多提醒互相覆盖。
-- 已完成：新增 `reminders` 表、目标与状态索引、DAO、repository 接口及 Koin
-  扫描实现；支持全量、按 ID、按目标、启用提醒查询和新增/更新/删除。
-- 已完成：主数据库升级到 v8，并加入 v7→v8 非破坏迁移；旧 `tasks` 和 `alarms`
-  表保持不变，旧单提醒迁移留给 DF-405。
-- 已验证：`core:alarm` 领域测试 7/7 通过，其中统一提醒模型 5/5。
-- 已验证：Room/KSP 主代码和 Android 测试源码编译通过，v8 schema 已导出，
-  identity hash 为 `45d701d8511ec412cc76ca7dc13132f6`。
-- 已验证：雷电 Android 9 执行 DAO 与 v7→v8 迁移仪器测试 2/2 通过；同一任务
-  两条提醒获得不同自增 ID/request code，旧任务和 alarm 行完整保留。
-- 已验证：真实 Debug APK 覆盖安装后数据库 `user_version=8` 且存在
-  `reminders` 表；应用启动无 Room、Koin、SQLite 崩溃。
-- 已验证：database lint、app debug 与 R8 release 构建通过；unsigned release
-  APK 为 9,430,927 字节，SHA-256 为
-  `D343DA34EEA6ED1FB22694B4ECA7C17AE381F7AAF500EAB4C0439BC9D51EBD08`。
-- 已完成：DF-403 验收关闭，开发进入 DF-404 提醒重算与同步。
+- 已完成：`MultiReminderEditor` Composable 组件（`core:ui`），接受 `List<ReminderDraft>`
+  而非 `List<Reminder>`（模块隔离）。
+- 已完成：添加/删除多个提醒、快捷选项（准时、5/15/30 分钟、1 小时、1 天前）、自定义绝对时间选择。
+- 已完成：重复提醒检测（相同绝对时间或相同 offset）、过去时间阻止、权限说明和降级提示。
+- 已完成：任务详情页集成多提醒编辑器。
+- 已验证：UI 阻止重复和过去时间；提醒列表通过 Flow 实时更新。
+- 已完成：DF-408 验收关闭，提交 `7814ace`。
 
-### DF-404 提醒重算与同步
+### P5 AI 提案确认基础设施
 
-- 已完成：实现 `ScheduleReminder`、`CancelReminder`、
-  `RescheduleTargetReminders`、`RestoreAllReminders` 和
-  `ReconcileScheduledReminders`，并增加统一触发消费用例。
-- 已完成：绝对提醒直接使用 epoch millisecond；相对提醒通过目标时间解析接口
-  计算，TASK 使用未完成任务的 dueDate，CALENDAR_EVENT 使用 Provider 事件 start，
-  RECORD_PROMPT 的周期目标解析留给 DF-407。
-- 已完成：未来启用提醒进入 `SCHEDULED`；过期提醒取消系统调度并进入 `MISSED`；
-  目标暂不可读取或不存在时取消旧系统调度、保留 enabled + `PENDING` 以便权限/
-  目标恢复后重试。
-- 已完成：取消、送达、过期终态重复重算不会再次写库；同一 reminder ID 重复调度
-  只替换相同 request code 和唯一 `reminder_fallback_<id>`，严格保持幂等。
-- 已完成：新增统一 `ReminderReceiver` 和 WorkManager fallback；触发时复算当前
-  时间，旧 trigger 或系统时钟回拨不会误送，真实到期只把状态消费为
-  `DELIVERED` 一次。
-- 已完成：现有 `AlarmSchedulerImpl` 同时实现旧 alarm 与统一 reminder scheduler，
-  继续复用 DF-402 的 exact/inexact + 5/15 分钟后备策略。
-- 已完成：现有唯一恢复 worker 同时恢复旧 alarm 和统一 reminders；触发来源覆盖
-  boot、日期/系统时间/时区、应用升级、exact alarm 权限状态广播和应用进程启动。
-- 已验证：Koin 自动绑定旧/新 scheduler、目标时间 resolver 和两个 worker；
-  合并 Manifest 中统一 receiver 为非导出组件。
-- 已验证：核心 alarm 17/17 JVM 测试通过，其中 DF-404 用例 10/10；任务 domain
-  6/6 回归通过，notification lint 无问题。
-- 已验证：雷电 Android 9 中未来 reminder 注册单一 RTC_WAKEUP 和唯一 fallback；
-  连续两次恢复仍只有一个系统 alarm。
-- 已验证：雷电中已过期 reminder 变为 `MISSED`，目标缺失的相对 reminder 保持
-  `PENDING`，未来 reminder 到点变为 `DELIVERED` 并取消 fallback。
-- 已验证：终态和不可解析 `PENDING` 再次恢复时 `updatedAt` 不变；应用启动无需
-  手工广播即可运行恢复 worker，日志无崩溃、Koin、Room 或 worker 异常。
-- 已验证：测试提醒已从雷电数据库删除，系统 alarm 与 fallback 清理完成。
-- 已验证：app debug 与 R8 release 构建通过；unsigned release APK 为
-  9,447,379 字节，SHA-256 为
-  `9EF54DAEFFD93D77D0F0DABDBB5BB2B2C05E984CE0162BEA75BCE3E86B436C78`。
-- 已完成：DF-404 验收关闭，下一步将旧任务单提醒迁移并接入目标通知内容。
+#### DF-501 验证 DeepSeek 提案兼容性
+
+- 已完成：确认 DeepSeek 当前默认模型能够稳定生成 ActionProposal 所需的结构化工具参数。
+- 已完成：使用 fake server 和显式测试配置完成 request/response 契约测试。
+- 已验证：不硬编码 API Key；错误区分认证、限流、网络、参数和 tool calling 不兼容。
+- 已完成：DF-501 验收关闭。
+
+#### DF-502 定义 ActionProposal sealed model
+
+- 已完成：`ActionProposal` sealed interface 定义六种提议类型：
+  `CreateTaskProposal`、`CreateCalendarEventProposal`、`CreateDiaryEntryProposal`、
+  `CreateRecordSessionProposal`、`CompleteTaskProposal`、`ClarificationRequest`。
+- 已完成：每个 proposal 含 `proposalId`（UUID）、`sourceText`（用户输入）、
+  `summary`（确认卡文本）、`missingFields`（追问用）。
+- 已完成：`ToolCallResultObject.Proposal` 变体用于工具返回。
+- 已验证：proposal 可序列化，不持久化 secret；`when` 穷尽性检查通过。
+- 已完成：DF-502 验收关闭。
+
+#### DF-503 将写工具改为"只提案"
+
+- 已完成：TaskToolSet 新增 `proposeCreateTask`、`proposeCompleteTask` 工具，
+  只构造 proposal 不直接写入；保留旧直接创建工具向后兼容。
+- 已完成：CalendarToolSet 新增 `proposeCreateEvent` 工具。
+- 已完成：DiaryToolSet 新增 `proposeCreateDiaryEntry` 工具。
+- 已完成：查询工具保留只读执行能力，限制返回条数。
+- 已验证：AI 调用写工具后数据库无变化；伪造 tool result 不能绕过 ProposalExecutor。
+- 已完成：DF-503 验收关闭。
+
+#### DF-504 新增结构化记录 AI 工具
+
+- 已完成：TrackingToolSet 实现 `getRecordTemplates`、`proposeCreateRecordSession`、
+  `searchRecordSessions` 三个工具。
+- 已完成：`TrackingDataProvider` 接口桥接 tracking 模块数据到 ai:data。
+- 已完成：tracker/option 只接受本地已知 ID；模糊模板或选项转为 clarification。
+- 已验证：不存在模板时不会静默创建任意 tracker。
+- 已完成：DF-504 验收关闭。
+
+#### DF-505 实现本地日期歧义解析层
+
+- 已完成：`DateAmbiguityResolver` 解析相对天数、星期几、时间点、完整性检查。
+- 已完成：使用设备时区；"明天下午"缺少具体时间时追问；"下周三"显示完整年月日。
+- 已完成：结束时间缺失时应用明确默认时长并展示；提醒提前量缺失时追问。
+- 已验证：固定 Clock 覆盖跨月、跨年、夏令时和中文相对日期。
+- 已完成：DF-505 验收关闭。
+
+#### DF-506 实现确认卡和编辑
+
+- 已完成：`ConfirmationCard` Compose UI 组件，支持 task/calendar/diary/record/complete
+  五种提议类型的确认卡片。
+- 已完成：卡片显示操作类型、标题或模板、完整日期时间及时区、所有提醒、结构化字段值、
+  写入目标（本地/系统日历）。
+- 已完成：编辑、确认、取消操作；取消后无写入；编辑后再次本地校验。
+- 已验证：Compose UI 测试覆盖五种卡片类型和交互。
+- 已完成：DF-506 验收关闭。
+
+#### DF-507 实现 ProposalExecutor
+
+- 已完成：`ProposalExecutor` 作为唯一允许把已确认 proposal 交给现有写 use case 的组件。
+- 已完成：proposal ID 单次消费（`executedIds` 集合防重）；确认后重新校验。
+- 已完成：执行结果来自真实 repository；部分失败不报告整体成功。
+- 已完成：Calendar Provider 和本地 reminder 失败有补偿或明确可恢复状态。
+- 已验证：重复确认、进程重建、权限撤销和 repository 失败测试。
+- 已完成：DF-507 验收关闭。
+
+#### DF-508 实现 AI 数据发送预览和日志脱敏
+
+- 已完成：`AiLogSanitizer` 脱敏敏感 header、截断请求 body。
+- 已完成：用户可查看即将发送的范围；AI 总结只发送用户选择的模板、字段和时间范围。
+- 已完成：API Key、内部路径和未选择的记录不进入 payload。
+- 已完成：日志默认不记录完整 prompt 和个人正文；release 网络日志关闭 body。
+- 已验证：自动测试扫描日志构造器和 backup DTO 不含 secret。
+- 已完成：DF-508 验收关闭。
+
+#### DF-509 实现 AI 统计总结
+
+- 已完成：`summarizeStatistics` 工具在 UtilToolSet 中实现。
+- 已完成：把本地聚合后的紧凑摘要发送给 DeepSeek，不默认上传全部原始记录。
+- 已完成：时间范围和字段选择、payload 预览、结果只作文本建议（不作医学诊断）。
+- 已验证：离线时统计仍可用，AI 失败不影响数据。
+- 已完成：DF-509 验收关闭。P5 阶段全部验收关闭。
+
+### P6 安全、备份与隐私
+
+#### DF-604 扩展现有应用锁
+
+- 已完成：My Brain 现有 `AppLockManager` 和 `AuthScreen` 已提供设备凭据/生物识别、
+  后台超时锁定、最近任务缩略图遮挡能力。
+- 已完成：应用锁不中断已调度提醒。
+- 已验证：无生物识别设备仍可使用设备凭据或关闭应用锁。
+- 已完成：DF-604 验收关闭。
+
+#### DF-605 扩展 JSON 备份 DTO
+
+- 已完成：`JsonBackupData` 新增 `schemaVersion` 和 `reminders` 字段（schema v2）。
+- 已完成：`ExportJsonDataUseCase` 导出 reminders 数据。
+- 已完成：排除 API Key、Keystore ciphertext 和临时 proposal。
+- 已验证：完整往返测试和旧版本 fixture 测试通过。
+- 已完成：DF-605 验收关闭。
+
+#### DF-606 实现恢复预检和原子恢复
+
+- 已完成：`ImportJsonDataUseCase` 实现解析和版本校验、数量预览。
+- 已完成：在事务边界验证；失败不破坏当前数据库。
+- 已验证：截断 JSON、未知版本、重复 ID 和无效 tracker type 均安全失败。
+- 已完成：DF-606 验收关闭。
+
+#### DF-607 发布版网络和隐私加固
+
+- 已完成：release 构建禁止 cleartext HTTP（`network_security_config.xml`）。
+- 已完成：检查 exported components；禁止 Android 自动云备份敏感数据。
+- 已完成：不引入广告、跟踪和闭源分析 SDK。
+- 已验证：manifest merger 报告检查；release APK 依赖清单检查。
+- 已完成：DF-607 验收关闭。P6 阶段全部验收关闭。
 
 ## 已具备能力
 
 - Daily Flow 品牌、四栏主导航、完整日历入口和统一内容库
-- DeepSeek 等内置 AI Provider，以及 Keystore API Key 迁移
+- DeepSeek 等 7 个内置 AI Provider，以及 Keystore API Key 迁移
 - tracking 六表数据模型、Room 事务、八类字段验证与数据点映射
 - 健身、心情和习惯次数内置模板，首次启动幂等初始化
 - 日期/时间选择和小时、分钟、秒时长输入组件
@@ -168,7 +187,7 @@
 - 保存使用领域校验和单飞保护，成功后展示真实 session ID 并可连续记录
 - 历史页支持模板/日期筛选、全部字段查看、整会话编辑和删除确认
 - 删除提供短时撤销，编辑事务保留已从模板移除的归档字段数据
-- 空间提供“自定义记录”主入口，底部继续保持四栏导航
+- 空间提供"自定义记录"主入口，底部继续保持四栏导航
 - 概览提供常用模板快捷记录、今日总数和按模板摘要
 - 桌面小组件展示最多四个固定模板，支持配置空态和快速记录深链
 - 模板创建、更新、排序、固定和停用后自动刷新桌面小组件
@@ -187,23 +206,40 @@
   折线/柱状、选项分布、今日摘要和当前/最长连续天数
 - 统计计算在后台 dispatcher 执行，范围、tracker 或聚合切换会取消旧请求
 - tracking 雷电仪器测试 50/50，真实 APK 已验证统计入口和图表交互
+- CSV v1 单文件多记录格式，含 UTF-8 BOM 和 ISO `occurred_at` 的导入导出
+- CSV 导入预览前校验、引用完整性检查、行号错误提示和原子事务
 - 主数据库 v8 迁移和 schema 导出，统一 reminders 表与 repository 已就绪
 - 统一提醒调度、取消、重算、恢复、过期清理和单次触发状态机
+- 任务多提醒迁移：旧 alarm→统一 Reminder，旧 alarms 表保留不新增
+- 日历事件多提醒：Provider 事件 ID 关联、时间修改重算、悬空目标安全处理
+- 记录提示：按模板每日/指定星期固定提示，模板停用自动取消
+- 多提醒编辑组件：快捷选项、自定义时间、重复/过去时间阻止
+- ActionProposal sealed model：6 种提议类型 + ClarificationRequest
+- 写工具改为"只提案"：proposeCreateTask/Event/DiaryEntry/RecordSession/CompleteTask
+- ProposalExecutor：proposal ID 单次消费、确认后重新校验
+- DateAmbiguityResolver：相对天数、星期几、时间点解析与完整性检查
+- ConfirmationCard：5 种卡片类型、编辑/确认/取消交互
+- AiLogSanitizer：敏感 header 脱敏、请求 body 截断
+- summarizeStatistics：预聚合统计摘要 AI 总结
+- JSON 备份 v2：含 reminders、schema version、排除 secret
+- 恢复预检和原子恢复：版本校验、数量预览、失败不破坏数据库
+- Release 网络安全加固：禁止 cleartext、exported 组件审查
 - 雷电模拟器构建、安装、启动和日志收集脚本
 
 ## 发布路径
 
-1. 完成 P3 统计与 CSV、P4 多提醒、P5 AI 提案确认、P6 备份与安全。
+1. ~~完成 P3 统计与 CSV、P4 多提醒、P5 AI 提案确认、P6 备份与安全。~~ ✅
 2. 完成 P7 集成回归、性能和无障碍。
 3. 完成 P8 release、GitHub Beta 和 F-Droid 准备。
 
 ## 当前风险
 
 - DF-012 Provider 契约测试尚未补齐。
+- DF-005 品牌变更并存安装验证尚待完成。
+- DF-006 CI 远程 Runner 首次验证尚待完成。
 - 根级全模块 instrumentation APK 组装仍受 AI 模块 Netty `META-INF/INDEX.LIST`
   重复资源影响；app instrumentation APK 可正常组装。
 - 雷电 Launcher3 不支持 `requestPinAppWidget`，widget 已通过系统绑定实例验证；
   Beta 前需在支持固定小组件的真实 Launcher 上复验添加流程。
 - 雷电可用于快速回归，但 Beta 前仍需真实 Android 设备验证提醒、Keystore 和生物识别。
-- CI 配置尚待远程 Runner 首次验证。
 - 开发工作区位于同步盘；本机构建时需暂停百度同步，避免生成文件被短暂锁定。
