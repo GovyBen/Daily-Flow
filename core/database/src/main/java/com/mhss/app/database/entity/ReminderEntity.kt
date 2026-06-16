@@ -7,7 +7,9 @@ import androidx.room.PrimaryKey
 import com.mhss.app.alarm.model.Reminder
 import com.mhss.app.alarm.model.ReminderStatus
 import com.mhss.app.alarm.model.ReminderTargetType
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(
     tableName = "reminders",
     indices = [

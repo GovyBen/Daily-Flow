@@ -29,79 +29,49 @@ class ImportJsonDataUseCaseImpl(
 ): ImportJsonDataUseCase {
 
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun invoke(
-        fileUri: String,
-        encrypted: Boolean,
-        password: String?
-    ) {
+    override suspend fun invoke(fileUri: String, encrypted: Boolean, password: String?) {
         withContext(ioDispatcher) {
             try {
-                val json = Json {
-                    ignoreUnknownKeys = true
-                }
+                val json = Json { ignoreUnknownKeys = true }
                 val backupData = context.contentResolver.openInputStream(fileUri.toUri())?.use {
-                        json.decodeFromStream<JsonBackupData>(it)
-                    } ?: throw BackupDataException.CouldNotReadFile
+                    json.decodeFromStream<JsonBackupData>(it)
+                } ?: throw BackupDataException.CouldNotReadFile
+
+                // Pre-check
+                if (backupData.schemaVersion !in 1..2)
+                    throw BackupDataException.GenericError()
 
                 database.withTransaction {
                     val noteFolderIdMap = HashMap<String, String>()
-                    val updatedNoteFolders = backupData.noteFolders.map { folder ->
-                        val id = if (folder.id.isDigitsOnly()) {
-                            Uuid.random().toString().also { noteFolderIdMap[folder.id] = it }
-                        } else {
-                            folder.id
-                        }
-                        folder.copy(id = id)
+                    val updatedFolders = backupData.noteFolders.map { f ->
+                        val id = if (f.id.isDigitsOnly()) Uuid.random().toString().also { noteFolderIdMap[f.id] = it } else f.id
+                        f.copy(id = id)
                     }
-                    database.noteDao().upsertNoteFolders(updatedNoteFolders)
+                    database.noteDao().upsertNoteFolders(updatedFolders)
 
-                    val updatedNotes = backupData.notes.map { note ->
-                        val newFolderId =
-                            if (note.folderId?.isDigitsOnly() == true) noteFolderIdMap[note.folderId]
-                            else note.folderId.takeIfNotNull()
-                        note.copy(folderId = newFolderId, id = note.id.toUuidIfNumber())
+                    val updatedNotes = backupData.notes.map { n ->
+                        val fid = if (n.folderId?.isDigitsOnly() == true) noteFolderIdMap[n.folderId] else n.folderId.takeIfNotNull()
+                        n.copy(folderId = fid, id = n.id.toUuidIfNumber())
                     }
                     database.noteDao().upsertNotes(updatedNotes)
 
                     backupData.tasks.forEach {
-                        upsertTaskUseCase(
-                            task = it.toTask().copy(id = it.id.toUuidIfNumber()),
-                            updateWidget = false
-
-                        )
+                        upsertTaskUseCase(task = it.toTask().copy(id = it.id.toUuidIfNumber()), updateWidget = false)
                     }
+                    database.diaryDao().upsertEntries(backupData.diary.map { it.copy(id = it.id.toUuidIfNumber()) })
+                    database.bookmarkDao().upsertBookmarks(backupData.bookmarks.map { it.copy(id = it.id.toUuidIfNumber()) })
 
-                    val updatedDiaryEntries = backupData.diary.map { entry ->
-                        entry.copy(id = entry.id.toUuidIfNumber())
+                    // P6: Import reminders (schema v2+)
+                    if (backupData.schemaVersion >= 2) {
+                        backupData.reminders.forEach { database.reminderDao().insert(it) }
                     }
-                    database.diaryDao().upsertEntries(updatedDiaryEntries)
-
-                    val updatedBookmarks = backupData.bookmarks.map { bookmark ->
-                        bookmark.copy(id = bookmark.id.toUuidIfNumber())
-                    }
-                    database.bookmarkDao().upsertBookmarks(updatedBookmarks)
                 }
-            } catch (_: SerializationException) {
-                throw BackupDataException.CouldNotReadFile
-            } catch (e: BackupDataException) {
-                throw e
-            } catch (_: Exception) {
-                throw BackupDataException.GenericError()
-            }
+            } catch (_: SerializationException) { throw BackupDataException.CouldNotReadFile }
+            catch (e: BackupDataException) { throw e }
+            catch (_: Exception) { throw BackupDataException.GenericError() }
         }
     }
 
-    private fun String?.takeIfNotNull(): String? {
-        return if (this == "null") null else this
-    }
-
-    // to handle older backup files where id was an integer
-    private fun String.toUuidIfNumber(): String {
-        return if (this.isDigitsOnly()) {
-            Uuid.random().toString()
-        } else {
-            this
-        }
-    }
-
+    private fun String?.takeIfNotNull(): String? = if (this == "null") null else this
+    private fun String.toUuidIfNumber(): String = if (isDigitsOnly()) Uuid.random().toString() else this
 }

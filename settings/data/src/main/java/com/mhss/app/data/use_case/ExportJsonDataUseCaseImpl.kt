@@ -24,45 +24,36 @@ class ExportJsonDataUseCaseImpl(
 ) : ExportJsonDataUseCase {
     @OptIn(ExperimentalSerializationApi::class)
     override suspend fun invoke(
-        directoryUri: String,
-        exportNotes: Boolean,
-        exportTasks: Boolean,
-        exportDiary: Boolean,
-        exportBookmarks: Boolean,
-        encrypted: Boolean,
-        password: String?
+        directoryUri: String, exportNotes: Boolean, exportTasks: Boolean,
+        exportDiary: Boolean, exportBookmarks: Boolean, encrypted: Boolean, password: String?
     ) {
         withContext(ioDispatcher) {
             try {
-                val fileName = "MyBrain_Backup_${System.currentTimeMillis()}.json"
+                val fileName = "DailyFlow_Backup_${System.currentTimeMillis()}.json"
                 val pickedDir = DocumentFile.fromTreeUri(context, directoryUri.toUri())
                     ?: throw BackupDataException.GenericError()
                 val destination = pickedDir.createFile("application/json", fileName)
                     ?: throw BackupDataException.GenericError()
 
                 val notes = if (exportNotes) database.noteDao().getAllFullNotes() else emptyList()
-                val noteFolders =
-                    if (exportNotes) database.noteDao().getAllNoteFolders().first() else emptyList()
-                val tasks =
-                    if (exportTasks) database.taskDao().getAllFullTasks() else emptyList()
-                val diary =
-                    if (exportDiary) database.diaryDao().getAllFullEntries() else emptyList()
-                val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllFullBookmarks()
-                    else emptyList()
+                val noteFolders = if (exportNotes) database.noteDao().getAllNoteFolders().first() else emptyList()
+                val tasks = if (exportTasks) database.taskDao().getAllFullTasks() else emptyList()
+                val diary = if (exportDiary) database.diaryDao().getAllFullEntries() else emptyList()
+                val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllFullBookmarks() else emptyList()
+                // P6: Include reminders
+                val reminders = database.reminderDao().getAll()
 
-                val backupData = JsonBackupData(notes, noteFolders, tasks, diary, bookmarks)
+                val backupData = JsonBackupData(
+                    schemaVersion = 2,
+                    notes = notes, noteFolders = noteFolders, tasks = tasks,
+                    diary = diary, bookmarks = bookmarks, reminders = reminders
+                )
 
                 val outputStream = context.contentResolver.openOutputStream(destination.uri)
                     ?: throw BackupDataException.GenericError()
-
-                outputStream.use {
-                    Json.encodeToStream(backupData, it)
-                }
-            } catch (e: BackupDataException) {
-                throw e
-            } catch (e: Exception) {
-                throw BackupDataException.GenericError()
-            }
+                outputStream.use { Json.encodeToStream(backupData, it) }
+            } catch (e: BackupDataException) { throw e }
+            catch (e: Exception) { throw BackupDataException.GenericError() }
         }
     }
 }
