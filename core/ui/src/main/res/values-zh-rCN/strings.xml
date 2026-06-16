@@ -302,4 +302,16 @@
     <string name="export_types">Export content</string>
     <string name="export_format_json">JSON file</string>
     <string name="export_format_markdown">Markdown files</string>
+    <string name="record_prompt_title">记录提醒</string>
+    <string name="record_prompt_message">是时候记录你的日常数据了，点击打开。</string>
+    <string name="add_reminder">添加提醒</string>
+    <string name="reminder_at_time">准时</string>
+    <string name="reminder_before_5min">提前5分钟</string>
+    <string name="reminder_before_15min">提前15分钟</string>
+    <string name="reminder_before_30min">提前30分钟</string>
+    <string name="reminder_before_1hour">提前1小时</string>
+    <string name="reminder_before_1day">提前1天</string>
+    <string name="reminder_custom_time">自定义时间</string>
+    <string name="reminder_duplicate">不允许重复提醒</string>
+    <string name="reminder_past">提醒时间已过</string>
 </resources>

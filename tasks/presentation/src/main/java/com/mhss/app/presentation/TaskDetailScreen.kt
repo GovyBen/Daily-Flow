@@ -181,6 +181,21 @@ fun TaskDetailScreen(
             )
         }
     ) { paddingValues ->
+        val reminders by viewModel.reminders.collectAsState()
+        val reminderDrafts = reminders.map { r ->
+            com.mhss.app.ui.components.reminders.ReminderDraft(
+                id = r.id,
+                label = when {
+                    r.absoluteTriggerAt != null -> "${r.absoluteTriggerAt}"
+                    r.relativeOffsetMinutes != null -> "${r.relativeOffsetMinutes}m before"
+                    else -> ""
+                },
+                absoluteTriggerAt = r.absoluteTriggerAt,
+                relativeOffsetMinutes = r.relativeOffsetMinutes,
+                isExisting = true
+            )
+        }
+
         TaskDetailsContent(
             modifier = Modifier.padding(paddingValues),
             completed = completed,
@@ -210,8 +225,18 @@ fun TaskDetailScreen(
             onRecurringChange = { recurring = it },
             onFrequencyChange = { frequency = it },
             onFrequencyAmountChange = { frequencyAmount = it },
-            onComplete = {
-                completed = it
+            onComplete = { completed = it },
+            optionalContent = {
+                if (dueDateExists && dueDate > 0L) {
+                    Spacer(Modifier.height(12.dp))
+                    com.mhss.app.ui.components.reminders.MultiReminderEditor(
+                        existingReminders = reminderDrafts,
+                        targetTime = dueDate,
+                        onRemindersChanged = { drafts ->
+                            viewModel.onRemindersChanged(drafts)
+                        }
+                    )
+                }
             }
         )
     }
