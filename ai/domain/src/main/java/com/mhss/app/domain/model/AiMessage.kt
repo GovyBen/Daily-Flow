@@ -31,6 +31,7 @@ sealed interface ToolCallResultObject {
     data class Notes(val notes: List<Note>): ToolCallResultObject
     data class Tasks(val tasks: List<Task>): ToolCallResultObject
     data class CalendarEvents(val events: List<CalendarEvent>): ToolCallResultObject
+    data class Proposal(val proposalId: String, val summary: String): ToolCallResultObject
 }
 
 sealed interface AiMessageAttachment {

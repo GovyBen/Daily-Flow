@@ -23,6 +23,7 @@ const val GET_ALL_CALENDARS_TOOL = "getAllCalendars"
 
 // DiaryToolSet
 const val CREATE_DIARY_ENTRY_TOOL = "createDiaryEntry"
+const val PROPOSE_CREATE_DIARY_TOOL = "proposeCreateDiaryEntry"
 const val SEARCH_DIARY_ENTRIES_TOOL = "searchDiaryEntries"
 const val GET_DIARY_ENTRY_TOOL = "getDiaryEntry"
 

@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":calendar:domain"))
 
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.datetime)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)

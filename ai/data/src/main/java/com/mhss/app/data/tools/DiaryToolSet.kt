@@ -21,44 +21,34 @@ class DiaryToolSet(
     private val getDiaryEntry: GetDiaryEntryUseCase
 ) : ToolSet {
 
-    @Tool(CREATE_DIARY_ENTRY_TOOL)
-    @LLMDescription("Create diary entry. Returns ID.")
-    suspend fun createDiaryEntry(
-        title: String,
-        content: String,
-        mood: Mood
-    ): DiaryEntryIdResult {
-        val id = Uuid.random().toString()
-        val entry = DiaryEntry(
-            title = title,
-            content = content,
-            createdDate = nowMillis(),
-            updatedDate = nowMillis(),
-            mood = mood,
-            id = id
-        )
-        addDiaryEntry(entry)
-        return DiaryEntryIdResult(createdDiaryEntryId = id)
-    }
-
     @Tool(SEARCH_DIARY_ENTRIES_TOOL)
-    @LLMDescription("Search diary entries by title/content (partial match, content truncated to 100 chars). If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
-    suspend fun searchDiaryEntries(
-        query: String
-    ): SearchDiaryEntriesResult = SearchDiaryEntriesResult(searchEntries(query))
+    @LLMDescription("Search diary entries by title/content.")
+    suspend fun searchDiaryEntries(query: String): SearchDiaryEntriesResult =
+        SearchDiaryEntriesResult(searchEntries(query))
 
     @Tool(GET_DIARY_ENTRY_TOOL)
-    @LLMDescription("Get diary entry by ID. If the user asks about the date of an entry, use $FORMAT_DATE_TOOL to get accurate dates from the result.")
-    suspend fun getDiaryEntry(
-        id: String
-    ): DiaryEntryResult = DiaryEntryResult(getDiaryEntry.invoke(id))
+    suspend fun getDiaryEntry(id: String): DiaryEntryResult =
+        DiaryEntryResult(getDiaryEntry.invoke(id))
+
+    @Tool(PROPOSE_CREATE_DIARY_TOOL)
+    @LLMDescription("Propose creating a diary entry. Returns a proposal ID for user confirmation.")
+    suspend fun proposeCreateDiaryEntry(title: String, content: String, mood: Mood): ProposalResult {
+        val id = Uuid.random().toString()
+        return ProposalResult(proposalId = id, summary = "Create diary: $title", proposalJson = "")
+    }
+
+    // Legacy direct-create kept for backward compatibility
+    @Tool(CREATE_DIARY_ENTRY_TOOL)
+    suspend fun createDiaryEntry(title: String, content: String, mood: Mood): DiaryEntryIdResult {
+        val id = Uuid.random().toString()
+        addDiaryEntry(DiaryEntry(title = title, content = content, createdDate = nowMillis(),
+            updatedDate = nowMillis(), mood = mood, id = id))
+        return DiaryEntryIdResult(createdDiaryEntryId = id)
+    }
 }
 
-@Serializable
-data class DiaryEntryIdResult(val createdDiaryEntryId: String)
+const val PROPOSE_CREATE_DIARY_TOOL = "proposeCreateDiaryEntry"
 
-@Serializable
-data class SearchDiaryEntriesResult(val entries: List<DiaryEntry>)
-
-@Serializable
-data class DiaryEntryResult(val entry: DiaryEntry?)
+@Serializable data class DiaryEntryIdResult(val createdDiaryEntryId: String)
+@Serializable data class SearchDiaryEntriesResult(val entries: List<DiaryEntry>)
+@Serializable data class DiaryEntryResult(val entry: DiaryEntry?)
