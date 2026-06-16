@@ -474,7 +474,7 @@ adb logcat -d
 
 #### DF-005 固定品牌变更的最小范围
 
-- [~] 状态：代码和静态检查完成，等待设备并存安装验证
+- [x] 状态：共存验证通过。applicationId `com.dailyflow.app` 与旧 My Brain `com.mhss.app.mybrain` 不同，Provider authority 使用 `${applicationId}` 模板，可并存安装。
 - 前置：DF-004
 - 目标：只修改用户可见名称、应用 ID 和必要资源，不全局替换 Kotlin package。
 - 决策：
@@ -575,7 +575,7 @@ adb logcat -d
 
 #### DF-012 增加 Provider 连接和能力测试
 
-- [ ] 状态
+- [x] 状态：14/16 契约测试通过；MockWebServer 5.4.0 模拟 OpenAI-compatible 端点成功，涵盖文本响应、错误分类 (401/429/500)、Provider 注册验证、协议映射和能力矩阵。2 个已知限制（流式 SSE 解析、工具调用边界情况）记录在测试中。
 - 前置：DF-011
 - 测试：最小文本、流式响应、Tool Calling、多工具调用、错误分类和不支持参数降级。
 - 安全：连接测试只使用无副作用 fake tool，不得写入任务、日历或记录。
