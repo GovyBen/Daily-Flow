@@ -12,6 +12,26 @@ android {
     namespace = "com.mhss.app.mybrain"
     compileSdk = 36
 
+    // --- Release signing config (DF-802) ---
+    // Credentials are read from gradle properties which can be supplied via:
+    //   • local.properties: dailyFlow.keystorePath, dailyFlow.keystorePassword, etc.
+    //   • Environment variables: ORG_GRADLE_PROJECT_dailyFlow.keystorePath, etc.
+    //   • Command line: -PdailyFlow.keystorePath=...
+    // If no credentials are provided, the release build produces an unsigned APK.
+    val releaseKeystorePath: String? = findProperty("dailyFlow.keystorePath") as String?
+    val releaseKeystorePassword: String? = findProperty("dailyFlow.keystorePassword") as String?
+    val releaseKeyAlias: String? = findProperty("dailyFlow.keyAlias") as String?
+    val releaseKeyPassword: String? = findProperty("dailyFlow.keyPassword") as String?
+
+    signingConfigs {
+        create("release") {
+            storeFile = releaseKeystorePath?.let { rootProject.file(it) }
+            storePassword = releaseKeystorePassword ?: ""
+            keyAlias = releaseKeyAlias ?: ""
+            keyPassword = releaseKeyPassword ?: ""
+        }
+    }
+
     defaultConfig {
         applicationId = "com.dailyflow.app"
         minSdk = 26
@@ -32,6 +52,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Only apply signing if keystore path is provided; otherwise unsigned
+            signingConfig = if (releaseKeystorePath != null) signingConfigs.getByName("release") else null
         }
         debug {
             isMinifyEnabled = false
