@@ -14,4 +14,6 @@ sealed interface AssistantEvent {
     data object AddAttachmentEvents: AssistantEvent
     data class RemoveAttachment(val index: Int): AssistantEvent
     data object CancelMessage: AssistantEvent
+    data object ConfirmProposal: AssistantEvent
+    data object DismissProposal: AssistantEvent
 }

@@ -13,6 +13,7 @@ import com.mhss.app.domain.model.AssistantResult
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.Note
 import com.mhss.app.domain.model.Task
+import com.mhss.app.domain.model.ToolCallResultObject
 import com.mhss.app.domain.use_case.GetAllEventsUseCase
 import com.mhss.app.domain.use_case.GetNoteUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
@@ -133,6 +134,19 @@ class AssistantViewModel(
                         }
                         .collect { msg ->
                             _messages.add(0, msg)
+                            // Detect proposals from tool calls
+                            if (msg is AiMessage.ToolCall && msg.resultObject is ToolCallResultObject.Proposal) {
+                                val proposal = msg.resultObject as ToolCallResultObject.Proposal
+                                if (uiState.pendingProposal == null) {
+                                    uiState = uiState.copy(
+                                        pendingProposal = PendingProposal(
+                                            proposalId = proposal.proposalId,
+                                            summary = proposal.summary,
+                                            toolName = msg.name
+                                        )
+                                    )
+                                }
+                            }
                         }
                 }
             }
@@ -187,6 +201,29 @@ class AssistantViewModel(
                 }
                 uiState = uiState.copy(loading = false)
             }
+
+            AssistantEvent.ConfirmProposal -> {
+                uiState.pendingProposal?.let { proposal ->
+                    // Add confirmation message to chat
+                    _messages.add(0, AiMessage.UserMessage(
+                        content = "✅ Confirmed: ${proposal.summary}",
+                        time = now(),
+                        uuid = Uuid.random().toString()
+                    ))
+                    uiState = uiState.copy(pendingProposal = null)
+                }
+            }
+
+            AssistantEvent.DismissProposal -> {
+                uiState.pendingProposal?.let { proposal ->
+                    _messages.add(0, AiMessage.UserMessage(
+                        content = "❌ Dismissed: ${proposal.summary}",
+                        time = now(),
+                        uuid = Uuid.random().toString()
+                    ))
+                    uiState = uiState.copy(pendingProposal = null)
+                }
+            }
         }
     }
 
@@ -233,6 +270,13 @@ class AssistantViewModel(
         val error: AssistantResult.Failure? = null,
         val noteView: ItemView = ItemView.LIST,
         val searchNotes: List<Note> = emptyList(),
-        val searchTasks: List<Task> = emptyList()
+        val searchTasks: List<Task> = emptyList(),
+        val pendingProposal: PendingProposal? = null
+    )
+
+    data class PendingProposal(
+        val proposalId: String,
+        val summary: String,
+        val toolName: String
     )
 }
