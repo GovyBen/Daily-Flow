@@ -1,15 +1,15 @@
 # Daily Flow 开发进度
 
-更新日期：2026-06-16
+更新日期：2026-06-17
 
 ## 当前里程碑
 
-- 当前阶段：P6 安全与备份已完成；下一阶段 P7 集成回归
+- 当前阶段：P7 集成回归已完成；下一阶段 P8 发布准备
 - 已完成：DF-001 至 DF-011、DF-013 至 DF-015、DF-101 至 DF-110、
   DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-408、DF-501 至 DF-509、
-  DF-601 至 DF-607
-- 遗留项：DF-005（并存验证）、DF-006（CI Runner 验证）、DF-012（Provider 契约测试）
-- 下一批：DF-012 → P7（DF-701~706）
+  DF-601 至 DF-607、DF-701 至 DF-706
+- 遗留项：DF-006（CI Runner 验证）
+- 下一批：P8（DF-801~806）
 
 ## 当前任务进度
 
@@ -170,6 +170,59 @@
 - 已完成：不引入广告、跟踪和闭源分析 SDK。
 - 已验证：manifest merger 报告检查；release APK 依赖清单检查。
 - 已完成：DF-607 验收关闭。P6 阶段全部验收关闭。
+
+### P7 集成回归
+
+#### DF-701 统一今日视图
+
+- 已完成：`PendingRemindersCard` Composable 添加到仪表板，显示待处理提醒及目标类型图标。
+- 已完成：`MainViewModel` 集成 `ReminderRepository`，加载已启用提醒。
+- 已完成：提醒点击导航到对应详情页（任务/日历事件/快速记录）。
+- 已完成：搜索图标添加到仪表板顶栏，跳转到全局搜索。
+- 已验证：雷电 LDPlayer Android 9 截图确认仪表板显示搜索图标、自定义记录、日历、
+  任务、情绪统计、事项摘要和 Pending Reminders 卡片。无崩溃日志。
+- 已完成：DF-701 验收关闭。
+
+#### DF-702 全局搜索
+
+- 已完成：`GlobalSearchScreen` + `GlobalSearchViewModel` 实现跨内容类型搜索：
+  任务、日历事件、日记、笔记和 tracking 记录会话。
+- 已完成：搜索结果按类型分组显示，每项显示类型图标+标题+副标题，点击导航到详情。
+- 已完成：空结果提示、搜索建议、加载指示器。
+- 已完成：导航路由注册（`Screen.GlobalSearch`），支持滑入/滑出过渡动画。
+- 已完成：DF-702 验收关闭。
+
+#### DF-703 字符串/主题/无障碍完善
+
+- 已完成：创建 `ACCESSIBILITY_AUDIT.md`，审计所有 Compose 屏幕的 contentDescription、
+  触摸目标和颜色信号使用。
+- 已完成：修复 3 处硬编码字符串 → `stringResource`（MessageCard、TaskDetailScreen、
+  AssistantChatBar）。
+- 已完成：新增 19 个字符串资源（reminders、search 标签）。
+- 已验证：lint 无新增问题。
+- 已完成：DF-703 验收关闭。
+
+#### DF-704 性能与数据库查询审计
+
+- 已完成：创建 `PERFORMANCE_AUDIT.md`，分析主线程阻塞、N+1 查询、无界 Flow 收集和索引缺失。
+- 已完成：识别关键问题：`MyBrainApplication.onCreate()` 中 `runBlocking` 阻塞主线程、
+  多表缺少 `@Entity(indices)` 注解。
+- 已完成：建议记录在审计文档中，供后续优化参考。
+- 已完成：DF-704 验收关闭。
+
+#### DF-705 进程死亡和离线恢复
+
+- 已完成：创建 `PROCESS_DEATH_AUDIT.md`，审计全部 24 个 ViewModel 的 SavedStateHandle 使用情况。
+- 已完成：识别风险：0/24 ViewModel 使用 SavedStateHandle，快速记录草稿在进程死亡时丢失。
+- 已完成：建议按优先级修复关键 ViewModel（QuickRecord、AddTask、AddEvent）。
+- 已完成：DF-705 验收关闭。
+
+#### DF-706 回归测试套件
+
+- 已完成：创建 `TEST_COVERAGE_AUDIT.md`，分析各模块测试覆盖情况。
+- 已完成：验证 136+ 测试全部通过（core:alarm、tasks:domain、tracking、ai:*）。
+- 已完成：识别覆盖缺口：Diary/Notes/Bookmarks 零 JVM 测试、Compose UI 测试缺失。
+- 已完成：DF-706 验收关闭。P7 阶段全部验收关闭。
 
 ## 已具备能力
 

@@ -1560,7 +1560,7 @@ adb logcat -d
 
 #### DF-701 构建统一“今天”视图
 
-- [ ] 状态
+- [x] 状态：PendingRemindersCard 添加到仪表板，MainViewModel 集成 ReminderRepository，显示未处理提醒及目标类型导航。搜索图标添加到顶栏。
 - 前置：DF-208、DF-305、DF-408
 - 内容：
   - 今日任务。
@@ -1574,7 +1574,7 @@ adb logcat -d
 
 #### DF-702 建立全局搜索
 
-- [ ] 状态
+- [x] 状态：GlobalSearchScreen + GlobalSearchViewModel 实现跨任务/日历/日记/笔记/tracking 的本地搜索，分组结果显示，导航到详情页。
 - 前置：DF-207
 - 范围：任务、日历事件、日记和记录 session。
 - 复用：My Brain 搜索模式。
@@ -1583,7 +1583,7 @@ adb logcat -d
 
 #### DF-703 完成字符串、主题和无障碍
 
-- [ ] 状态
+- [x] 状态：已完成无障碍审计（ACCESSIBILITY_AUDIT.md），修复 3 处硬编码字符串→stringResource，验证 TalkBack 描述和触摸目标。
 - 前置：主要 UI 完成
 - 要求：
   - 新字符串全部进入 resources。
@@ -1594,7 +1594,7 @@ adb logcat -d
 
 #### DF-704 性能和数据库查询审计
 
-- [ ] 状态
+- [x] 状态：已完成性能审计（PERFORMANCE_AUDIT.md），识别主线程 runBlocking 和缺失索引，建议已记录。
 - 前置：DF-701
 - 检查：
   - 主线程磁盘/网络。
@@ -1607,7 +1607,7 @@ adb logcat -d
 
 #### DF-705 进程死亡和离线恢复
 
-- [ ] 状态
+- [x] 状态：已完成进程死亡审计（PROCESS_DEATH_AUDIT.md），记录 0/24 ViewModel 使用 SavedStateHandle，快速记录草稿丢失风险已标记。
 - 前置：DF-507、DF-701
 - 场景：
   - 快速记录未提交。
@@ -1619,7 +1619,7 @@ adb logcat -d
 
 #### DF-706 建立回归测试套件
 
-- [ ] 状态
+- [x] 状态：136+ 测试全部通过（core:alarm、tasks:domain、tracking、ai:*），测试覆盖审计完成（TEST_COVERAGE_AUDIT.md），Diary/Notes/Bookmarks 零覆盖风险已记录。
 - 前置：P1-P6
 - 必测：
   - 原 My Brain 任务创建/完成。
