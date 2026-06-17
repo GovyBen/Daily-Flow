@@ -1636,7 +1636,7 @@ adb logcat -d
 
 阶段出口：可复现构建 release APK，许可证和隐私文档完整，具备 GitHub Beta 发布条件。
 
-#### DF-801 依赖和许可证审计
+#### DF-801  ✅ 依赖和许可证审计
 
 - [ ] 状态
 - 前置：功能冻结
@@ -1647,7 +1647,7 @@ adb logcat -d
   - SBOM 或依赖报告。
 - 验收：阻塞 F-Droid 的依赖已移除或替换。
 
-#### DF-802 建立 release 签名流程
+#### DF-802  ✅ 建立 release 签名流程
 
 - [ ] 状态
 - 前置：DF-006
@@ -1658,7 +1658,7 @@ adb logcat -d
   - 记录密钥备份和轮换流程，但不记录密码。
 - 验收：签名 APK 可安装并验证证书。
 
-#### DF-803 完善 GitHub Release
+#### DF-803  ✅ 完善 GitHub Release
 
 - [ ] 状态
 - 前置：DF-802
@@ -1670,7 +1670,7 @@ adb logcat -d
   - license notices
 - 验收：从干净 checkout 可按文档重建。
 
-#### DF-804 准备 F-Droid metadata
+#### DF-804  ✅ 准备 F-Droid metadata
 
 - [ ] 状态
 - 前置：DF-801
@@ -1683,7 +1683,7 @@ adb logcat -d
   - anti-feature 检查
 - 注意：DeepSeek 是用户自带 API Key 的可选网络能力，核心本地功能无账户可用。
 
-#### DF-805 Beta 验收
+#### DF-805  ✅ Beta 验收
 
 - [ ] 状态
 - 前置：DF-803
@@ -1699,7 +1699,7 @@ adb logcat -d
   - API Key 泄露。
   - 备份不可恢复。
 
-#### DF-806 定义 v1.1 数据库加密和加密备份技术验证
+#### DF-806  ✅ 定义 v1.1 数据库加密和加密备份技术验证
 
 - [ ] 状态
 - 前置：v1.0 Beta 稳定
