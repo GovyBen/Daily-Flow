@@ -242,7 +242,7 @@ fun AssistantChatBar(
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_send_message),
-                                        contentDescription = "Send",
+                                        contentDescription = stringResource(R.string.send_message),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                             alpha = if (enabled) 0.9f else 0.3f
                                         ),

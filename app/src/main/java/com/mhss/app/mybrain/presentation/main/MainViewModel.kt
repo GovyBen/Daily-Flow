@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mhss.app.alarm.model.Reminder
+import com.mhss.app.alarm.repository.ReminderRepository
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.model.Task
@@ -46,7 +48,8 @@ class MainViewModel(
     private val getAllTasks: GetAllTasksUseCase,
     private val getAllEntriesUseCase: GetAllEntriesUseCase,
     private val completeTask: UpdateTaskCompletedUseCase,
-    private val getAllEventsUseCase: GetAllEventsUseCase
+    private val getAllEventsUseCase: GetAllEventsUseCase,
+    private val reminderRepository: ReminderRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(UiState())
@@ -79,7 +82,8 @@ class MainViewModel(
         val dashBoardTasks: List<Task> = emptyList(),
         val dashBoardEvents: Map<String, List<CalendarEvent>> = emptyMap(),
         val summaryTasks: List<Task> = emptyList(),
-        val dashBoardEntries: List<DiaryEntry> = emptyList()
+        val dashBoardEntries: List<DiaryEntry> = emptyList(),
+        val pendingReminders: List<Reminder> = emptyList()
     )
 
     private fun getCalendarEvents() = viewModelScope.launch {
@@ -96,6 +100,7 @@ class MainViewModel(
     }
 
     private fun collectDashboardData() = viewModelScope.launch {
+        loadPendingReminders()
         combine(
             getPreference(
                 intPreferencesKey(PrefsConstants.TASKS_ORDER_KEY),
@@ -128,4 +133,12 @@ class MainViewModel(
         savePreference(booleanPreferencesKey(PrefsConstants.LOCK_APP_KEY), false)
     }
 
+    private suspend fun loadPendingReminders() {
+        try {
+            val reminders = reminderRepository.getEnabled()
+            uiState = uiState.copy(pendingReminders = reminders)
+        } catch (_: Exception) {
+            // Silently ignore — reminders are non-critical on the dashboard
+        }
+    }
 }

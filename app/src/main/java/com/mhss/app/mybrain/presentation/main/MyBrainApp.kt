@@ -34,6 +34,7 @@ import com.mhss.app.mybrain.presentation.app_lock.AppLockManager
 import com.mhss.app.mybrain.presentation.app_lock.AuthScreen
 import com.mhss.app.mybrain.content.domain.ContentType
 import com.mhss.app.mybrain.content.presentation.ContentLibraryScreen
+import com.mhss.app.mybrain.presentation.search.GlobalSearchScreen
 import com.mhss.app.presentation.AssistantScreen
 import com.mhss.app.presentation.BookmarkDetailsScreen
 import com.mhss.app.presentation.BookmarkSearchScreen
@@ -438,6 +439,14 @@ fun MyBrainApp(
                     exitTransition = { slideOutTransition() },
                 ) {
                     AssistantScreen(navController = navController)
+                }
+                composable<Screen.GlobalSearch>(
+                    enterTransition = { slideUpTransition() },
+                    exitTransition = { slideDownTransition() },
+                ) {
+                    GlobalSearchScreen(
+                        navController = navController
+                    )
                 }
             }
             if (!appUnlocked) {

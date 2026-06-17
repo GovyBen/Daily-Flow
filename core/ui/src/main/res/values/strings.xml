@@ -318,4 +318,29 @@
     <string name="reminder_custom_time">Custom time</string>
     <string name="reminder_duplicate">Duplicate reminder not allowed</string>
     <string name="reminder_past">Reminder time is in the past</string>
+    <string name="pending_reminders" tools:ignore="MissingTranslation">Pending Reminders</string>
+    <string name="no_upcoming_reminders" tools:ignore="MissingTranslation">No upcoming reminders</string>
+    <string name="reminder_task_label" tools:ignore="MissingTranslation">Task</string>
+    <string name="reminder_event_label" tools:ignore="MissingTranslation">Event</string>
+    <string name="reminder_prompt_label" tools:ignore="MissingTranslation">Record</string>
+    <string name="reminder_in_minutes" tools:ignore="MissingTranslation">In %1$d min</string>
+    <string name="reminder_in_hours" tools:ignore="MissingTranslation">In %1$d hr</string>
+    <string name="reminder_in_days" tools:ignore="MissingTranslation">In %1$d days</string>
+    <string name="reminder_past_due" tools:ignore="MissingTranslation">Past due</string>
+    <string name="reminder_less_than_minute" tools:ignore="MissingTranslation">&lt; 1 min</string>
+    <string name="reminder_relative_before" tools:ignore="MissingTranslation">%1$d min before</string>
+    <string name="back" tools:ignore="MissingTranslation">Back</string>
+    <string name="events" tools:ignore="MissingTranslation">Events</string>
+    <string name="records" tools:ignore="MissingTranslation">Records</string>
+    <string name="event" tools:ignore="MissingTranslation">Event</string>
+    <string name="note" tools:ignore="MissingTranslation">Note</string>
+    <string name="task" tools:ignore="MissingTranslation">Task</string>
+    <string name="record" tools:ignore="MissingTranslation">Record</string>
+    <string name="search_suggestions_title" tools:ignore="MissingTranslation">Try searching for…</string>
+    <string name="search_suggestion_1" tools:ignore="MissingTranslation">e.g. a task name, note title, or diary entry</string>
+    <string name="search_suggestion_2" tools:ignore="MissingTranslation">e.g. a calendar event or tracking record</string>
+    <string name="search_suggestion_3" tools:ignore="MissingTranslation">e.g. a keyword across all your content</string>
+    <string name="no_search_results" tools:ignore="MissingTranslation">No results found for \"%1$s\"</string>
+    <string name="tap_to_review_and_confirm" tools:ignore="MissingTranslation">Tap to review and confirm</string>
+    <string name="send_message" tools:ignore="MissingTranslation">Send</string>
 </resources>

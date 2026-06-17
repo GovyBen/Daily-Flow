@@ -363,7 +363,7 @@ private fun ToolCallResultPreview(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Tap to review and confirm",
+                    text = stringResource(R.string.tap_to_review_and_confirm),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

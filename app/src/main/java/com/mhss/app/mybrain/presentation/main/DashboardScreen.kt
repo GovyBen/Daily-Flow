@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,9 +33,20 @@ fun DashboardScreen(
     onCalendarClick: () -> Unit,
     viewModel: MainViewModel = koinViewModel()
 ) {
+    val searchContentDescription = stringResource(R.string.search)
     Scaffold(
         topBar = {
-            MyBrainAppBar(stringResource(R.string.dashboard))
+            MyBrainAppBar(
+                title = stringResource(R.string.dashboard),
+                actions = {
+                    IconButton(onClick = { navController.navigate(Screen.GlobalSearch) }) {
+                        Icon(
+                            Icons.Rounded.Search,
+                            contentDescription = searchContentDescription
+                        )
+                    }
+                }
+            )
         }
     ) {paddingValues ->
         LaunchedEffect(true) { viewModel.onDashboardEvent(DashboardEvent.InitAll) }
@@ -115,6 +130,12 @@ fun DashboardScreen(
                 }
             }
             item { Spacer(Modifier.height(65.dp)) }
+            item {
+                PendingRemindersCard(
+                    reminders = viewModel.uiState.pendingReminders,
+                    navController = navController
+                )
+            }
         }
     }
 }
