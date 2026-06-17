@@ -284,6 +284,14 @@ fun SettingsScreen(
                     link = Constants.PROJECT_GITHUB_LINK
                 )
             }
+            item {
+                SettingsBasicLinkItem(
+                    title = R.string.developed_by,
+                    icon = R.drawable.ic_github,
+                    subtitle = Constants.AUTHOR_NAME,
+                    link = Constants.AUTHOR_GITHUB
+                )
+            }
 
             item {
                 SettingsBasicLinkItem(
