@@ -117,5 +117,8 @@ sealed class Screen {
     data object AssistantScreen : Screen()
 
     @Serializable
+    data object PomodoroScreen : Screen()
+
+    @Serializable
     data object GlobalSearch : Screen()
 }

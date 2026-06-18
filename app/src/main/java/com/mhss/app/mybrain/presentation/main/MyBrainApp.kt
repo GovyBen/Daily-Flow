@@ -5,6 +5,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,7 @@ import com.mhss.app.mybrain.presentation.app_lock.AppLockManager
 import com.mhss.app.mybrain.presentation.app_lock.AuthScreen
 import com.mhss.app.mybrain.content.domain.ContentType
 import com.mhss.app.mybrain.content.presentation.ContentLibraryScreen
+import com.mhss.app.mybrain.pomodoro.PomodoroScreen
 import com.mhss.app.mybrain.presentation.search.GlobalSearchScreen
 import com.mhss.app.presentation.AssistantScreen
 import com.mhss.app.presentation.BookmarkDetailsScreen
@@ -143,6 +145,7 @@ fun MyBrainApp(
             containerColor = MaterialTheme.colorScheme.background,
             snackbarHost = { LocalisedSnackbarHost(snackbarHostState) }
         ) { paddingValues ->
+            Box(modifier = Modifier.fillMaxSize()) {
             NavHost(
                 startDestination = Screen.Main,
                 navController = navController,
@@ -440,6 +443,12 @@ fun MyBrainApp(
                 ) {
                     AssistantScreen(navController = navController)
                 }
+                composable<Screen.PomodoroScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    PomodoroScreen(onBack = navController::navigateUp)
+                }
                 composable<Screen.GlobalSearch>(
                     enterTransition = { slideUpTransition() },
                     exitTransition = { slideDownTransition() },
@@ -454,6 +463,9 @@ fun MyBrainApp(
                     appLockManager.showAuthPrompt()
                 }
             }
+            // AI Floating Action Button — appears on all screens except Assistant
+            AiFloatingButton(navController = navController)
+            } // end Box
         }
     }
 }

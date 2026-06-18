@@ -97,6 +97,7 @@ private val spaces = listOf(
         Screen.TrackingTemplatesScreen
     ),
     Space(R.string.tasks, R.drawable.tasks_img, Red, Screen.TasksScreen()),
+    Space(R.string.pomodoro, R.drawable.tasks_img, Color(0xFFFF9800), Screen.PomodoroScreen),
 )
 
 private data class Space(

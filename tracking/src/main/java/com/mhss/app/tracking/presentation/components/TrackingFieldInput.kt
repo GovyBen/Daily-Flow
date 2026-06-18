@@ -38,6 +38,7 @@ import com.mhss.app.tracking.domain.model.TrackingFieldDraft
 import com.mhss.app.tracking.domain.validation.TrackerInputValue
 import com.mhss.app.tracking.domain.validation.TrackerValueError
 import com.mhss.app.tracking.domain.validation.TrackerValueValidator
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -312,7 +313,15 @@ private fun ScaleInput(
     )
     Slider(
         value = if (validConfig) sliderValue.toFloat() else 0f,
-        onValueChange = { onValueChange(it.toDouble()) },
+        onValueChange = { raw ->
+            val rounded = if (validConfig && config.step > 0) {
+                val stepped = config.minimum + ((raw.toDouble() - config.minimum) / config.step).roundToInt().coerceAtLeast(0) * config.step
+                stepped.coerceIn(config.minimum, config.maximum)
+            } else {
+                raw.toDouble()
+            }
+            onValueChange(rounded)
+        },
         valueRange = valueRange,
         steps = steps,
         enabled = enabled && validConfig,
@@ -424,7 +433,8 @@ private fun Double?.formattedWithUnit(unit: String?): String {
 
 private fun Double?.formatted(): String = when {
     this == null -> ""
-    isFinite() && this == toLong().toDouble() -> toLong().toString()
+    !isFinite() -> toString()
+    abs(this - roundToLong().toDouble()) < 1e-9 -> toLong().toString()
     else -> toString()
 }
 
