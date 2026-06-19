@@ -22,7 +22,7 @@ class TrackingDashboardModelsTest {
             "pinned" to listOf(record("pinned", 50))
         )
 
-        val state = buildTrackingDashboardState(templates, history)
+        val state = buildTrackingDashboardState(templates, history, emptyMap())
 
         assertEquals(
             listOf("pinned", "recent", "middle", "old"),
