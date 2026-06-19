@@ -57,6 +57,7 @@ fun MultiReminderEditor(
     var showQuickMenu by remember { mutableStateOf(false) }
     var showCustomPicker by remember { mutableStateOf(false) }
     val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val reminderAtTimeLabel = stringResource(R.string.reminder_at_time)
 
     if (drafts.isEmpty() && existingReminders.isNotEmpty()) {
         drafts.addAll(existingReminders)
@@ -88,7 +89,7 @@ fun MultiReminderEditor(
                     showQuickMenu = false
                     targetTime?.let { t ->
                         if (drafts.none { it.absoluteTriggerAt == t }) {
-                            val label = ctx.getString(R.string.reminder_at_time) +
+                            val label = reminderAtTimeLabel +
                                 " " + timeFormat.format(Date(t))
                             drafts.add(ReminderDraft(label = label, absoluteTriggerAt = t, relativeOffsetMinutes = null))
                             onRemindersChanged(drafts.toList())
@@ -137,7 +138,7 @@ private fun DraftRow(draft: ReminderDraft, index: Int, drafts: MutableList<Remin
             onClick = { drafts.removeAt(index); onChanged(drafts.toList()) },
             modifier = Modifier.size(32.dp)
         ) {
-            Icon(Icons.Default.Close, ctx.getString(R.string.delete_task), Modifier.size(18.dp))
+            Icon(Icons.Default.Close, stringResource(R.string.delete_task), Modifier.size(18.dp))
         }
     }
 }

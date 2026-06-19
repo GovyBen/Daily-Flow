@@ -311,18 +311,18 @@
     <string name="sunday">Sunday</string>
     <string name="monday">Monday</string>
     <string name="saturday">Saturday</string>
-    <string name="record_prompt_title">Record reminder</string>
-    <string name="record_prompt_message">Time to record your daily entry. Tap to open.</string>
-    <string name="add_reminder">Add reminder</string>
-    <string name="reminder_at_time">At time</string>
-    <string name="reminder_before_5min">5 minutes before</string>
-    <string name="reminder_before_15min">15 minutes before</string>
-    <string name="reminder_before_30min">30 minutes before</string>
-    <string name="reminder_before_1hour">1 hour before</string>
-    <string name="reminder_before_1day">1 day before</string>
-    <string name="reminder_custom_time">Custom time</string>
-    <string name="reminder_duplicate">Duplicate reminder not allowed</string>
-    <string name="reminder_past">Reminder time is in the past</string>
+    <string name="record_prompt_title" tools:ignore="MissingTranslation">Record reminder</string>
+    <string name="record_prompt_message" tools:ignore="MissingTranslation">Time to record your daily entry. Tap to open.</string>
+    <string name="add_reminder" tools:ignore="MissingTranslation">Add reminder</string>
+    <string name="reminder_at_time" tools:ignore="MissingTranslation">At time</string>
+    <string name="reminder_before_5min" tools:ignore="MissingTranslation">5 minutes before</string>
+    <string name="reminder_before_15min" tools:ignore="MissingTranslation">15 minutes before</string>
+    <string name="reminder_before_30min" tools:ignore="MissingTranslation">30 minutes before</string>
+    <string name="reminder_before_1hour" tools:ignore="MissingTranslation">1 hour before</string>
+    <string name="reminder_before_1day" tools:ignore="MissingTranslation">1 day before</string>
+    <string name="reminder_custom_time" tools:ignore="MissingTranslation">Custom time</string>
+    <string name="reminder_duplicate" tools:ignore="MissingTranslation">Duplicate reminder not allowed</string>
+    <string name="reminder_past" tools:ignore="MissingTranslation">Reminder time is in the past</string>
     <string name="pending_reminders" tools:ignore="MissingTranslation">Pending Reminders</string>
     <string name="no_upcoming_reminders" tools:ignore="MissingTranslation">No upcoming reminders</string>
     <string name="reminder_task_label" tools:ignore="MissingTranslation">Task</string>
