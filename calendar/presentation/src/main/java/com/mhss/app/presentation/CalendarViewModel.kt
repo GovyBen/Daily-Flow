@@ -274,8 +274,27 @@ class CalendarViewModel(
         val endExclusive = range.endExclusive.atTime(0, 0).toInstant(timeZone).toEpochMilliseconds()
         trackingRecordsJob = observeCalendarRecords(startInclusive, endExclusive)
             .onEach { records ->
+                val recordsByDate = records.groupByDeviceDate(timeZone)
+                val valuesByDate = recordsByDate.mapValues { (_, dayRecords) ->
+                    dayRecords
+                        .groupBy { it.templateId }
+                        .map { (_, templateRecords) ->
+                            val first = templateRecords.first()
+                            CalendarTrackingValue(
+                                templateId = first.templateId,
+                                templateName = first.templateName,
+                                templateColor = first.templateColor,
+                                sessionCount = templateRecords.size
+                            )
+                        }
+                        .sortedByDescending { it.sessionCount }
+                        .take(5)
+                }
                 _uiState.update {
-                    it.copy(trackingRecordsByDate = records.groupByDeviceDate(timeZone))
+                    it.copy(
+                        trackingRecordsByDate = recordsByDate,
+                        trackingValuesByDate = valuesByDate
+                    )
                 }
             }
             .launchIn(viewModelScope)
@@ -305,7 +324,8 @@ class CalendarViewModel(
         val firstDayOfWeek: DayOfWeek = DayOfWeek.SUNDAY,
         val hasCalendarPermission: Boolean = false,
         val trackingTemplates: List<TrackingTemplateSummary> = emptyList(),
-        val trackingRecordsByDate: Map<LocalDate, List<TrackingCalendarRecord>> = emptyMap()
+        val trackingRecordsByDate: Map<LocalDate, List<TrackingCalendarRecord>> = emptyMap(),
+        val trackingValuesByDate: Map<LocalDate, List<CalendarTrackingValue>> = emptyMap()
     )
 
     private fun List<Int>.addAndToStringSet(id: Int): Set<String> =

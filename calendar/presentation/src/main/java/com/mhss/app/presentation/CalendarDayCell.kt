@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -23,8 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mhss.app.domain.model.CalendarDay
 
 @Composable
@@ -33,7 +37,8 @@ fun CalendarDayCell(
     hasTrackingRecords: Boolean,
     isSelected: Boolean,
     isToday: Boolean,
-    onDaySelected: (CalendarDay) -> Unit
+    onDaySelected: (CalendarDay) -> Unit,
+    trackingValues: List<CalendarTrackingValue> = emptyList()
 ) {
     val backgroundColor = when {
         isSelected -> MaterialTheme.colorScheme.primaryContainer
@@ -55,6 +60,7 @@ fun CalendarDayCell(
         fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
         eventColors = eventColors,
         hasTrackingRecords = hasTrackingRecords,
+        trackingValues = trackingValues,
         onClick = { onDaySelected(day) }
     )
 }
@@ -67,7 +73,8 @@ fun EmptyCalendarDayCell() {
         backgroundColor = Color.Transparent,
         fontWeight = FontWeight.Normal,
         eventColors = emptyList(),
-        hasTrackingRecords = false
+        hasTrackingRecords = false,
+        trackingValues = emptyList()
     )
 }
 
@@ -79,6 +86,7 @@ fun CalendarDayCellContent(
     fontWeight: FontWeight,
     eventColors: List<Int>,
     hasTrackingRecords: Boolean,
+    trackingValues: List<CalendarTrackingValue> = emptyList(),
     onClick: (() -> Unit) = {}
 ) {
     Column(
@@ -88,9 +96,9 @@ fun CalendarDayCellContent(
             .clip(RoundedCornerShape(12.dp))
             .background(backgroundColor)
             .clickable { onClick() }
-            .padding(vertical = 4.dp),
+            .padding(vertical = 3.dp, horizontal = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
         Text(
             text = text,
@@ -98,10 +106,51 @@ fun CalendarDayCellContent(
             color = textColor,
             fontWeight = fontWeight
         )
-        Spacer(Modifier.height(5.dp))
         EventDots(colors = eventColors)
-        Spacer(Modifier.height(3.dp))
-        TrackingIndicator(visible = hasTrackingRecords)
+        if (trackingValues.isNotEmpty()) {
+            Spacer(Modifier.height(2.dp))
+            trackingValues.take(2).forEach { tv ->
+                TrackingValueIndicator(tv)
+            }
+            if (trackingValues.size > 2) {
+                Text(
+                    text = "+${trackingValues.size - 2}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    fontSize = 7.sp
+                )
+            }
+        } else if (hasTrackingRecords) {
+            // Fall back to simple bar indicator when no detailed values available
+            Spacer(Modifier.height(5.dp))
+            TrackingIndicator(visible = true)
+        }
+    }
+}
+
+@Composable
+private fun TrackingValueIndicator(value: CalendarTrackingValue) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Surface(
+            modifier = Modifier.size(5.dp),
+            shape = CircleShape,
+            color = Color(value.templateColor)
+        ) {}
+        Spacer(Modifier.width(2.dp))
+        Text(
+            text = value.templateName,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 7.sp
+        )
     }
 }
 
@@ -121,7 +170,7 @@ private fun TrackingIndicator(visible: Boolean) {
 @Composable
 fun EventDots(colors: List<Int>) {
     if (colors.isEmpty()) {
-        Spacer(Modifier.height(5.dp))
+        Spacer(Modifier.height(4.dp))
     } else {
         val indicators = if (colors.size <= 3) colors else colors.take(3)
         Row(

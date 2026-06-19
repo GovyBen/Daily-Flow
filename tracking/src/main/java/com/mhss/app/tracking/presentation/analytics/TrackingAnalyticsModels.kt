@@ -14,7 +14,8 @@ import kotlinx.datetime.plus
 enum class TrackingAnalyticsRange {
     DAY,
     WEEK,
-    MONTH;
+    MONTH,
+    YEAR;
 
     fun dateRange(asOfDate: LocalDate): TrackingAnalyticsDateRange = when (this) {
         DAY -> TrackingAnalyticsDateRange(
@@ -31,6 +32,14 @@ enum class TrackingAnalyticsRange {
             val currentMonth = LocalDate(asOfDate.year, asOfDate.month, 1)
             TrackingAnalyticsDateRange(
                 startDate = currentMonth.minus(11, DateTimeUnit.MONTH),
+                endDateExclusive = currentMonth.plus(1, DateTimeUnit.MONTH)
+            )
+        }
+
+        YEAR -> {
+            val currentMonth = LocalDate(asOfDate.year, asOfDate.month, 1)
+            TrackingAnalyticsDateRange(
+                startDate = currentMonth.minus(12, DateTimeUnit.MONTH),
                 endDateExclusive = currentMonth.plus(1, DateTimeUnit.MONTH)
             )
         }
@@ -66,18 +75,32 @@ data class TrackingAnalyticsRequest(
     val asOfDate: LocalDate
 )
 
+data class MultiTrackerRequest(
+    val trackers: List<TrackingAnalyticsTrackerOption>,
+    val range: TrackingAnalyticsRange,
+    val aggregation: AggregationOperation,
+    val asOfDate: LocalDate
+)
+
+data class MultiSeriesData(
+    val seriesList: List<TrackingSeries>,
+    val trackerNames: List<String>
+)
+
 data class TrackingAnalyticsData(
     val dailySummary: TrackingDailySummary?,
     val series: TrackingSeries?,
     val distribution: TrackingOptionDistribution?,
     val currentStreak: TrackingStreak?,
-    val longestStreak: TrackingStreak?
+    val longestStreak: TrackingStreak?,
+    val multiSeries: MultiSeriesData? = null
 )
 
 data class TrackingAnalyticsUiState(
     val isLoading: Boolean = true,
     val trackerOptions: List<TrackingAnalyticsTrackerOption> = emptyList(),
     val selectedTracker: TrackingAnalyticsTrackerOption? = null,
+    val selectedTrackers: List<TrackingAnalyticsTrackerOption> = emptyList(),
     val range: TrackingAnalyticsRange = TrackingAnalyticsRange.DAY,
     val aggregation: AggregationOperation = AggregationOperation.SUM,
     val chartType: TrackingAnalyticsChartType = TrackingAnalyticsChartType.LINE,

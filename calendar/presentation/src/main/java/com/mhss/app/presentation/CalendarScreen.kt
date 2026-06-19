@@ -255,6 +255,7 @@ fun CalendarScreen(
                         .padding(horizontal = 12.dp),
                     loadedMonths = loadedMonths,
                     trackingDates = state.trackingRecordsByDate.keys,
+                    trackingValuesByDate = state.trackingValuesByDate,
                     onLoadMonth = viewModel::loadMonth,
                     initialMonth = currentMonth,
                     selectedDate = selectedDate,

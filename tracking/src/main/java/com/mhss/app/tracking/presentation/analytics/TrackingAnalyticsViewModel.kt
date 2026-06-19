@@ -31,9 +31,10 @@ class TrackingAnalyticsViewModel(
     private val loaded = MutableStateFlow(false)
     private val initialTemplateId = MutableStateFlow<String?>(null)
     private val requestedTrackerId = MutableStateFlow<String?>(null)
-    private val range = MutableStateFlow(TrackingAnalyticsRange.DAY)
-    private val aggregation = MutableStateFlow(AggregationOperation.SUM)
-    private val chartType = MutableStateFlow(TrackingAnalyticsChartType.LINE)
+    private val requestedTrackerIds = MutableStateFlow<Set<String>>(emptySet())
+    private val analyticsRange = MutableStateFlow(TrackingAnalyticsRange.DAY)
+    private val analyticsAggregation = MutableStateFlow(AggregationOperation.SUM)
+    private val analyticsChartType = MutableStateFlow(TrackingAnalyticsChartType.LINE)
     private val retryToken = MutableStateFlow(0)
     private val asOfDate = Clock.System.now()
         .toLocalDateTime(TimeZone.currentSystemDefault())
@@ -84,25 +85,54 @@ class TrackingAnalyticsViewModel(
         initialValue = null
     )
 
+    private val selectedTrackers = combine(
+        trackerOptions,
+        requestedTrackerIds
+    ) { options, ids ->
+        options.filter { it.trackerId in ids }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
+
     private val loadState = combine(
+        selectedTrackers,
         selectedTracker,
-        range,
-        aggregation,
+        analyticsRange,
+        analyticsAggregation,
         retryToken
-    ) { tracker, selectedRange, selectedAggregation, _ ->
-        tracker?.let {
-            TrackingAnalyticsRequest(
-                tracker = it,
-                range = selectedRange,
-                aggregation = selectedAggregation,
+    ) { trackers, tracker, selRange, selAggregation, _ ->
+        when {
+            trackers.size >= 2 -> MultiTrackerRequest(
+                trackers = trackers,
+                range = selRange,
+                aggregation = selAggregation,
                 asOfDate = asOfDate
             )
+            tracker != null -> TrackingAnalyticsRequest(
+                tracker = tracker,
+                range = selRange,
+                aggregation = selAggregation,
+                asOfDate = asOfDate
+            )
+            else -> null
         }
     }.flatMapLatest { request ->
-        if (request == null) {
-            flowOf<TrackingAnalyticsLoadState>(TrackingAnalyticsLoadState.Idle)
-        } else {
-            flow<TrackingAnalyticsLoadState> {
+        when (request) {
+            null -> flowOf<TrackingAnalyticsLoadState>(TrackingAnalyticsLoadState.Idle)
+            is MultiTrackerRequest -> flow {
+                emit(TrackingAnalyticsLoadState.Loading)
+                val result = try {
+                    TrackingAnalyticsLoadState.Ready(loader.loadMulti(request))
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Throwable) {
+                    TrackingAnalyticsLoadState.Failed
+                }
+                emit(result)
+            }
+            is TrackingAnalyticsRequest -> flow {
                 emit(TrackingAnalyticsLoadState.Loading)
                 val result = try {
                     TrackingAnalyticsLoadState.Ready(loader.load(request))
@@ -113,6 +143,7 @@ class TrackingAnalyticsViewModel(
                 }
                 emit(result)
             }
+            else -> flowOf(TrackingAnalyticsLoadState.Idle)
         }
     }.stateIn(
         scope = viewModelScope,
@@ -120,32 +151,38 @@ class TrackingAnalyticsViewModel(
         initialValue = TrackingAnalyticsLoadState.Idle
     )
 
-    private val controls = combine(
-        range,
-        aggregation,
-        chartType
-    ) { selectedRange, selectedAggregation, selectedChart ->
-        AnalyticsControls(
-            range = selectedRange,
-            aggregation = selectedAggregation,
-            chartType = selectedChart
-        )
+    // Combine tracker+selection info into one flow to keep uiState under 5 parameters
+    private val trackersAndSelection = combine(
+        trackerOptions,
+        selectedTracker,
+        selectedTrackers
+    ) { options, tracker, trackers ->
+        Triple(options, tracker, trackers)
+    }
+
+    // Combine load-related info
+    private val loadInfo = combine(
+        loadState,
+        loaded
+    ) { load, isLoaded ->
+        Pair(load, isLoaded)
     }
 
     val uiState = combine(
-        trackerOptions,
-        selectedTracker,
-        controls,
-        loadState,
-        loaded
-    ) { options, tracker, selectedControls, load, isLoaded ->
+        trackersAndSelection,
+        analyticsRange,
+        analyticsAggregation,
+        analyticsChartType,
+        loadInfo
+    ) { (options, tracker, trackers), selRange, selAggregation, selChart, (load, isLoaded) ->
         TrackingAnalyticsUiState(
             isLoading = !isLoaded || load == TrackingAnalyticsLoadState.Loading,
             trackerOptions = options,
             selectedTracker = tracker,
-            range = selectedControls.range,
-            aggregation = selectedControls.aggregation,
-            chartType = selectedControls.chartType,
+            selectedTrackers = trackers,
+            range = selRange,
+            aggregation = selAggregation,
+            chartType = selChart,
             data = (load as? TrackingAnalyticsLoadState.Ready)?.data,
             loadFailed = load == TrackingAnalyticsLoadState.Failed
         )
@@ -163,27 +200,54 @@ class TrackingAnalyticsViewModel(
 
     fun selectTracker(trackerId: String) {
         requestedTrackerId.value = trackerId
+        requestedTrackerIds.value = emptySet()
     }
 
+    fun toggleTracker(trackerId: String) {
+        val current = requestedTrackerIds.value.toMutableSet()
+        if (trackerId in current) {
+            current.remove(trackerId)
+            if (current.isEmpty()) {
+                requestedTrackerId.value = null
+                requestedTrackerIds.value = emptySet()
+            } else if (current.size == 1) {
+                // Fell from multi to single
+                requestedTrackerId.value = current.first()
+                requestedTrackerIds.value = emptySet()
+            } else {
+                requestedTrackerIds.value = current
+            }
+        } else {
+            // Adding a new tracker
+            val existingSingle = requestedTrackerId.value
+            if (existingSingle != null && existingSingle != trackerId) {
+                // Switch from single to multi with both
+                current.add(existingSingle)
+                current.add(trackerId)
+                requestedTrackerId.value = null
+                requestedTrackerIds.value = current
+            } else if (existingSingle != null) {
+                // Already selected as single, do nothing (or toggle off)
+            } else {
+                // No current selection — start single
+                requestedTrackerId.value = trackerId
+                requestedTrackerIds.value = emptySet()
+            }
+        }
+    }
     fun selectRange(value: TrackingAnalyticsRange) {
-        range.value = value
+        analyticsRange.value = value
     }
 
     fun selectAggregation(value: AggregationOperation) {
-        aggregation.value = value
+        analyticsAggregation.value = value
     }
 
     fun selectChartType(value: TrackingAnalyticsChartType) {
-        chartType.value = value
+        analyticsChartType.value = value
     }
 
     fun retry() {
         retryToken.value += 1
     }
 }
-
-private data class AnalyticsControls(
-    val range: TrackingAnalyticsRange,
-    val aggregation: AggregationOperation,
-    val chartType: TrackingAnalyticsChartType
-)

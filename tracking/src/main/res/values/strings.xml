@@ -152,6 +152,7 @@
     <string name="tracking_analytics_range_day">Day</string>
     <string name="tracking_analytics_range_week">Week</string>
     <string name="tracking_analytics_range_month">Month</string>
+    <string name="tracking_analytics_range_year">Year</string>
     <string name="tracking_analytics_aggregation">Aggregation</string>
     <string name="tracking_analytics_sum">Sum</string>
     <string name="tracking_analytics_count">Count</string>

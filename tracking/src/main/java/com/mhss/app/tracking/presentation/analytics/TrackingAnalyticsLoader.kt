@@ -65,6 +65,14 @@ class TrackingAnalyticsLoader(
                             operation = request.aggregation,
                             preferences = preferences
                         )
+
+                        TrackingAnalyticsRange.YEAR -> getMonthlySeries(
+                            trackerId = request.tracker.trackerId,
+                            startDate = dates.startDate,
+                            endDateExclusive = dates.endDateExclusive,
+                            operation = request.aggregation,
+                            preferences = preferences
+                        )
                     }
                 }
                 val distribution = async {
@@ -103,6 +111,56 @@ class TrackingAnalyticsLoader(
                     distribution = distribution.await(),
                     currentStreak = currentStreak.await(),
                     longestStreak = longestStreak.await()
+                )
+            }
+        }
+
+    suspend fun loadMulti(request: MultiTrackerRequest): TrackingAnalyticsData =
+        withContext(defaultDispatcher) {
+            coroutineScope {
+                val preferences = AggregationPreferences()
+                val dates = request.range.dateRange(request.asOfDate)
+
+                val seriesList = request.trackers.map { tracker ->
+                    async {
+                        when (request.range) {
+                            TrackingAnalyticsRange.DAY -> getDailySeries(
+                                trackerId = tracker.trackerId,
+                                startDate = dates.startDate,
+                                endDateExclusive = dates.endDateExclusive,
+                                operation = request.aggregation,
+                                preferences = preferences
+                            )
+                            TrackingAnalyticsRange.WEEK -> getWeeklySeries(
+                                trackerId = tracker.trackerId,
+                                startDate = dates.startDate,
+                                endDateExclusive = dates.endDateExclusive,
+                                operation = request.aggregation,
+                                preferences = preferences
+                            )
+                            TrackingAnalyticsRange.MONTH,
+                            TrackingAnalyticsRange.YEAR -> getMonthlySeries(
+                                trackerId = tracker.trackerId,
+                                startDate = dates.startDate,
+                                endDateExclusive = dates.endDateExclusive,
+                                operation = request.aggregation,
+                                preferences = preferences
+                            )
+                        }
+                    }
+                }
+
+                val results = seriesList.map { it.await() }.filterNotNull()
+                TrackingAnalyticsData(
+                    dailySummary = null,
+                    series = null,
+                    distribution = null,
+                    currentStreak = null,
+                    longestStreak = null,
+                    multiSeries = MultiSeriesData(
+                        seriesList = results,
+                        trackerNames = results.map { it.trackerName }
+                    )
                 )
             }
         }

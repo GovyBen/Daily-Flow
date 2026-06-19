@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material3.AssistChip
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mhss.app.tracking.R
+import com.mhss.app.tracking.presentation.analytics.chart.TrackingSparkline
 import org.koin.androidx.compose.koinViewModel
 
 const val TRACKING_DASHBOARD_SECTION_TAG = "tracking-dashboard-section"
@@ -152,6 +154,13 @@ fun TrackingDashboardContent(
                                 color = Color(summary.color)
                             ) {}
                             Text(summary.name, modifier = Modifier.weight(1f))
+                            if (summary.sparklineValues.isNotEmpty()) {
+                                TrackingSparkline(
+                                    values = summary.sparklineValues,
+                                    color = Color(summary.color),
+                                    modifier = Modifier.width(48.dp)
+                                )
+                            }
                             Text(
                                 summary.sessionCount.toString(),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant

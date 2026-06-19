@@ -3,6 +3,8 @@ package com.mhss.app.tracking.presentation.analytics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,10 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -22,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,16 +28,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mhss.app.tracking.R
@@ -49,6 +43,7 @@ import com.mhss.app.tracking.analytics.model.TrackingStreak
 import com.mhss.app.tracking.presentation.analytics.chart.TrackingBarChart
 import com.mhss.app.tracking.presentation.analytics.chart.TrackingChartValue
 import com.mhss.app.tracking.presentation.analytics.chart.TrackingLineChart
+import com.mhss.app.tracking.presentation.analytics.chart.TrackingMultiLineChart
 import com.mhss.app.tracking.presentation.analytics.chart.TrackingPieChart
 import java.text.DecimalFormat
 import kotlinx.datetime.LocalDate
@@ -82,6 +77,7 @@ fun TrackingAnalyticsScreen(
         state = state,
         onBack = onBack,
         onTrackerSelected = viewModel::selectTracker,
+        onTrackerToggled = viewModel::toggleTracker,
         onRangeSelected = viewModel::selectRange,
         onAggregationSelected = viewModel::selectAggregation,
         onChartTypeSelected = viewModel::selectChartType,
@@ -90,11 +86,12 @@ fun TrackingAnalyticsScreen(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 fun TrackingAnalyticsContent(
     state: TrackingAnalyticsUiState,
     onBack: () -> Unit = {},
     onTrackerSelected: (String) -> Unit = {},
+    onTrackerToggled: (String) -> Unit = {},
     onRangeSelected: (TrackingAnalyticsRange) -> Unit = {},
     onAggregationSelected: (AggregationOperation) -> Unit = {},
     onChartTypeSelected: (TrackingAnalyticsChartType) -> Unit = {},
@@ -132,6 +129,7 @@ fun TrackingAnalyticsContent(
                 AnalyticsList(
                     state = state,
                     onTrackerSelected = onTrackerSelected,
+                    onTrackerToggled = onTrackerToggled,
                     onRangeSelected = onRangeSelected,
                     onAggregationSelected = onAggregationSelected,
                     onChartTypeSelected = onChartTypeSelected,
@@ -151,9 +149,11 @@ fun TrackingAnalyticsContent(
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun AnalyticsList(
     state: TrackingAnalyticsUiState,
     onTrackerSelected: (String) -> Unit,
+    onTrackerToggled: (String) -> Unit,
     onRangeSelected: (TrackingAnalyticsRange) -> Unit,
     onAggregationSelected: (AggregationOperation) -> Unit,
     onChartTypeSelected: (TrackingAnalyticsChartType) -> Unit,
@@ -167,9 +167,11 @@ private fun AnalyticsList(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         item {
-            TrackerSelector(
+            MultiTrackerSelector(
                 options = state.trackerOptions,
-                selected = state.selectedTracker,
+                selectedTrackers = state.selectedTrackers,
+                selectedTracker = state.selectedTracker,
+                onToggled = onTrackerToggled,
                 onSelected = onTrackerSelected
             )
         }
@@ -201,36 +203,42 @@ private fun AnalyticsList(
             }
         }
         state.data?.let { data ->
-            item {
-                DailySummaryCard(data.dailySummary)
-            }
-            item {
-                StreakCards(data.currentStreak, data.longestStreak)
+            // Daily summary and streaks only shown for single tracker
+            if (state.selectedTrackers.size < 2) {
+                item {
+                    DailySummaryCard(data.dailySummary)
+                }
+                item {
+                    StreakCards(data.currentStreak, data.longestStreak)
+                }
             }
             item {
                 ChartTypeSelector(state.chartType, onChartTypeSelected)
             }
             item {
-                SeriesCard(state)
+                MultiSeriesCard(state)
             }
-            data.distribution?.let { distribution ->
-                item {
-                    ElevatedCard(Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(
-                                stringResource(R.string.tracking_analytics_distribution),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            TrackingPieChart(
-                                values = distribution.items.map {
-                                    TrackingChartValue(it.label, it.count.toDouble())
-                                },
-                                title = stringResource(
-                                    R.string.tracking_analytics_distribution
-                                ),
-                                modifier = Modifier.padding(top = 12.dp)
-                            )
+            // Distribution only for single tracker
+            if (state.selectedTrackers.size < 2) {
+                data.distribution?.let { distribution ->
+                    item {
+                        ElevatedCard(Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp)) {
+                                Text(
+                                    stringResource(R.string.tracking_analytics_distribution),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                TrackingPieChart(
+                                    values = distribution.items.map {
+                                        TrackingChartValue(it.label, it.count.toDouble())
+                                    },
+                                    title = stringResource(
+                                        R.string.tracking_analytics_distribution
+                                    ),
+                                    modifier = Modifier.padding(top = 12.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -240,50 +248,50 @@ private fun AnalyticsList(
 }
 
 @Composable
-private fun TrackerSelector(
+@OptIn(ExperimentalLayoutApi::class)
+private fun MultiTrackerSelector(
     options: List<TrackingAnalyticsTrackerOption>,
-    selected: TrackingAnalyticsTrackerOption?,
+    selectedTrackers: List<TrackingAnalyticsTrackerOption>,
+    selectedTracker: TrackingAnalyticsTrackerOption?,
+    onToggled: (String) -> Unit,
     onSelected: (String) -> Unit
 ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             stringResource(R.string.tracking_analytics_tracker),
             style = MaterialTheme.typography.labelLarge
         )
-        Box {
-            OutlinedButton(
-                onClick = { expanded = true },
-                enabled = options.isNotEmpty(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag(TRACKING_ANALYTICS_TRACKER_TAG)
-            ) {
-                Text(
-                    selected?.displayName
-                        ?: stringResource(R.string.tracking_analytics_no_trackers),
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option.displayName) },
-                        onClick = {
-                            expanded = false
-                            onSelected(option.trackerId)
-                        },
-                        modifier = Modifier.testTag(
-                            trackingAnalyticsTrackerOptionTag(option.trackerId)
-                        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            options.forEach { option ->
+                val isSelected = option.trackerId in selectedTrackers.map { it.trackerId } ||
+                        option.trackerId == selectedTracker?.trackerId
+                FilterChip(
+                    selected = isSelected,
+                    onClick = {
+                        if (isSelected) {
+                            // If currently in multi-select, toggle off; if single, switch to single select
+                            if (selectedTrackers.size >= 2) {
+                                onToggled(option.trackerId)
+                            } else {
+                                onSelected(option.trackerId)
+                            }
+                        } else {
+                            // If we already have a selection, try multi-select
+                            if (selectedTracker != null || selectedTrackers.isNotEmpty()) {
+                                onToggled(option.trackerId)
+                            } else {
+                                onSelected(option.trackerId)
+                            }
+                        }
+                    },
+                    label = { Text(option.displayName, maxLines = 1) },
+                    modifier = Modifier.testTag(
+                        trackingAnalyticsTrackerOptionTag(option.trackerId)
                     )
-                }
+                )
             }
         }
     }
@@ -317,42 +325,24 @@ private fun AggregationSelector(
     selected: AggregationOperation,
     onSelected: (AggregationOperation) -> Unit
 ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             stringResource(R.string.tracking_analytics_aggregation),
             style = MaterialTheme.typography.labelLarge
         )
-        Box {
-            OutlinedButton(
-                onClick = { expanded = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag(TRACKING_ANALYTICS_AGGREGATION_TAG)
-            ) {
-                Text(
-                    selected.displayName(),
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1
-                )
-                Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                AggregationOperation.entries.forEach { operation ->
-                    DropdownMenuItem(
-                        text = { Text(operation.displayName()) },
-                        onClick = {
-                            expanded = false
-                            onSelected(operation)
-                        },
-                        modifier = Modifier.testTag(
-                            trackingAnalyticsAggregationTag(operation)
-                        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            AggregationOperation.entries.forEach { operation ->
+                FilterChip(
+                    selected = operation == selected,
+                    onClick = { onSelected(operation) },
+                    label = { Text(operation.displayName()) },
+                    modifier = Modifier.testTag(
+                        trackingAnalyticsAggregationTag(operation)
                     )
-                }
+                )
             }
         }
     }
@@ -465,17 +455,10 @@ private fun ChartTypeSelector(
 }
 
 @Composable
-private fun SeriesCard(state: TrackingAnalyticsUiState) {
-    val series = state.data?.series
-    val values = series?.points
-        ?.filter { it.sampleCount > 0 && it.value != null }
-        ?.map { point ->
-            TrackingChartValue(
-                label = point.startDate.shortLabel(state.range),
-                value = requireNotNull(point.value)
-            )
-        }
-        .orEmpty()
+private fun MultiSeriesCard(state: TrackingAnalyticsUiState) {
+    val data = state.data ?: return
+    val multiSeries = data.multiSeries
+
     val title = stringResource(
         R.string.tracking_analytics_series_title,
         state.range.displayName(),
@@ -489,18 +472,50 @@ private fun SeriesCard(state: TrackingAnalyticsUiState) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
-            when (state.chartType) {
-                TrackingAnalyticsChartType.LINE -> TrackingLineChart(
-                    values = values,
-                    title = title,
-                    modifier = Modifier.padding(top = 12.dp)
-                )
 
-                TrackingAnalyticsChartType.BAR -> TrackingBarChart(
-                    values = values,
+            // Multi-series chart (2+ trackers)
+            if (multiSeries != null && multiSeries.seriesList.size >= 2) {
+                val seriesValuesList = multiSeries.seriesList.map { series ->
+                    series.points
+                        .filter { it.sampleCount > 0 && it.value != null }
+                        .map { point ->
+                            TrackingChartValue(
+                                label = point.startDate.shortLabel(state.range),
+                                value = requireNotNull(point.value)
+                            )
+                        }
+                }
+                TrackingMultiLineChart(
+                    seriesList = seriesValuesList,
+                    trackerNames = multiSeries.trackerNames,
                     title = title,
                     modifier = Modifier.padding(top = 12.dp)
                 )
+            }
+            // Single-series chart (1 tracker or fallback)
+            else {
+                val series = data.series
+                val values = series?.points
+                    ?.filter { it.sampleCount > 0 && it.value != null }
+                    ?.map { point ->
+                        TrackingChartValue(
+                            label = point.startDate.shortLabel(state.range),
+                            value = requireNotNull(point.value)
+                        )
+                    }
+                    .orEmpty()
+                when (state.chartType) {
+                    TrackingAnalyticsChartType.LINE -> TrackingLineChart(
+                        values = values,
+                        title = title,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                    TrackingAnalyticsChartType.BAR -> TrackingBarChart(
+                        values = values,
+                        title = title,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
             }
         }
     }
@@ -551,8 +566,8 @@ private fun formatMetric(value: Double?, unit: String?): String {
 private fun LocalDate.shortLabel(range: TrackingAnalyticsRange): String = when (range) {
     TrackingAnalyticsRange.DAY,
     TrackingAnalyticsRange.WEEK -> "${month.ordinal + 1}/$day"
-
-    TrackingAnalyticsRange.MONTH ->
+    TrackingAnalyticsRange.MONTH,
+    TrackingAnalyticsRange.YEAR ->
         "$year-${(month.ordinal + 1).toString().padStart(2, '0')}"
 }
 
@@ -562,6 +577,7 @@ private fun TrackingAnalyticsRange.displayName(): String = stringResource(
         TrackingAnalyticsRange.DAY -> R.string.tracking_analytics_range_day
         TrackingAnalyticsRange.WEEK -> R.string.tracking_analytics_range_week
         TrackingAnalyticsRange.MONTH -> R.string.tracking_analytics_range_month
+        TrackingAnalyticsRange.YEAR -> R.string.tracking_analytics_range_year
     }
 )
 

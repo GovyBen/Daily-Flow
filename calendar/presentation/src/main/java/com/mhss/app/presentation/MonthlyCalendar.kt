@@ -56,6 +56,7 @@ fun MonthlyCalendar(
     modifier: Modifier = Modifier,
     loadedMonths: SnapshotStateMap<YearMonth, CalendarMonth>,
     trackingDates: Set<LocalDate>,
+    trackingValuesByDate: Map<LocalDate, List<CalendarTrackingValue>> = emptyMap(),
     onLoadMonth: (YearMonth) -> Unit,
     initialMonth: LocalDate,
     selectedDate: LocalDate,
@@ -137,11 +138,13 @@ fun MonthlyCalendar(
                         items = monthData.days,
                         key = { it.date.toEpochDays() }
                     ) { day ->
+                        val dayValues = trackingValuesByDate[day.date].orEmpty()
                         CalendarDayCell(
                             day = day,
                             hasTrackingRecords = day.date in trackingDates,
                             isSelected = day.date == selectedDate,
                             isToday = day.date == today,
+                            trackingValues = dayValues,
                             onDaySelected = {
                                 onDaySelected(it.date)
                                 if (!it.isCurrentMonth) {
