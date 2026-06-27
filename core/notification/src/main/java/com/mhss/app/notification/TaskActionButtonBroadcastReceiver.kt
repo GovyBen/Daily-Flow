@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.mhss.app.daily.domain.usecase.CompleteDailyItemUseCase
 import com.mhss.app.domain.model.Task
 import com.mhss.app.domain.use_case.GetTaskByAlarmUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
@@ -19,6 +20,7 @@ import org.koin.core.qualifier.named
 class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
 
     private val updateTaskCompleted: UpdateTaskCompletedUseCase by inject()
+    private val completeDailyItem: CompleteDailyItemUseCase by inject()
     private val getTaskById: GetTaskByIdUseCase by inject()
     private val getTaskByAlarm: GetTaskByAlarmUseCase by inject()
     private val ioDispatcher: CoroutineDispatcher by inject(named("ioDispatcher"))
@@ -29,6 +31,18 @@ class TaskActionButtonBroadcastReceiver : BroadcastReceiver(), KoinComponent {
             val pendingResult = goAsync()
             scope.launch(ioDispatcher) {
                 try {
+                    val dailyItemId = intent.getStringExtra(Constants.DAILY_ITEM_ID_EXTRA)
+                    if (dailyItemId != null) {
+                        completeDailyItem(dailyItemId)
+                        val manager =
+                            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                        val notificationId = intent.getIntExtra(
+                            Constants.ALARM_ID_EXTRA,
+                            -1
+                        ).takeIf { it != -1 } ?: return@launch
+                        manager.cancel(notificationId)
+                        return@launch
+                    }
                     val task = intent.getTaskBackwardsCompat() ?: return@launch
                     updateTaskCompleted(task, true)
                     val manager =

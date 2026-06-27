@@ -1,17 +1,35 @@
 # Daily Flow 开发进度
 
-更新日期：2026-06-17
+更新日期：2026-06-27
 
 ## 当前里程碑
 
-- 当前阶段：P8 发布准备已完成 🎉
+- 当前阶段：P9 统一事项与首页自定义体验重构（规划完成，待实施）
 - 已完成：DF-001 至 DF-011、DF-013 至 DF-015、DF-101 至 DF-110、
   DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-408、DF-501 至 DF-509、
-  DF-601 至 DF-607、DF-701 至 DF-706、DF-801 至 DF-806
-- 遗留项：DF-006（CI Runner 验证）
-- 下一阶段：v1.0 正式发布
+  DF-601 至 DF-607、DF-701 至 DF-706、DF-801 至 DF-806、DF-901 至 DF-906、
+  DF-910、DF-1001 至 DF-1004
+- 规划完成：P9 统一事项中心、App -> 系统日历单向同步、首页面板可编辑、
+  事项范围显示与筛选
+- 下一阶段：按 `doc_for_hermes/P9_UNIFIED_DAILY_ITEMS_PLAN.md` 执行 DF-1101 起的开发
 
 ## 当前任务进度
+
+### 2026-06-27 状态校准与 P9 规划
+
+- 已确认：用户希望 Calendar 与 Tasks 合并为 app 内统一“事项”模块；Daily Flow 内部事项
+  是主数据源，系统 Calendar Provider 仅作为可选同步目标，不反向覆盖 app 数据。
+- 已确认：旧 Tasks 的范围筛选不再单独实现，改为在统一“事项”模块完成后直接提供今日、
+  前后 7 天、本周、本月、逾期、无日期和自定义范围筛选。
+- 已确认：首页 Dashboard 需要可编辑：第一版实现面板显示/隐藏、上移/下移、范围与条数配置；
+  拖拽布局后置。
+- 已确认：语音识别暂不纳入 P9 开发计划，仅保留系统语音、云端 STT、本地 Whisper/Vosk/
+  sherpa-onnx 等方案评估。
+- 已完成：新增详细 P9 开发计划 `doc_for_hermes/P9_UNIFIED_DAILY_ITEMS_PLAN.md`，
+  包含领域模型、Room 迁移、提醒改造、日历同步、UI、首页自定义、测试和雷电验证路径。
+- 已注意：现有 AI Proposal 领域层 `ProposalExecutor` 已存在，但 Assistant 确认弹窗目前仍需
+  单独复核是否真正调用 executor；番茄钟目前主要是本地 ViewModel 计时，前台服务/持久化不作为
+  P9 前置。
 
 ### DF-405 任务多提醒迁移
 
@@ -277,22 +295,27 @@
 - JSON 备份 v2：含 reminders、schema version、排除 secret
 - 恢复预检和原子恢复：版本校验、数量预览、失败不破坏数据库
 - Release 网络安全加固：禁止 cleartext、exported 组件审查
+- Scale 字段显示/保存修正、AI 悬浮入口、番茄钟入口、AI 提案确认弹窗
+- tracking 多 tracker 叠加折线、YEAR 范围、日历记录值显示和 Dashboard sparkline
 - 雷电模拟器构建、安装、启动和日志收集脚本
 
 ## 发布路径
 
 1. ~~完成 P3 统计与 CSV、P4 多提醒、P5 AI 提案确认、P6 备份与安全。~~ ✅
-2. 完成 P7 集成回归、性能和无障碍。
-3. 完成 P8 release、GitHub Beta 和 F-Droid 准备。
+2. ~~完成 P7 集成回归、性能和无障碍。~~ ✅
+3. ~~完成 P8 release、GitHub Beta 和 F-Droid 准备。~~ ✅
+4. 执行 P9 统一事项与首页自定义体验重构，完成后再进入下一轮 Beta 体验验证。
 
 ## 当前风险
 
-- DF-012 Provider 契约测试尚未补齐。
-- DF-005 品牌变更并存安装验证尚待完成。
-- DF-006 CI 远程 Runner 首次验证尚待完成。
+- AI Proposal 领域执行器已存在，但 Assistant 确认弹窗是否真正执行 proposal 仍需复核。
+- 番茄钟已具备页面与本地计时，前台服务、通知和持久化会话尚未闭环。
+- 记录提示已有通知/deep-link 支持，但模板级周期配置入口需在后续提醒体验中复核。
+- DF-006 已有 lint 修复提交；远程 CI Runner 首次验证仍需在 GitHub/CI 环境确认。
 - 根级全模块 instrumentation APK 组装仍受 AI 模块 Netty `META-INF/INDEX.LIST`
   重复资源影响；app instrumentation APK 可正常组装。
 - 雷电 Launcher3 不支持 `requestPinAppWidget`，widget 已通过系统绑定实例验证；
-  Beta 前需在支持固定小组件的真实 Launcher 上复验添加流程。
-- 雷电可用于快速回归，但 Beta 前仍需真实 Android 设备验证提醒、Keystore 和生物识别。
+  下一轮 Beta 前需在支持固定小组件的真实 Launcher 上复验添加流程。
+- 雷电可用于快速回归，但下一轮 Beta 前仍需真实 Android 设备验证提醒、Keystore、生物识别
+  和 Calendar Provider 同步行为。
 - 开发工作区位于同步盘；本机构建时需暂停百度同步，避免生成文件被短暂锁定。

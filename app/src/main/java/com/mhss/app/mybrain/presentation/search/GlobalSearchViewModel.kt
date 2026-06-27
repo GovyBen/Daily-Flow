@@ -2,6 +2,9 @@ package com.mhss.app.mybrain.presentation.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mhss.app.daily.domain.model.DailyItem
+import com.mhss.app.daily.domain.model.DailyItemLegacySourceType
+import com.mhss.app.daily.domain.usecase.SearchDailyItemsUseCase
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.model.Note
@@ -28,6 +31,7 @@ import java.time.temporal.ChronoUnit
 @KoinViewModel
 class GlobalSearchViewModel(
     private val searchTasks: SearchTasksUseCase,
+    private val searchDailyItems: SearchDailyItemsUseCase,
     private val searchEntries: SearchEntriesUseCase,
     private val searchNotes: SearchNotesUseCase,
     private val searchEventsByTitle: SearchEventsByTitleWithinRangeUseCase,
@@ -65,6 +69,7 @@ class GlobalSearchViewModel(
         searchJob = viewModelScope.launch {
             try {
                 val tasksDeferred = async { searchTasks(normalizedQuery).first() }
+                val dailyItemsDeferred = async { searchDailyItems(normalizedQuery) }
                 val entriesDeferred = async { searchEntries(normalizedQuery) }
                 val notesDeferred = async { searchNotes(normalizedQuery) }
                 val eventsDeferred = async {
@@ -77,6 +82,7 @@ class GlobalSearchViewModel(
                 }
 
                 val tasks = tasksDeferred.await()
+                val dailyItems = dailyItemsDeferred.await()
                 val entries = entriesDeferred.await()
                 val notes = notesDeferred.await()
                 val events = eventsDeferred.await()
@@ -87,8 +93,15 @@ class GlobalSearchViewModel(
                         record.note?.contains(normalizedQuery, ignoreCase = true) == true
                 }
 
+                val migratedTaskIds = dailyItems.mapNotNull { item ->
+                    item.legacySource
+                        ?.takeIf { it.type == DailyItemLegacySourceType.TASK }
+                        ?.id
+                }.toSet()
+
                 val results = buildList {
-                    addAll(tasks.map { it.toSearchResult() })
+                    addAll(dailyItems.map { it.toSearchResult() })
+                    addAll(tasks.filterNot { it.id in migratedTaskIds }.map { it.toSearchResult() })
                     addAll(events.map { it.toSearchResult() })
                     addAll(matchingRecords.map { it.toSearchResult() })
                     addAll(entries.map { it.toSearchResult() })
@@ -124,6 +137,7 @@ sealed class SearchResult(
 ) {
     val sortPriority: Int
         get() = when (this) {
+            is DailyItemResult -> 5
             is TaskResult -> 4
             is EventResult -> 3
             is DiaryResult -> 2
@@ -140,6 +154,17 @@ sealed class SearchResult(
         type = SearchResultType.TASKS,
         title = taskTitle,
         subtitle = taskSubtitle
+    )
+
+    data class DailyItemResult(
+        val itemId: String,
+        val itemTitle: String,
+        val itemSubtitle: String
+    ) : SearchResult(
+        id = itemId,
+        type = SearchResultType.DAILY_ITEMS,
+        title = itemTitle,
+        subtitle = itemSubtitle
     )
 
     data class EventResult(
@@ -190,7 +215,18 @@ sealed class SearchResult(
 }
 
 enum class SearchResultType {
-    TASKS, EVENTS, DIARY, NOTES, RECORDS
+    DAILY_ITEMS, TASKS, EVENTS, DIARY, NOTES, RECORDS
+}
+
+private fun DailyItem.toSearchResult(): SearchResult.DailyItemResult {
+    val time = primaryTimeEpochMilli?.let { " | ${java.util.Date(it)}" }.orEmpty()
+    val subtitle = description.takeIf(String::isNotBlank)?.take(80)
+        ?: "${kind.name.lowercase().replaceFirstChar(Char::uppercase)}$time"
+    return SearchResult.DailyItemResult(
+        itemId = id,
+        itemTitle = title,
+        itemSubtitle = subtitle
+    )
 }
 
 private fun Task.toSearchResult(): SearchResult.TaskResult {

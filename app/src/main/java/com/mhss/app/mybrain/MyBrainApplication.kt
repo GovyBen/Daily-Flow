@@ -23,6 +23,9 @@ import com.mhss.app.data.noteDataModule
 import com.mhss.app.data.noteMarkdownModule
 import com.mhss.app.data.noteRoomModule
 import com.mhss.app.data.tasksDataModule
+import com.mhss.app.daily.data.dailyModule
+import com.mhss.app.daily.domain.usecase.EnsureDefaultDashboardPanelsUseCase
+import com.mhss.app.daily.domain.usecase.MigrateLegacyTasksToDailyItemsUseCase
 import com.mhss.app.database.di.databaseModule
 import com.mhss.app.di.coroutinesModule
 import com.mhss.app.mybrain.di.MainPresentationModule
@@ -68,6 +71,8 @@ class MyBrainApplication : Application() {
     private val legacySecretMigration: LegacySecretMigration by inject()
     private val defaultTrackingTemplateInitializer: DefaultTrackingTemplateInitializer by inject()
     private val migrateLegacyTaskAlarms: MigrateLegacyTaskAlarmsUseCase by inject()
+    private val migrateLegacyTasksToDailyItems: MigrateLegacyTasksToDailyItemsUseCase by inject()
+    private val ensureDefaultDashboardPanels: EnsureDefaultDashboardPanelsUseCase by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -94,6 +99,7 @@ class MyBrainApplication : Application() {
                 settingsDataModule,
                 CalendarPresentationModule().module,
                 calendarDataModule,
+                dailyModule,
                 BookmarksPresentationModule().module,
                 bookmarksDataModule,
                 WidgetModule().module,
@@ -123,6 +129,16 @@ class MyBrainApplication : Application() {
                 Log.e(
                     "TaskAlarmMigration",
                     "Legacy task alarm migration will retry on the next launch.",
+                    it
+                )
+            }
+            runCatching {
+                ensureDefaultDashboardPanels()
+                migrateLegacyTasksToDailyItems()
+            }.onFailure {
+                Log.e(
+                    "DailyItemsMigration",
+                    "Daily Items startup migration will retry on the next launch.",
                     it
                 )
             }

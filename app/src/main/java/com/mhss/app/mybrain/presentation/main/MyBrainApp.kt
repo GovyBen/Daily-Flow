@@ -33,6 +33,10 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.mhss.app.mybrain.presentation.app_lock.AppLockManager
 import com.mhss.app.mybrain.presentation.app_lock.AuthScreen
+import com.mhss.app.daily.presentation.DailyItemDetailsScreen
+import com.mhss.app.daily.presentation.DailyItemEditorScreen
+import com.mhss.app.daily.presentation.DailyItemsScreen
+import com.mhss.app.daily.presentation.DashboardEditScreen
 import com.mhss.app.mybrain.content.domain.ContentType
 import com.mhss.app.mybrain.content.presentation.ContentLibraryScreen
 import com.mhss.app.mybrain.pomodoro.PomodoroScreen
@@ -199,6 +203,60 @@ fun MyBrainApp(
                     exitTransition = { slideDownTransition() },
                 ) {
                     TasksSearchScreen(navController = navController)
+                }
+                composable<Screen.DailyItemsScreen>(
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern = Constants.DAILY_ITEMS_URI
+                        }
+                    ),
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    DailyItemsScreen(
+                        onBack = navController::navigateUp,
+                        onOpenItem = { itemId ->
+                            navController.navigate(Screen.DailyItemDetailsScreen(itemId))
+                        },
+                        onCreateItem = {
+                            navController.navigate(Screen.DailyItemEditorScreen())
+                        }
+                    )
+                }
+                composable<Screen.DailyItemDetailsScreen>(
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern =
+                                "${Constants.DAILY_ITEM_DETAILS_URI}/{itemId}"
+                        }
+                    ),
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.DailyItemDetailsScreen>()
+                    DailyItemDetailsScreen(
+                        itemId = args.itemId,
+                        onBack = navController::navigateUp,
+                        onEdit = { itemId ->
+                            navController.navigate(Screen.DailyItemEditorScreen(itemId))
+                        }
+                    )
+                }
+                composable<Screen.DailyItemEditorScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    val args = it.toRoute<Screen.DailyItemEditorScreen>()
+                    DailyItemEditorScreen(
+                        itemId = args.itemId,
+                        onBack = navController::navigateUp
+                    )
+                }
+                composable<Screen.DashboardEditScreen>(
+                    enterTransition = { slideInTransition() },
+                    exitTransition = { slideOutTransition() },
+                ) {
+                    DashboardEditScreen(onBack = navController::navigateUp)
                 }
                 composable<Screen.NotesScreen>(
                     enterTransition = { slideInTransition() },

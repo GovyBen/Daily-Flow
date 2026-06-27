@@ -1,5 +1,46 @@
 # Daily Flow Changelog
 
+## v0.11.0 — Unified Daily Items Preview (2026-06-27)
+
+### Overview
+
+Daily Flow v0.11.0 is the first public preview of the P9 experience
+restructure. It introduces the new unified Daily Items module, editable
+dashboard panels, App-to-system-calendar sync metadata, and the first migration
+path from legacy tasks into Daily Items.
+
+This release is based on the current P9 worktree and has been validated on
+LDPlayer 9 using `com.dailyflow.app.debug`.
+
+### Highlights
+
+- Added the `daily` feature module for unified Daily Items.
+- Added Daily Item domain models, filters, ranges, validation, use cases, and
+  Room-backed repositories.
+- Added Daily Items list, editor, details, range filters, search, completion,
+  and month view.
+- Added Dashboard panel persistence and editable overview panel configuration.
+- Added App -> system calendar sync state tracking for Daily Items.
+- Added database schema v9, entities, DAOs, migrations, and migration tests for
+  Daily Items and Dashboard panels.
+- Extended reminder target handling to support Daily Items.
+- Extended backup import/export models for Daily Items and Dashboard panel data.
+- Updated navigation to the P9 structure: Overview, Items, Records, Settings.
+- Added LDPlayer manual test report for the v0.11.0 release candidate.
+
+### Known Issues
+
+- Calendar sync on a fresh install can fail until calendar runtime permissions
+  are granted; the app currently records a failed sync state instead of guiding
+  the user through permission grant.
+- The selected bottom navigation indicator is visually oversized on LDPlayer
+  1080x1920 and can overlap lower content.
+- Several new P9 strings remain in English in zh-CN UI.
+- The previous `BETA_TEST_PLAN.md` is stale for the new P9 navigation and needs
+  a full rewrite.
+
+---
+
 ## v0.1.0-beta — P8 Release Preparation (2026-06-17)
 
 ### Overview
@@ -142,28 +183,44 @@ widget capabilities.
 
 ---
 
-### P8 — Release Preparation (Current)
+### P8 — Release Preparation
 
 - **DF-801**: Dependency & license audit — all 17 direct dependencies
   confirmed Apache 2.0 or MIT, F-Droid and GPLv3 compatible.
 - **DF-802**: Release signing configuration — env-var and local.properties
   based, no hardcoded paths.
 - **DF-803**: Changelog and release documentation.
-- **DF-804**: (Pending) GitHub release creation.
-- **DF-805**: (Pending) F-Droid metadata preparation.
-- **DF-806**: (Pending) Beta distribution.
+- **DF-804**: F-Droid metadata preparation.
+- **DF-805**: Beta validation using LDPlayer.
+- **DF-806**: v1.1 encryption research and post-beta planning.
+
+### Post-Beta UX Experiments
+
+- **DF-901..906**: Scale field fixes, AI floating entry, enhanced AI prompt,
+  and Pomodoro entry.
+- **DF-910**: AI proposal confirmation dialog.
+- **DF-1001..1004**: Multi-tracker overlay chart, YEAR range, calendar
+  tracking values, and dashboard sparklines.
+
+### Next Planned Phase
+
+- **P9**: Unified Daily Items and editable Dashboard. See
+  `doc_for_hermes/P9_UNIFIED_DAILY_ITEMS_PLAN.md`.
 
 ---
 
 ### Known Issues & Limitations
 
-- DF-012: AI provider contract tests not yet complete.
-- DF-005: Brand-change side-by-side install verification pending.
-- DF-006: CI remote runner verification pending.
+- AI proposal confirmation dialog needs an execution-path audit to verify it
+  invokes the domain `ProposalExecutor`.
+- Pomodoro currently has a local timer UI; foreground service, notification,
+  and persisted sessions remain future work.
+- DF-006 lint fixes are committed; remote CI runner validation still needs
+  external CI confirmation.
 - Launcher3 (LDPlayer) does not support `requestPinAppWidget` — needs
   verification on real device launcher.
 - Physical device validation needed for reminders, keystore, and
-  biometric integration.
+  biometric integration before the next public beta.
 
 ---
 

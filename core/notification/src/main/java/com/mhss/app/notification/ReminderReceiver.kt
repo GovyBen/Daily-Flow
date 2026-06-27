@@ -7,6 +7,7 @@ import android.content.Intent
 import android.util.Log
 import com.mhss.app.alarm.model.ReminderTargetType
 import com.mhss.app.alarm.use_case.TriggerReminderUseCase
+import com.mhss.app.daily.domain.usecase.GetDailyItemUseCase
 import com.mhss.app.domain.use_case.GetCalendarEventByIdUseCase
 import com.mhss.app.domain.use_case.GetTaskByIdUseCase
 import com.mhss.app.util.Constants
@@ -20,6 +21,7 @@ class ReminderReceiver : BroadcastReceiver(), KoinComponent {
 
     private val triggerReminder: TriggerReminderUseCase by inject()
     private val getTaskById: GetTaskByIdUseCase by inject()
+    private val getDailyItem: GetDailyItemUseCase by inject()
     private val getCalendarEventById: GetCalendarEventByIdUseCase by inject()
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -50,6 +52,16 @@ class ReminderReceiver : BroadcastReceiver(), KoinComponent {
                         if (task != null) {
                             manager.sendReminderNotification(
                                 task = task,
+                                context = context,
+                                reminderId = notificationId
+                            )
+                        }
+                    }
+                    ReminderTargetType.DAILY_ITEM -> {
+                        val item = getDailyItem(reminder.targetId)
+                        if (item != null) {
+                            manager.sendDailyItemReminderNotification(
+                                item = item,
                                 context = context,
                                 reminderId = notificationId
                             )

@@ -7,6 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mhss.app.alarm.model.Reminder
 import com.mhss.app.alarm.repository.ReminderRepository
+import com.mhss.app.daily.domain.model.DashboardPanel
+import com.mhss.app.daily.domain.usecase.EnsureDefaultDashboardPanelsUseCase
+import com.mhss.app.daily.domain.usecase.ObserveDashboardPanelsUseCase
 import com.mhss.app.domain.model.CalendarEvent
 import com.mhss.app.domain.model.DiaryEntry
 import com.mhss.app.domain.model.Task
@@ -49,7 +52,9 @@ class MainViewModel(
     private val getAllEntriesUseCase: GetAllEntriesUseCase,
     private val completeTask: UpdateTaskCompletedUseCase,
     private val getAllEventsUseCase: GetAllEventsUseCase,
-    private val reminderRepository: ReminderRepository
+    private val reminderRepository: ReminderRepository,
+    private val observeDashboardPanels: ObserveDashboardPanelsUseCase,
+    private val ensureDefaultDashboardPanels: EnsureDefaultDashboardPanelsUseCase
 ) : ViewModel() {
 
     var uiState by mutableStateOf(UiState())
@@ -83,7 +88,8 @@ class MainViewModel(
         val dashBoardEvents: Map<String, List<CalendarEvent>> = emptyMap(),
         val summaryTasks: List<Task> = emptyList(),
         val dashBoardEntries: List<DiaryEntry> = emptyList(),
-        val pendingReminders: List<Reminder> = emptyList()
+        val pendingReminders: List<Reminder> = emptyList(),
+        val dashboardPanels: List<DashboardPanel> = emptyList()
     )
 
     private fun getCalendarEvents() = viewModelScope.launch {
@@ -100,6 +106,7 @@ class MainViewModel(
     }
 
     private fun collectDashboardData() = viewModelScope.launch {
+        ensureDefaultDashboardPanels()
         loadPendingReminders()
         combine(
             getPreference(
@@ -110,10 +117,12 @@ class MainViewModel(
                 booleanPreferencesKey(PrefsConstants.SHOW_COMPLETED_TASKS_KEY),
                 false
             ),
-            getAllEntriesUseCase(Order.DateCreated(OrderType.ASC))
-        ) { order, showCompleted, entries ->
+            getAllEntriesUseCase(Order.DateCreated(OrderType.ASC)),
+            observeDashboardPanels()
+        ) { order, showCompleted, entries, panels ->
             uiState = uiState.copy(
                 dashBoardEntries = entries,
+                dashboardPanels = panels,
             )
             refreshTasks(order.toOrder(), showCompleted)
         }.collect()

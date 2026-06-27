@@ -430,3 +430,190 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
         )
     }
 }
+
+val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `daily_items` (
+                `id` TEXT NOT NULL,
+                `title` TEXT NOT NULL,
+                `description` TEXT NOT NULL DEFAULT '',
+                `kind` TEXT NOT NULL,
+                `start_at` INTEGER,
+                `end_at` INTEGER,
+                `due_at` INTEGER,
+                `all_day` INTEGER NOT NULL DEFAULT 0,
+                `time_zone_id` TEXT NOT NULL,
+                `is_completable` INTEGER NOT NULL DEFAULT 1,
+                `completed_at` INTEGER,
+                `status` TEXT NOT NULL,
+                `priority` TEXT NOT NULL,
+                `recurrence_frequency` TEXT,
+                `recurrence_interval` INTEGER,
+                `recurrence_week_days` TEXT NOT NULL DEFAULT '[]',
+                `color` INTEGER,
+                `sub_tasks_json` TEXT NOT NULL DEFAULT '[]',
+                `legacy_source_type` TEXT,
+                `legacy_source_id` TEXT,
+                `created_at` INTEGER NOT NULL,
+                `updated_at` INTEGER NOT NULL,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_daily_items_status_due_at`
+            ON `daily_items` (`status`, `due_at`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_daily_items_status_start_at`
+            ON `daily_items` (`status`, `start_at`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_daily_items_completed_at`
+            ON `daily_items` (`completed_at`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS `index_daily_items_legacy_source_type_legacy_source_id`
+            ON `daily_items` (`legacy_source_type`, `legacy_source_id`)
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `daily_item_calendar_sync` (
+                `item_id` TEXT NOT NULL,
+                `enabled` INTEGER NOT NULL DEFAULT 0,
+                `system_calendar_id` INTEGER,
+                `system_event_id` INTEGER,
+                `state` TEXT NOT NULL,
+                `last_synced_at` INTEGER,
+                `last_local_fingerprint` TEXT,
+                `last_provider_fingerprint` TEXT,
+                `last_error` TEXT,
+                `updated_at` INTEGER NOT NULL,
+                PRIMARY KEY(`item_id`),
+                FOREIGN KEY(`item_id`) REFERENCES `daily_items`(`id`)
+                    ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_daily_item_calendar_sync_enabled_state`
+            ON `daily_item_calendar_sync` (`enabled`, `state`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS `index_daily_item_calendar_sync_system_event_id`
+            ON `daily_item_calendar_sync` (`system_event_id`)
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `dashboard_panels` (
+                `id` TEXT NOT NULL,
+                `type` TEXT NOT NULL,
+                `enabled` INTEGER NOT NULL,
+                `display_order` INTEGER NOT NULL,
+                `size` TEXT NOT NULL,
+                `config_json` TEXT NOT NULL,
+                `created_at` INTEGER NOT NULL,
+                `updated_at` INTEGER NOT NULL,
+                PRIMARY KEY(`id`)
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_dashboard_panels_enabled_display_order`
+            ON `dashboard_panels` (`enabled`, `display_order`)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS `index_dashboard_panels_type`
+            ON `dashboard_panels` (`type`)
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            INSERT OR IGNORE INTO `daily_items` (
+                `id`,
+                `title`,
+                `description`,
+                `kind`,
+                `due_at`,
+                `all_day`,
+                `time_zone_id`,
+                `is_completable`,
+                `completed_at`,
+                `status`,
+                `priority`,
+                `recurrence_frequency`,
+                `recurrence_interval`,
+                `sub_tasks_json`,
+                `legacy_source_type`,
+                `legacy_source_id`,
+                `created_at`,
+                `updated_at`
+            )
+            SELECT
+                `id`,
+                `title`,
+                `description`,
+                'TASK',
+                CASE WHEN `dueDate` = 0 THEN NULL ELSE `dueDate` END,
+                0,
+                'SYSTEM',
+                1,
+                CASE WHEN `is_completed` = 1 THEN `updated_date` ELSE NULL END,
+                CASE WHEN `is_completed` = 1 THEN 'COMPLETED' ELSE 'ACTIVE' END,
+                CASE `priority` WHEN 2 THEN 'HIGH' WHEN 1 THEN 'MEDIUM' ELSE 'LOW' END,
+                CASE
+                    WHEN `recurring` = 1 THEN
+                        CASE `frequency`
+                            WHEN 0 THEN 'EVERY_MINUTES'
+                            WHEN 1 THEN 'HOURLY'
+                            WHEN 2 THEN 'DAILY'
+                            WHEN 3 THEN 'WEEKLY'
+                            WHEN 4 THEN 'MONTHLY'
+                            WHEN 5 THEN 'YEARLY'
+                            ELSE 'DAILY'
+                        END
+                    ELSE NULL
+                END,
+                CASE WHEN `recurring` = 1 THEN `frequency_amount` ELSE NULL END,
+                `sub_tasks`,
+                'TASK',
+                `id`,
+                `created_date`,
+                `updated_date`
+            FROM `tasks`
+            """.trimIndent()
+        )
+
+        db.execSQL(
+            """
+            UPDATE `reminders`
+            SET `target_type` = 'DAILY_ITEM'
+            WHERE `target_type` = 'TASK'
+                AND `target_id` IN (
+                    SELECT `id` FROM `daily_items`
+                    WHERE `legacy_source_type` = 'TASK'
+                )
+            """.trimIndent()
+        )
+    }
+}

@@ -197,6 +197,7 @@ private fun SearchResultsList(
 ) {
     val grouped = remember(results) { results.groupBy { it.type } }
     val typeOrder = listOf(
+        SearchResultType.DAILY_ITEMS,
         SearchResultType.TASKS,
         SearchResultType.EVENTS,
         SearchResultType.RECORDS,
@@ -224,6 +225,8 @@ private fun SearchResultsList(
                     result = result,
                     onClick = {
                         when (result) {
+                            is SearchResult.DailyItemResult ->
+                                navController.navigate(Screen.DailyItemDetailsScreen(result.itemId))
                             is SearchResult.TaskResult ->
                                 navController.navigate(Screen.TaskDetailScreen(result.taskId))
                             is SearchResult.EventResult ->
@@ -260,6 +263,7 @@ private fun SearchResultsList(
 @Composable
 private fun SearchResultTypeHeader(type: SearchResultType) {
     val label = when (type) {
+        SearchResultType.DAILY_ITEMS -> stringResource(R.string.daily_items)
         SearchResultType.TASKS -> stringResource(R.string.tasks)
         SearchResultType.EVENTS -> stringResource(R.string.events)
         SearchResultType.DIARY -> stringResource(R.string.diary)
@@ -283,6 +287,7 @@ private fun SearchResultItem(
     val icon = result.type.toIcon()
     val iconDescription = result.type.toIconDescription()
     val typeLabel = when (result.type) {
+        SearchResultType.DAILY_ITEMS -> stringResource(R.string.daily_items)
         SearchResultType.TASKS -> stringResource(R.string.task)
         SearchResultType.EVENTS -> stringResource(R.string.event)
         SearchResultType.DIARY -> stringResource(R.string.diary)
@@ -325,6 +330,7 @@ private fun SearchResultItem(
 }
 
 private fun SearchResultType.toIcon(): ImageVector = when (this) {
+    SearchResultType.DAILY_ITEMS -> Icons.Rounded.CheckCircle
     SearchResultType.TASKS -> Icons.Rounded.CheckCircle
     SearchResultType.EVENTS -> Icons.Rounded.CalendarMonth
     SearchResultType.DIARY -> Icons.Rounded.MenuBook
@@ -333,6 +339,7 @@ private fun SearchResultType.toIcon(): ImageVector = when (this) {
 }
 
 private fun SearchResultType.toIconDescription(): String = when (this) {
+    SearchResultType.DAILY_ITEMS -> "Daily Item"
     SearchResultType.TASKS -> "Task"
     SearchResultType.EVENTS -> "Event"
     SearchResultType.DIARY -> "Diary"

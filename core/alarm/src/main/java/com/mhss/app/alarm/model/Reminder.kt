@@ -47,6 +47,7 @@ data class Reminder(
 
 enum class ReminderTargetType {
     TASK,
+    DAILY_ITEM,
     CALENDAR_EVENT,
     RECORD_PROMPT
 }

@@ -44,6 +44,22 @@ sealed class Screen {
     data object DashboardScreen : Screen()
 
     @Serializable
+    data object DashboardEditScreen : Screen()
+
+    @Serializable
+    data object DailyItemsScreen : Screen()
+
+    @Serializable
+    data class DailyItemDetailsScreen(
+        val itemId: String
+    ) : Screen()
+
+    @Serializable
+    data class DailyItemEditorScreen(
+        val itemId: String? = null
+    ) : Screen()
+
+    @Serializable
     data object SettingsScreen : Screen()
 
     @Serializable

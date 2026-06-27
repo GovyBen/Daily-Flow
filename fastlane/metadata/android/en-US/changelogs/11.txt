@@ -1,5 +1,5 @@
-- Added auto save to diary
-- Fixed auto save doesn't work when closing the app
-- Refined widgets UI
-- Performance improvements
-- Bug fixes
+- Added the new unified Daily Items preview.
+- Added Daily Items list, editor, filters, search, completion, and month view.
+- Added editable dashboard panel persistence.
+- Added App-to-system-calendar sync state tracking for Daily Items.
+- Added Room v9 migration and backup support for Daily Items.

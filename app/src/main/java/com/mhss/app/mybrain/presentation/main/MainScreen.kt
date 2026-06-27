@@ -25,8 +25,8 @@ fun MainScreen(
     val bottomNavItems =
         listOf(
             BottomNavItem.Dashboard,
-            BottomNavItem.Calendar,
-            BottomNavItem.Spaces,
+            BottomNavItem.Items,
+            BottomNavItem.Records,
             BottomNavItem.Settings
         )
     Scaffold(

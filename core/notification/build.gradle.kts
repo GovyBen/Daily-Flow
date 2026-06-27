@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":core:alarm"))
     implementation(project(":tasks:domain"))
     implementation(project(":calendar:domain"))
+    implementation(project(":daily"))
 
     implementation(platform(libs.koin.bom))
     implementation(libs.bundles.koin)

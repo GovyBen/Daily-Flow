@@ -36,8 +36,8 @@ android {
         applicationId = "com.dailyflow.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 11
+        versionName = "0.11.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -104,6 +104,7 @@ dependencies {
     implementation(project(":diary:presentation"))
     implementation(project(":settings:presentation"))
     implementation(project(":ai:presentation"))
+    implementation(project(":daily"))
 
     implementation(project(":notes:data"))
     implementation(project(":tasks:data"))

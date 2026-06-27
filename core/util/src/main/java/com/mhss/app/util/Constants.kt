@@ -5,6 +5,7 @@ object Constants {
     // Alarm & Notification
     const val REMINDERS_CHANNEL_ID = "reminders_notification_channel"
     const val TASK_ID_EXTRA = "task_Id"
+    const val DAILY_ITEM_ID_EXTRA = "daily_item_id"
     const val ALARM_ID_EXTRA = "alarm_Id"
     const val REMINDER_ID_EXTRA = "reminder_id"
     const val REMINDER_TRIGGER_AT_EXTRA = "reminder_trigger_at"
@@ -13,6 +14,8 @@ object Constants {
     // Navigation
     const val TASK_ID_ARG = "taskId"
     const val TASK_DETAILS_URI = "app://com.dailyflow.app.task_details"
+    const val DAILY_ITEM_DETAILS_URI = "app://com.dailyflow.app.daily_item_details"
+    const val DAILY_ITEMS_URI = "app://com.dailyflow.app.daily_items"
     const val ADD_TASK_ARG = "addTask"
     const val TASKS_SCREEN_URI = "app://com.dailyflow.app.tasks"
     const val CALENDAR_SCREEN_URI = "app://com.dailyflow.app.calendar"

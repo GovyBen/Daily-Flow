@@ -42,11 +42,21 @@ class ExportJsonDataUseCaseImpl(
                 val bookmarks = if (exportBookmarks) database.bookmarkDao().getAllFullBookmarks() else emptyList()
                 // P6: Include reminders
                 val reminders = database.reminderDao().getAll()
+                val dailyItems = if (exportTasks) database.dailyItemDao().getAll() else emptyList()
+                val dailyItemCalendarSync = if (exportTasks) {
+                    database.dailyItemDao().getAllCalendarSync()
+                } else {
+                    emptyList()
+                }
+                val dashboardPanels = database.dashboardPanelDao().getAll()
 
                 val backupData = JsonBackupData(
-                    schemaVersion = 2,
+                    schemaVersion = 3,
                     notes = notes, noteFolders = noteFolders, tasks = tasks,
-                    diary = diary, bookmarks = bookmarks, reminders = reminders
+                    diary = diary, bookmarks = bookmarks, reminders = reminders,
+                    dailyItems = dailyItems,
+                    dailyItemCalendarSync = dailyItemCalendarSync,
+                    dashboardPanels = dashboardPanels
                 )
 
                 val outputStream = context.contentResolver.openOutputStream(destination.uri)

@@ -6,12 +6,17 @@ import androidx.room.TypeConverters
 import com.mhss.app.database.converters.DBConverters
 import com.mhss.app.database.dao.AlarmDao
 import com.mhss.app.database.dao.BookmarkDao
+import com.mhss.app.database.dao.DailyItemDao
+import com.mhss.app.database.dao.DashboardPanelDao
 import com.mhss.app.database.dao.DiaryDao
 import com.mhss.app.database.dao.NoteDao
 import com.mhss.app.database.dao.ReminderDao
 import com.mhss.app.database.dao.TaskDao
 import com.mhss.app.database.entity.AlarmEntity
 import com.mhss.app.database.entity.BookmarkEntity
+import com.mhss.app.database.entity.DailyItemCalendarSyncEntity
+import com.mhss.app.database.entity.DailyItemEntity
+import com.mhss.app.database.entity.DashboardPanelEntity
 import com.mhss.app.database.entity.DiaryEntryEntity
 import com.mhss.app.database.entity.NoteEntity
 import com.mhss.app.database.entity.NoteFolderEntity
@@ -42,9 +47,12 @@ import com.mhss.app.tracking.data.database.entity.TrackerOptionEntity
         TemplateFieldEntity::class,
         TrackerOptionEntity::class,
         RecordSessionEntity::class,
-        DataPointEntity::class
+        DataPointEntity::class,
+        DailyItemEntity::class,
+        DailyItemCalendarSyncEntity::class,
+        DashboardPanelEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = true
 )
 @TypeConverters(DBConverters::class)
@@ -56,6 +64,8 @@ abstract class MyBrainDatabase : RoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun alarmDao(): AlarmDao
     abstract fun reminderDao(): ReminderDao
+    abstract fun dailyItemDao(): DailyItemDao
+    abstract fun dashboardPanelDao(): DashboardPanelDao
     abstract fun templateDao(): TrackingTemplateDao
     abstract fun trackerDao(): TrackingTrackerDao
     abstract fun sessionDao(): TrackingSessionDao

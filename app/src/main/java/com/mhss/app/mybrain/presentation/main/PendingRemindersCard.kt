@@ -98,6 +98,9 @@ fun PendingRemindersCard(
                         onClick = {
                             val route = when (reminder.targetType) {
                                 ReminderTargetType.TASK -> Screen.TaskDetailScreen(reminder.targetId)
+                                ReminderTargetType.DAILY_ITEM -> Screen.DailyItemDetailsScreen(
+                                    reminder.targetId
+                                )
                                 ReminderTargetType.CALENDAR_EVENT -> {
                                     val eventId = reminder.targetId.toLongOrNull()
                                     Screen.CalendarEventDetailsScreen(eventId)
@@ -126,6 +129,7 @@ private fun ReminderItem(
 ) {
     val (icon, label) = when (reminder.targetType) {
         ReminderTargetType.TASK -> Icons.Outlined.CheckCircle to taskLabel
+        ReminderTargetType.DAILY_ITEM -> Icons.Outlined.CheckCircle to taskLabel
         ReminderTargetType.CALENDAR_EVENT -> Icons.Outlined.CalendarToday to eventLabel
         ReminderTargetType.RECORD_PROMPT -> Icons.Outlined.Edit to promptLabel
     }

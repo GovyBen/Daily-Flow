@@ -3,7 +3,7 @@
 Daily Flow is an open-source, local-first Android app for tasks, calendar
 events, journaling, and structured daily tracking.
 
-The project is currently at the `v0.1.0` engineering-preview stage. The active
+The project is currently at the `v0.11.0` Daily Items preview stage. The active
 scope and implementation sequence are documented in:
 
 - `docs/DEVELOPMENT_PLAN.md`

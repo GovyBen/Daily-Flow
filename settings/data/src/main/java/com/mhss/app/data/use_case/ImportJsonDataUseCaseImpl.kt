@@ -38,7 +38,7 @@ class ImportJsonDataUseCaseImpl(
                 } ?: throw BackupDataException.CouldNotReadFile
 
                 // Pre-check
-                if (backupData.schemaVersion !in 1..2)
+                if (backupData.schemaVersion !in 1..3)
                     throw BackupDataException.GenericError()
 
                 database.withTransaction {
@@ -60,6 +60,25 @@ class ImportJsonDataUseCaseImpl(
                     }
                     database.diaryDao().upsertEntries(backupData.diary.map { it.copy(id = it.id.toUuidIfNumber()) })
                     database.bookmarkDao().upsertBookmarks(backupData.bookmarks.map { it.copy(id = it.id.toUuidIfNumber()) })
+
+                    if (backupData.schemaVersion >= 3) {
+                        database.dailyItemDao().upsertAll(
+                            backupData.dailyItems.map { dailyItem ->
+                                dailyItem.copy(id = dailyItem.id.toUuidIfNumber())
+                            }
+                        )
+                        database.dailyItemDao().upsertCalendarSync(
+                            backupData.dailyItemCalendarSync.map { sync ->
+                                sync.copy(
+                                    itemId = sync.itemId.toUuidIfNumber(),
+                                    enabled = false,
+                                    state = if (sync.systemEventId != null) "UNLINKED" else "NOT_SYNCED",
+                                    lastError = null
+                                )
+                            }
+                        )
+                        database.dashboardPanelDao().upsertAll(backupData.dashboardPanels)
+                    }
 
                     // P6: Import reminders (schema v2+)
                     if (backupData.schemaVersion >= 2) {
