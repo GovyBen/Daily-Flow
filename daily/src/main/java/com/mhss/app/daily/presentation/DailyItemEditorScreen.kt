@@ -39,10 +39,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mhss.app.daily.domain.model.DailyItemKind
 import com.mhss.app.daily.domain.model.DailyItemPriority
+import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.DateTimeDialog
+import com.mhss.app.util.permissions.Permission
+import com.mhss.app.util.permissions.rememberPermissionState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -71,6 +75,8 @@ fun DailyItemEditorScreen(
     var completable by rememberSaveable(item?.id) { mutableStateOf(true) }
     var syncToCalendar by rememberSaveable(item?.id) { mutableStateOf(false) }
     var pickerTarget by rememberSaveable { mutableStateOf<DateTarget?>(null) }
+    var pendingCalendarSyncEnable by rememberSaveable { mutableStateOf(false) }
+    val writeCalendarPermissionState = rememberPermissionState(Permission.WRITE_CALENDAR)
 
     LaunchedEffect(item, state.isLoading) {
         if (!initialized && !state.isLoading) {
@@ -90,7 +96,16 @@ fun DailyItemEditorScreen(
         }
     }
     LaunchedEffect(hasTimeBlock, hasDueDate) {
-        if (!hasTimeBlock && !hasDueDate) syncToCalendar = false
+        if (!hasTimeBlock && !hasDueDate) {
+            syncToCalendar = false
+            pendingCalendarSyncEnable = false
+        }
+    }
+    LaunchedEffect(writeCalendarPermissionState.isGranted, pendingCalendarSyncEnable) {
+        if (pendingCalendarSyncEnable && writeCalendarPermissionState.isGranted) {
+            syncToCalendar = true
+            pendingCalendarSyncEnable = false
+        }
     }
     LaunchedEffect(state.saved) {
         if (state.saved) onBack()
@@ -100,10 +115,21 @@ fun DailyItemEditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (itemId == null) "Create Daily Item" else "Edit Daily Item") },
+                title = {
+                    Text(
+                        stringResource(
+                            if (itemId == null) {
+                                R.string.daily_item_create_title
+                            } else {
+                                R.string.daily_item_edit_title
+                            }
+                        )
+                    )
+                },
                 navigationIcon = {
+                    val backContentDescription = stringResource(R.string.back)
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = backContentDescription)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -112,6 +138,7 @@ fun DailyItemEditorScreen(
             )
         },
         floatingActionButton = {
+            val saveContentDescription = stringResource(R.string.save)
             FloatingActionButton(
                 onClick = {
                     viewModel.save(
@@ -130,7 +157,7 @@ fun DailyItemEditorScreen(
                     )
                 }
             ) {
-                Icon(Icons.Rounded.Save, contentDescription = "Save")
+                Icon(Icons.Rounded.Save, contentDescription = saveContentDescription)
             }
         }
     ) { paddingValues ->
@@ -145,7 +172,7 @@ fun DailyItemEditorScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Title") },
+                label = { Text(stringResource(R.string.title)) },
                 isError = state.titleError,
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
@@ -154,14 +181,18 @@ fun DailyItemEditorScreen(
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Description") },
+                label = { Text(stringResource(R.string.description)) },
                 shape = RoundedCornerShape(12.dp),
                 minLines = 3,
                 modifier = Modifier.fillMaxWidth()
             )
-            EnumDropdown("Kind", kind, DailyItemKind.entries) { kind = it }
+            EnumDropdown(
+                label = stringResource(R.string.daily_item_kind),
+                value = kind,
+                entries = DailyItemKind.entries.map { it to stringResource(it.labelRes()) }
+            ) { kind = it }
             PriorityChips(priority = priority, onSelected = { priority = it })
-            ToggleRow("Has time block", hasTimeBlock) {
+            ToggleRow(stringResource(R.string.daily_item_has_time_block), hasTimeBlock) {
                 hasTimeBlock = it
                 if (it && startAt == null) {
                     startAt = now
@@ -169,25 +200,48 @@ fun DailyItemEditorScreen(
                 }
             }
             if (hasTimeBlock) {
-                DateRow("Start", startAt ?: now) { pickerTarget = DateTarget.START }
-                DateRow("End", endAt ?: ((startAt ?: now) + 60 * 60 * 1000L)) {
+                DateRow(stringResource(R.string.daily_item_start), startAt ?: now) {
+                    pickerTarget = DateTarget.START
+                }
+                DateRow(stringResource(R.string.daily_item_end), endAt ?: ((startAt ?: now) + 60 * 60 * 1000L)) {
                     pickerTarget = DateTarget.END
                 }
-                ToggleRow("All day", allDay) { allDay = it }
+                ToggleRow(stringResource(R.string.all_day), allDay) { allDay = it }
             }
-            ToggleRow("Has due date", hasDueDate) {
+            ToggleRow(stringResource(R.string.daily_item_has_due_date), hasDueDate) {
                 hasDueDate = it
                 if (it && dueAt == null) dueAt = now
             }
             if (hasDueDate) {
-                DateRow("Due", dueAt ?: now) { pickerTarget = DateTarget.DUE }
+                DateRow(stringResource(R.string.daily_item_due), dueAt ?: now) {
+                    pickerTarget = DateTarget.DUE
+                }
             }
-            ToggleRow("Completable", completable) { completable = it }
+            ToggleRow(stringResource(R.string.daily_item_completable), completable) { completable = it }
             ToggleRow(
-                label = "Sync to system calendar",
+                label = stringResource(R.string.daily_item_sync_to_calendar),
                 checked = syncToCalendar,
                 enabled = hasTimeBlock || hasDueDate
-            ) { syncToCalendar = it }
+            ) { checked ->
+                if (checked) {
+                    if (writeCalendarPermissionState.isGranted) {
+                        syncToCalendar = true
+                    } else {
+                        pendingCalendarSyncEnable = true
+                        writeCalendarPermissionState.launchRequest()
+                    }
+                } else {
+                    pendingCalendarSyncEnable = false
+                    syncToCalendar = false
+                }
+            }
+            if ((hasTimeBlock || hasDueDate) && !writeCalendarPermissionState.isGranted) {
+                Text(
+                    text = stringResource(R.string.daily_item_sync_permission_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Spacer(Modifier.height(72.dp))
         }
     }
@@ -219,7 +273,7 @@ fun DailyItemEditorScreen(
 private fun <T : Enum<T>> EnumDropdown(
     label: String,
     value: T,
-    entries: List<T>,
+    entries: List<Pair<T, String>>,
     onSelected: (T) -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -230,11 +284,11 @@ private fun <T : Enum<T>> EnumDropdown(
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(value.name)
+            Text(entries.firstOrNull { it.first == value }?.second ?: value.name)
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                entries.forEach { entry ->
+                entries.forEach { (entry, entryLabel) ->
                     DropdownMenuItem(
-                        text = { Text(entry.name) },
+                        text = { Text(entryLabel) },
                         onClick = {
                             expanded = false
                             onSelected(entry)
@@ -256,7 +310,7 @@ private fun PriorityChips(
             FilterChip(
                 selected = priority == value,
                 onClick = { onSelected(value) },
-                label = { Text(value.name.lowercase().replaceFirstChar(Char::uppercase)) }
+                label = { Text(stringResource(value.labelRes())) }
             )
         }
     }

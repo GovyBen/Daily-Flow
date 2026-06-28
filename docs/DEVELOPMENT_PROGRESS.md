@@ -1,10 +1,10 @@
 # Daily Flow 开发进度
 
-更新日期：2026-06-27
+更新日期：2026-06-28
 
 ## 当前里程碑
 
-- 当前阶段：P9 统一事项与首页自定义体验重构（规划完成，待实施）
+- 当前阶段：v0.11.1 已完成 P9 预览版已知问题热修复，发布内容已定稿
 - 已完成：DF-001 至 DF-011、DF-013 至 DF-015、DF-101 至 DF-110、
   DF-201 至 DF-210、DF-301 至 DF-306、DF-401 至 DF-408、DF-501 至 DF-509、
   DF-601 至 DF-607、DF-701 至 DF-706、DF-801 至 DF-806、DF-901 至 DF-906、
@@ -14,6 +14,34 @@
 - 下一阶段：按 `doc_for_hermes/P9_UNIFIED_DAILY_ITEMS_PLAN.md` 执行 DF-1101 起的开发
 
 ## 当前任务进度
+
+### 2026-06-28 v0.11.1 已知问题热修复
+
+- 已完成：修复底部导航 Items 选中态图标/indicator 尺寸过大问题；`ic_check.xml`
+  intrinsic size 从 100dp 调整为 24dp，并在 `MainBottomBar` 中统一约束底栏图标为 24dp。
+- 已完成：事项编辑页“同步到系统日历”接入运行时日历权限请求；未授权时显示提示，用户点开同步开关会拉起系统授权弹窗。
+- 已完成：事项详情页同步按钮接入同一权限入口；未授权时按钮显示“Grant permission/获取权限”语义并先请求权限。
+- 已完成：日历同步底层 `SecurityException` / `Permission Denial` 不再原样暴露，统一记录为
+  `Calendar permission is required. Grant calendar access and try again.`。
+- 已完成：新增同步权限失败单元测试，覆盖无权限时不写 Calendar Provider 且记录友好错误。
+- 已完成：事项列表、事项编辑页、事项详情页、首页事项面板、底部导航 `Records` 等关键 P9 文案补齐 zh-CN 资源。
+- 已完成：事项筛选 `All` 改为 `Active` / `进行中`，与实际只显示 active 状态的筛选行为一致。
+- 已验证：`git diff --check` 通过。
+- 已验证：`./gradlew :daily:testDebugUnitTest :app:assembleDebug` 通过，使用外部 build root
+  `C:\Users\10844\AppData\Local\DailyFlow\build`。
+- 已验证：LDPlayer smoke test 通过，产物目录
+  `C:\Users\10844\AppData\Local\DailyFlow\test-artifacts\20260628-120424`。
+- 已验证：LDPlayer 视觉截图确认 Items selected indicator 不再撑大或覆盖内容：
+  `C:\Users\10844\AppData\Local\DailyFlow\test-artifacts\v0111-items.png`。
+- 已验证：LDPlayer 编辑页截图确认“同步到系统日历”权限提示和系统日历授权弹窗可触发：
+  `C:\Users\10844\AppData\Local\DailyFlow\test-artifacts\v0111-calendar-permission.png`。
+- 已完成：版本号更新为 versionCode 12 / versionName 0.11.1。
+- 已完成：发布 APK 已复制到
+  `releases/Daily_Flow_v0.11.1_debug_20260628.apk`，SHA-256
+  `3CE381592640A4E9D927BBD5176102144991050A5FC5B0593670497EF7E9F993`。
+- 已验证：0.11.1 APK 重新安装到 LDPlayer 后 smoke test 通过，产物目录
+  `C:\Users\10844\AppData\Local\DailyFlow\test-artifacts\20260628-121531`。
+- 发布步骤：本次变更将提交、打 `v0.11.1` tag、推送并创建 GitHub Release。
 
 ### 2026-06-27 状态校准与 P9 规划
 

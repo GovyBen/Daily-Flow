@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ import com.mhss.app.daily.domain.model.DailyItemStatusFilter
 import com.mhss.app.daily.domain.model.DailyItemsPanelConfig
 import com.mhss.app.daily.domain.model.toDailyItemRange
 import com.mhss.app.daily.domain.usecase.ObserveDailyItemsUseCase
+import com.mhss.app.ui.R
 import org.koin.compose.koinInject
 
 @Composable
@@ -53,6 +55,9 @@ fun DailyItemsDashboardPanel(
             includeCompleted = range == DailyItemRange.Completed || config.showCompleted
         )
     ).collectAsState(initial = emptyList())
+    val addContentDescription = stringResource(R.string.daily_item_add)
+    val noItemsLabel = stringResource(R.string.daily_items_empty_short)
+    val noDateLabel = stringResource(R.string.daily_item_no_date)
 
     ElevatedCard(
         modifier = modifier
@@ -72,14 +77,20 @@ fun DailyItemsDashboardPanel(
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = onAddItem) {
-                    Icon(Icons.Rounded.Add, contentDescription = "Add Daily Item")
+                    Icon(Icons.Rounded.Add, contentDescription = addContentDescription)
                 }
             }
             val visibleItems = items.take(config.maxItems.coerceIn(1, 20))
             if (visibleItems.isEmpty()) {
-                Text("No items", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(noItemsLabel, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 visibleItems.forEach { item ->
+                    val kindLabel = stringResource(item.kind.labelRes())
+                    val syncStateLabel = if (item.calendarSync.enabled) {
+                        stringResource(item.calendarSync.state.labelRes())
+                    } else {
+                        null
+                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -100,7 +111,11 @@ fun DailyItemsDashboardPanel(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Text(
-                                item.subtitle(),
+                                item.subtitle(
+                                    kindLabel = kindLabel,
+                                    noDateLabel = noDateLabel,
+                                    syncStateLabel = syncStateLabel
+                                ),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.bodySmall,

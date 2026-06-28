@@ -20,10 +20,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.List
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,6 +60,7 @@ import com.mhss.app.daily.domain.model.DailyItem
 import com.mhss.app.daily.domain.model.DailyItemPriority
 import com.mhss.app.daily.domain.model.DailyItemRange
 import com.mhss.app.daily.domain.model.DailyItemStatus
+import com.mhss.app.ui.R
 import com.mhss.app.ui.components.common.DateDialog
 import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
@@ -84,20 +86,23 @@ fun DailyItemsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Daily Items") },
+                title = { Text(stringResource(R.string.daily_items_title)) },
                 navigationIcon = {
                     if (onBack != null) {
+                        val backContentDescription = stringResource(R.string.back)
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = backContentDescription)
                         }
                     }
                 },
                 actions = {
+                    val listContentDescription = stringResource(R.string.list)
+                    val monthContentDescription = stringResource(R.string.daily_items_mode_month)
                     IconButton(onClick = { viewModel.setMode(DailyItemsMode.LIST) }) {
-                        Icon(Icons.Rounded.List, contentDescription = "List")
+                        Icon(Icons.AutoMirrored.Rounded.List, contentDescription = listContentDescription)
                     }
                     IconButton(onClick = { viewModel.setMode(DailyItemsMode.MONTH) }) {
-                        Icon(Icons.Rounded.CalendarMonth, contentDescription = "Month")
+                        Icon(Icons.Rounded.CalendarMonth, contentDescription = monthContentDescription)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -106,8 +111,9 @@ fun DailyItemsScreen(
             )
         },
         floatingActionButton = {
+            val addContentDescription = stringResource(R.string.daily_item_add)
             FloatingActionButton(onClick = onCreateItem) {
-                Icon(Icons.Rounded.Add, contentDescription = "Add Daily Item")
+                Icon(Icons.Rounded.Add, contentDescription = addContentDescription)
             }
         }
     ) { paddingValues ->
@@ -123,7 +129,7 @@ fun DailyItemsScreen(
                     viewModel.setQuery(it)
                 },
                 singleLine = true,
-                placeholder = { Text("Search items") },
+                placeholder = { Text(stringResource(R.string.daily_items_search_hint)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -190,15 +196,15 @@ private fun DailyItemRangeChips(
     onCustomSelected: () -> Unit
 ) {
     val ranges = listOf(
-        "Today" to DailyItemRange.Today,
-        "+/- 7" to DailyItemRange.SurroundingSevenDays,
-        "Next 7" to DailyItemRange.FutureSevenDays,
-        "Week" to DailyItemRange.ThisWeek,
-        "Month" to DailyItemRange.ThisMonth,
-        "Overdue" to DailyItemRange.Overdue,
-        "No date" to DailyItemRange.NoDate,
-        "Done" to DailyItemRange.Completed,
-        "All" to DailyItemRange.All
+        stringResource(R.string.daily_items_filter_today) to DailyItemRange.Today,
+        stringResource(R.string.daily_items_filter_surrounding_week) to DailyItemRange.SurroundingSevenDays,
+        stringResource(R.string.daily_items_filter_next_week) to DailyItemRange.FutureSevenDays,
+        stringResource(R.string.daily_items_filter_week) to DailyItemRange.ThisWeek,
+        stringResource(R.string.daily_items_filter_month) to DailyItemRange.ThisMonth,
+        stringResource(R.string.daily_items_filter_overdue) to DailyItemRange.Overdue,
+        stringResource(R.string.daily_items_filter_no_date) to DailyItemRange.NoDate,
+        stringResource(R.string.daily_items_filter_completed) to DailyItemRange.Completed,
+        stringResource(R.string.daily_items_filter_active) to DailyItemRange.All
     )
     FlowRow(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
@@ -215,7 +221,7 @@ private fun DailyItemRangeChips(
         FilterChip(
             selected = selected is DailyItemRange.Custom,
             onClick = onCustomSelected,
-            label = { Text("Custom") }
+            label = { Text(stringResource(R.string.daily_items_filter_custom)) }
         )
     }
 }
@@ -229,7 +235,7 @@ fun DailyItemsList(
 ) {
     if (items.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No Daily Items")
+            Text(stringResource(R.string.daily_items_empty))
         }
         return
     }
@@ -256,6 +262,15 @@ fun DailyItemRow(
     onToggle: (DailyItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val completeContentDescription = stringResource(R.string.daily_item_complete)
+    val reopenContentDescription = stringResource(R.string.daily_item_reopen)
+    val kindLabel = stringResource(item.kind.labelRes())
+    val noDateLabel = stringResource(R.string.daily_item_no_date)
+    val syncStateLabel = if (item.calendarSync.enabled) {
+        stringResource(item.calendarSync.state.labelRes())
+    } else {
+        null
+    }
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
@@ -269,7 +284,7 @@ fun DailyItemRow(
         ) {
             Icon(
                 Icons.Rounded.CheckCircle,
-                contentDescription = if (item.isCompleted) "Reopen" else "Complete",
+                contentDescription = if (item.isCompleted) reopenContentDescription else completeContentDescription,
                 tint = if (item.isCompleted) MaterialTheme.colorScheme.primary else item.priorityColor(),
                 modifier = Modifier
                     .size(28.dp)
@@ -284,7 +299,11 @@ fun DailyItemRow(
                     textDecoration = if (item.isCompleted) TextDecoration.LineThrough else null
                 )
                 Text(
-                    text = item.subtitle(),
+                    text = item.subtitle(
+                        kindLabel = kindLabel,
+                        noDateLabel = noDateLabel,
+                        syncStateLabel = syncStateLabel
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -296,7 +315,7 @@ fun DailyItemRow(
                 shape = MaterialTheme.shapes.small
             ) {
                 Text(
-                    item.priority.name.lowercase().replaceFirstChar(Char::uppercase),
+                    stringResource(item.priority.labelRes()),
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.labelSmall,
                     color = item.priorityColor()
@@ -374,10 +393,14 @@ private fun DailyItemsMonthView(
     }
 }
 
-fun DailyItem.subtitle(): String {
-    val time = primaryTimeEpochMilli?.formatShortDateTime() ?: "No date"
-    val sync = if (calendarSync.enabled) " | ${calendarSync.state.name.lowercase()}" else ""
-    return "${kind.name.lowercase().replaceFirstChar(Char::uppercase)} | $time$sync"
+fun DailyItem.subtitle(
+    kindLabel: String,
+    noDateLabel: String,
+    syncStateLabel: String?
+): String {
+    val time = primaryTimeEpochMilli?.formatShortDateTime() ?: noDateLabel
+    val sync = syncStateLabel?.let { " | $it" }.orEmpty()
+    return "$kindLabel | $time$sync"
 }
 
 fun DailyItem.localDateOrNull(): LocalDate? {

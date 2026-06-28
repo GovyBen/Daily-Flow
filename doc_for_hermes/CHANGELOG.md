@@ -1,5 +1,41 @@
 # Daily Flow Changelog
 
+## v0.11.1 - Known Issue Hotfix (2026-06-28)
+
+### Overview
+
+Daily Flow v0.11.1 is a focused hotfix for the v0.11.0 P9 preview. It fixes
+the oversized Items bottom navigation issue, improves Daily Item calendar sync
+permission UX, and reduces mixed-language UI in the new Daily Items surfaces.
+
+### Fixed
+
+- Fixed the selected bottom navigation Items icon/indicator becoming oversized
+  by constraining bottom bar icons to 24dp and correcting `ic_check.xml` from
+  100dp to 24dp intrinsic size.
+- Added runtime calendar permission request flow when enabling "Sync to system
+  calendar" from the Daily Item editor.
+- Added permission-aware sync action in Daily Item details.
+- Replaced raw Calendar Provider permission failures with a user-readable sync
+  error: `Calendar permission is required. Grant calendar access and try again.`
+- Localized key Daily Items strings for zh-CN, including filters, editor
+  fields, details labels, bottom navigation Items/Records, and dashboard panels.
+- Renamed the ambiguous Daily Items `All` filter label to `Active` / `进行中`,
+  matching the actual active-only filter behavior.
+
+### Validation
+
+- `git diff --check`: pass.
+- `:daily:testDebugUnitTest :app:assembleDebug`: pass.
+- LDPlayer smoke test: pass.
+- Release artifact: `releases/Daily_Flow_v0.11.1_debug_20260628.apk`
+  (`SHA-256: 3CE381592640A4E9D927BBD5176102144991050A5FC5B0593670497EF7E9F993`).
+- LDPlayer visual checks:
+  - `v0111-items.png`: selected Items navigation indicator no longer overlaps content.
+  - `v0111-calendar-permission.png`: enabling calendar sync triggers the system permission prompt.
+
+---
+
 ## v0.11.0 — Unified Daily Items Preview (2026-06-27)
 
 ### Overview

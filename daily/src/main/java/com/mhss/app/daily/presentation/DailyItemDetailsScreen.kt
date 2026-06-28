@@ -39,9 +39,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mhss.app.daily.domain.model.DailyItem
+import com.mhss.app.ui.R
+import com.mhss.app.util.permissions.Permission
+import com.mhss.app.util.permissions.rememberPermissionState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -65,22 +69,26 @@ fun DailyItemDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Daily Item") },
+                title = { Text(stringResource(R.string.daily_item_title)) },
                 navigationIcon = {
+                    val backContentDescription = stringResource(R.string.back)
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = backContentDescription)
                     }
                 },
                 actions = {
                     state.item?.let { item ->
+                        val editContentDescription = stringResource(R.string.daily_item_edit_action)
+                        val archiveContentDescription = stringResource(R.string.daily_item_archive)
+                        val deleteContentDescription = stringResource(R.string.daily_item_delete_action)
                         IconButton(onClick = { onEdit(item.id) }) {
-                            Icon(Icons.Rounded.Edit, contentDescription = "Edit")
+                            Icon(Icons.Rounded.Edit, contentDescription = editContentDescription)
                         }
                         IconButton(onClick = viewModel::archive) {
-                            Icon(Icons.Rounded.Archive, contentDescription = "Archive")
+                            Icon(Icons.Rounded.Archive, contentDescription = archiveContentDescription)
                         }
                         IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(Icons.Rounded.Delete, contentDescription = "Delete")
+                            Icon(Icons.Rounded.Delete, contentDescription = deleteContentDescription)
                         }
                     }
                 },
@@ -110,7 +118,7 @@ fun DailyItemDetailsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("Daily Item not found")
+                    Text(stringResource(R.string.daily_item_not_found))
                 }
             } else {
                 DailyItemDetailsContent(
@@ -127,8 +135,8 @@ fun DailyItemDetailsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Daily Item?") },
-            text = { Text("This removes the Daily Flow item. Existing provider events are left untouched.") },
+            title = { Text(stringResource(R.string.daily_item_delete_title)) },
+            text = { Text(stringResource(R.string.daily_item_delete_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -136,12 +144,12 @@ fun DailyItemDetailsScreen(
                         viewModel.delete()
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.daily_item_delete_action))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -156,6 +164,14 @@ private fun DailyItemDetailsContent(
     onDisableSync: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val writeCalendarPermissionState = rememberPermissionState(Permission.WRITE_CALENDAR)
+    val noDescriptionLabel = stringResource(R.string.daily_item_no_description)
+    val completeLabel = stringResource(R.string.daily_item_complete)
+    val reopenLabel = stringResource(R.string.daily_item_reopen)
+    val enabledLabel = stringResource(R.string.daily_item_enabled)
+    val disabledLabel = stringResource(R.string.daily_item_disabled)
+    val yesLabel = stringResource(R.string.daily_item_yes)
+    val noLabel = stringResource(R.string.daily_item_no)
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -169,43 +185,73 @@ private fun DailyItemDetailsContent(
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            item.description.ifBlank { "No description" },
+            item.description.ifBlank { noDescriptionLabel },
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Button(onClick = onToggleComplete, modifier = Modifier.fillMaxWidth()) {
-            Text(if (item.isCompleted) "Reopen item" else "Complete item")
+            Text(if (item.isCompleted) reopenLabel else completeLabel)
         }
         ElevatedCard(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                DetailLine("Kind", item.kind.name)
-                DetailLine("Status", item.status.name)
-                DetailLine("Priority", item.priority.name)
-                DetailLine("Start", item.schedule.startAtEpochMilli?.formatShortDateTime() ?: "-")
-                DetailLine("End", item.schedule.endAtEpochMilli?.formatShortDateTime() ?: "-")
-                DetailLine("Due", item.schedule.dueAtEpochMilli?.formatShortDateTime() ?: "-")
-                DetailLine("All day", item.schedule.allDay.toString())
-                DetailLine("Timezone", item.schedule.timeZoneId)
+                DetailLine(stringResource(R.string.daily_item_kind), stringResource(item.kind.labelRes()))
+                DetailLine(stringResource(R.string.daily_item_status), stringResource(item.status.labelRes()))
+                DetailLine(stringResource(R.string.priority), stringResource(item.priority.labelRes()))
+                DetailLine(stringResource(R.string.daily_item_start), item.schedule.startAtEpochMilli?.formatShortDateTime() ?: "-")
+                DetailLine(stringResource(R.string.daily_item_end), item.schedule.endAtEpochMilli?.formatShortDateTime() ?: "-")
+                DetailLine(stringResource(R.string.daily_item_due), item.schedule.dueAtEpochMilli?.formatShortDateTime() ?: "-")
+                DetailLine(stringResource(R.string.all_day), if (item.schedule.allDay) yesLabel else noLabel)
+                DetailLine(stringResource(R.string.daily_item_timezone), item.schedule.timeZoneId)
             }
         }
         ElevatedCard(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                DetailLine("Calendar sync", if (item.calendarSync.enabled) "Enabled" else "Disabled")
-                DetailLine("Sync state", item.calendarSync.state.name)
-                DetailLine("System event", item.calendarSync.systemEventId?.toString() ?: "-")
-                item.calendarSync.lastError?.let { DetailLine("Last error", it) }
+                DetailLine(
+                    stringResource(R.string.daily_item_calendar_sync),
+                    if (item.calendarSync.enabled) enabledLabel else disabledLabel
+                )
+                DetailLine(
+                    stringResource(R.string.daily_item_sync_state),
+                    stringResource(item.calendarSync.state.labelRes())
+                )
+                DetailLine(
+                    stringResource(R.string.daily_item_system_event),
+                    item.calendarSync.systemEventId?.toString() ?: "-"
+                )
+                item.calendarSync.lastError?.let {
+                    DetailLine(stringResource(R.string.daily_item_last_error), it)
+                }
+                if (item.calendarSync.enabled && !writeCalendarPermissionState.isGranted) {
+                    Text(
+                        text = stringResource(R.string.daily_item_sync_permission_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
-                        onClick = onSyncNow,
+                        onClick = {
+                            if (writeCalendarPermissionState.isGranted) {
+                                onSyncNow()
+                            } else {
+                                writeCalendarPermissionState.launchRequest()
+                            }
+                        },
                         enabled = item.calendarSync.enabled
                     ) {
                         Icon(Icons.Rounded.Refresh, contentDescription = null)
-                        Text("Sync")
+                        Text(
+                            if (writeCalendarPermissionState.isGranted) {
+                                stringResource(R.string.daily_item_sync)
+                            } else {
+                                stringResource(R.string.grant_permission)
+                            }
+                        )
                     }
                     OutlinedButton(
                         onClick = onDisableSync,
                         enabled = item.calendarSync.enabled
                     ) {
-                        Text("Disable")
+                        Text(stringResource(R.string.daily_item_disable_sync))
                     }
                 }
             }

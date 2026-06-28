@@ -52,7 +52,7 @@ fun DashboardScreen(
                     IconButton(onClick = { navController.navigate(Screen.DashboardEditScreen) }) {
                         Icon(
                             Icons.Rounded.Edit,
-                            contentDescription = "Edit dashboard"
+                            contentDescription = stringResource(R.string.dashboard_edit)
                         )
                     }
                     IconButton(onClick = { navController.navigate(Screen.GlobalSearch) }) {
@@ -96,7 +96,7 @@ fun DashboardScreen(
                     }
                     DashboardPanelType.DAILY_ITEMS -> {
                         DailyItemsDashboardPanel(
-                            title = "Daily Items",
+                            title = stringResource(R.string.daily_items_title),
                             config = panel.config as? DailyItemsPanelConfig
                                 ?: DailyItemsPanelConfig(),
                             onOpenItems = {
@@ -112,7 +112,7 @@ fun DashboardScreen(
                     }
                     DashboardPanelType.OVERDUE_ITEMS -> {
                         DailyItemsDashboardPanel(
-                            title = "Overdue",
+                            title = stringResource(R.string.daily_items_filter_overdue),
                             config = panel.config as? DailyItemsPanelConfig
                                 ?: DailyItemsPanelConfig(
                                     range = DailyItemRangePreset.OVERDUE,
@@ -162,15 +162,15 @@ fun DashboardScreen(
                     }
                     DashboardPanelType.AI_ASSISTANT -> {
                         SimpleDashboardPanel(
-                            title = "Assistant",
-                            subtitle = "Open AI assistant",
+                            title = stringResource(R.string.assistant),
+                            subtitle = stringResource(R.string.dashboard_assistant_subtitle),
                             onClick = { navController.navigate(Screen.AssistantScreen) }
                         )
                     }
                     DashboardPanelType.CALENDAR_SYNC_STATUS -> {
                         SimpleDashboardPanel(
-                            title = "Calendar sync",
-                            subtitle = "Open legacy calendar view",
+                            title = stringResource(R.string.daily_item_calendar_sync),
+                            subtitle = stringResource(R.string.dashboard_calendar_sync_subtitle),
                             onClick = onCalendarClick
                         )
                     }
@@ -185,7 +185,7 @@ fun DashboardScreen(
 private fun PomodoroPanel(onClick: () -> Unit) {
     SimpleDashboardPanel(
         title = stringResource(R.string.pomodoro),
-        subtitle = "Focus timer",
+        subtitle = stringResource(R.string.dashboard_pomodoro_subtitle),
         onClick = onClick
     )
 }

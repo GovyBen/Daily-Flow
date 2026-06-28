@@ -10,6 +10,7 @@ import com.mhss.app.daily.domain.model.CalendarSyncState
 import com.mhss.app.daily.domain.model.DailyItem
 import com.mhss.app.daily.domain.model.DailyItemCalendarSync
 import com.mhss.app.daily.domain.model.DailyItemFilter
+import com.mhss.app.daily.domain.model.DailyItemSchedule
 import com.mhss.app.daily.domain.model.DailyItemStatus
 import com.mhss.app.daily.domain.repository.DailyItemRepository
 import com.mhss.app.domain.model.Calendar
@@ -38,6 +39,27 @@ class DailyItemUseCasesTest {
 
         assertEquals(CalendarSyncState.FAILED, result?.calendarSync?.state)
         assertEquals("Calendar sync requires a start time or due time", result?.calendarSync?.lastError)
+        assertEquals(0, calendarRepository.addEventCalls)
+        assertEquals(0, calendarRepository.updateEventCalls)
+    }
+
+    @Test
+    fun calendarPermissionFailureStoresFriendlySyncError() = runBlocking {
+        val repository = FakeDailyItemRepository(
+            testItem(
+                calendarSync = DailyItemCalendarSync(enabled = true),
+                schedule = DailyItemSchedule(startAtEpochMilli = 1_000, endAtEpochMilli = 2_000)
+            )
+        )
+        val calendarRepository = FakeCalendarRepository(throwSecurityException = true)
+
+        val result = SyncDailyItemToCalendarUseCase(repository, calendarRepository)("item")
+
+        assertEquals(CalendarSyncState.FAILED, result?.calendarSync?.state)
+        assertEquals(
+            "Calendar permission is required. Grant calendar access and try again.",
+            result?.calendarSync?.lastError
+        )
         assertEquals(0, calendarRepository.addEventCalls)
         assertEquals(0, calendarRepository.updateEventCalls)
     }
@@ -83,10 +105,12 @@ class DailyItemUseCasesTest {
     }
 
     private fun testItem(
-        calendarSync: DailyItemCalendarSync = DailyItemCalendarSync()
+        calendarSync: DailyItemCalendarSync = DailyItemCalendarSync(),
+        schedule: DailyItemSchedule = DailyItemSchedule()
     ) = DailyItem(
         id = "item",
         title = "Item",
+        schedule = schedule,
         calendarSync = calendarSync,
         createdAtEpochMilli = 1,
         updatedAtEpochMilli = 1
@@ -129,7 +153,9 @@ private class FakeDailyItemRepository(
     }
 }
 
-private class FakeCalendarRepository : CalendarRepository {
+private class FakeCalendarRepository(
+    private val throwSecurityException: Boolean = false
+) : CalendarRepository {
     var addEventCalls = 0
     var updateEventCalls = 0
 
@@ -141,7 +167,12 @@ private class FakeCalendarRepository : CalendarRepository {
         titleQuery: String,
         excludedCalendars: List<Int>
     ): List<CalendarEvent> = emptyList()
-    override suspend fun getCalendars(): List<Calendar> = listOf(Calendar(1, "Local", "Daily Flow", 0))
+    override suspend fun getCalendars(): List<Calendar> {
+        if (throwSecurityException) {
+            throw SecurityException("Permission Denial: opening provider com.android.providers.calendar")
+        }
+        return listOf(Calendar(1, "Local", "Daily Flow", 0))
+    }
     override suspend fun getEventById(id: Long): CalendarEvent? = null
     override suspend fun addEvent(event: CalendarEvent): Long? {
         addEventCalls++

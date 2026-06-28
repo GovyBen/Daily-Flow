@@ -1,4 +1,4 @@
-- Added more improvements for auto save
-- Updated German translation
-- Performance improvements
-- Bug fixes
+- Fixed oversized Items bottom navigation icon/indicator.
+- Added calendar permission prompt when enabling Daily Item sync.
+- Improved Daily Item zh-CN labels and renamed the ambiguous All filter to Active.
+- Replaced raw calendar permission errors with a readable sync error.

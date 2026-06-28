@@ -79,7 +79,7 @@ class SyncDailyItemToCalendarUseCase(
                 id,
                 item.calendarSync.copy(
                     state = CalendarSyncState.FAILED,
-                    lastError = error.message ?: error::class.simpleName
+                    lastError = error.toCalendarSyncErrorMessage()
                 )
             )
         }
@@ -91,6 +91,19 @@ class SyncDailyItemToCalendarUseCase(
         calendarRepository.createCalendar()
         return calendarRepository.getCalendars().firstOrNull()?.id
             ?: error("No writable calendar is available")
+    }
+}
+
+private fun Throwable.toCalendarSyncErrorMessage(): String {
+    val rawMessage = message
+    if (rawMessage?.contains("Permission Denial", ignoreCase = true) == true) {
+        return CALENDAR_PERMISSION_REQUIRED_MESSAGE
+    }
+    return when (this) {
+        is SecurityException -> CALENDAR_PERMISSION_REQUIRED_MESSAGE
+        else -> rawMessage
+            ?: this::class.simpleName
+            ?: "Calendar sync failed"
     }
 }
 
@@ -206,3 +219,5 @@ private fun CalendarEvent.providerFingerprint(): String = listOf(
 ).joinToString("|")
 
 private const val DEFAULT_EVENT_DURATION_MILLIS = 60 * 60 * 1000L
+private const val CALENDAR_PERMISSION_REQUIRED_MESSAGE =
+    "Calendar permission is required. Grant calendar access and try again."
